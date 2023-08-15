@@ -1,0 +1,42 @@
+{
+    "shortcuts.buttons": [
+        "diff-removed, bookmarks.clear, Bookmarks clear",
+        "arrow-up, bookmarks.jumpToPrevious, Bookmark previous",
+        "arrow-down, bookmarks.jumpToNext, Bookmark next",
+        "diff, bookmarks.toggle, Bookmark toggle",         
+        "file, unityQuickDocs.turn2Docs, Unity Docs",
+    ],
+   
+    "files.exclude": {
+        "**/Docs/": true,
+        "**/Scenes/": true,
+        "**/ConsolePro/": true,
+        "**/Skillz/": true,
+        "**/StreamingAssets/": true,
+        "**/Resources/": true,
+        "**/Prefabs/": true,
+        "**/Plugins/": true,
+        "**/LightningBolt/": true,
+        "**/Import/": true,
+        "**/Fire/": true,
+        "**/BoardOverrides/": true,
+        "**/Animators/": true,
+
+        "Library/": true,
+        "Logs/": true,
+        "obj/": true,
+        "Packages/": true,
+        "ProjectSettings/": true,
+        "Temp/": true,
+
+        "**/*.csproj": true,
+        "**/*.meta": true,
+        
+        "*.sln": true,
+        "*.json": true,
+    },
+
+    "unityQuickDocs.version": "2019.4",
+    "editor.snippetSuggestions": "inline"
+    
+}

@@ -1,0 +1,20 @@
+com.skillz.devel
+avidasoft.bt
+
+https://account.samsung.com/accounts/v1/GAS/signInGate?locale=en&countryCode=US&redirect_uri=https:%2F%2Fseller.samsungapps.com%2Flogin%2FssoLogin.as&state=273a70io23cd1oy2z8n8m5rb4oklj0mn&goBackURL=https:%2F%2Fseller.samsungapps.com%2Fgate%2Fgate&response_type=code&client_id=6mztkyy858
+
+
+user/pass:   office@connect2001.com / _Connect2001
+
+Skilz Developer Portal: https://developers.skillz.com/dashboard
+igi@humansoft.com
+Connect2001
+
+
+
+Integration and buildign process is in the Skillz documentation.
+
+
+https://app.slack.com/client/T03EPDS42/G693EQUQ4
+
+Provision; Gabor Kadas

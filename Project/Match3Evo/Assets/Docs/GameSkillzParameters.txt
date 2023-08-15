@@ -1,0 +1,19 @@
+//You only have to add parameters in Skillz what you want to override.
+//Make sure to use proper values, mistakes may cause exceptions
+Key<possible values>
+scoreMax<1,2...>						//Maximum number of blocks to merge together. (Count in the block)
+simpleBlockGameScore<1,2...>			//GameScore added when a block is merged
+
+//Merge of scoreMax blocks add up additional score. Here is the calculation
+//Mathf.RoundToInt(Mathf.Pow(scoreMaxMergePowerBase, 1 + (blockCount - scoreMaxMergeExponentialSubShift) / (float)scoreMaxMergeExponentialDivider) / 100) * 100
+scoreMaxMergePowerBase<1,2...>			//Default<290>
+scoreMaxMergeExponentialDivider<>		//Default<16>
+scoreMaxMergeExponentialSubShift<>		//Default<1>
+
+magnetMergeAnyColor<0,1>				//Does the magnet merge any color, or just one random
+magnetEnabled<0,1>						//Does the magnet powerup enabled.
+magnetCount<0,1...>						//If magnetEnabled==1 then the number of magnet powerups.
+timerDurationSeconds<1,2...(seconds)>	//Game time duration in seconds
+minimumBlockCountForMerge<2,3...>		//The minimum count of similar neighbor blocks to merge.
+chanceToRefillWithScoreMax<0.0+>		//When the first scoreMax block is reached this is the chance, to refill with scoreMax block.
+blockColors<"#FFFFFF|#FFFFFF|....."> (#color separated by "|") //Make sure to follow the syntax!!! The last color specificed is the color of scoreMax block, and please only specifie none transpatent colors (#??????)! If the syntax is bad the game ignore the override.

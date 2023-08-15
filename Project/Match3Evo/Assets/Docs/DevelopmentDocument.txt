@@ -1,0 +1,17 @@
+- Random in game
+The game sets Random.Seed based on Skillz first random value.
+This means that to maintain the fair gameplay you pregenerate a lot of blocks to refill the game board,
+or you dont use Random for other than generating the new rows.
+Other solution if you replace the use of Unity.Random to an other solution.
+
+- Shared containers between functions in BoardManager
+These containers are created to hold temporary state of calculations.
+They have to be used frequently and this is a performance consideration.
+Make sure to understand their purpose, and lifetime pefor using them.
+
+- By default the tutorial pointer is over the magnet we just turn it on when only the magnet can be used in game.
+	If you want to change the position of the pointer implement the positioning.
+
+- GameManager can be used in the Game scene for quick testing. If it is present, then you can start the game as from the menu.
+Check in TutorialGame if you want to start the tutorial instead.
+Just do not leave the GameManager in the Game scene!

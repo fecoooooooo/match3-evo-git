@@ -1,0 +1,7 @@
+int match_timer				180
+int vials_meter_fill		15
+int vials_colors			6		5-7
+int score_vials				10
+int score_coin_drop			100
+int score_coin_increase		150
+int game_pause_Count		3

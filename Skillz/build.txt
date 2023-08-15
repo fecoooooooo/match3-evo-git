@@ -1,0 +1,9 @@
+Add NSAllowsArbitraryLoads = NO undet securoty in info (ATS)
+
+archive project
+from archive upload to appstore
+upload to skilzz (version coul be different if code is same)
+
+
+remove metal from UIRequiredDeviceCapabilities of plist
+

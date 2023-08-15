@@ -1,0 +1,25 @@
+Just a task reminder, not exact todo
+
+- Mac can break the font in this case reimport it
+- FaceBook Analytics SDK
+	office@connect2001.hu fb developeren
+	New version included
+	Only FB.Init called no other functions
+	Had to replace Google Play Servis resolver to new version in it.
+	Facebook iOS frameworks drop include in build in editor remember to reenable it.
+- Skillz:SandBox with developer acc can debug
+	Production build upload to skillz in p12
+- Skillz SDK
+	New SDK comes from custom theme download on site.
+	Change skillzWillExit to OnSkillzWillExit in the callingMethod of Skillz+Unity.mm (void)skillzWillExit [Skillz sendMessageToUnityObject:unitySkillzDelegateName callingMethod:@"OnSkillzWillExit" withParamMessage:@""];
+	Skillz framework code signing
+	bitcode no
+	iOS 9.0 support
+	SingleSignOn: Associated Domains : we...skillz.com
+	ApplePay: Merchant certi select
+	PushNoti: Just turn on
+- Build resources add iTunesArt from project
+- com.humansoft.colorcombochallenge
+- gabor@humansoft.com itunes humansoft
+- UnityAppController.mm remove landscape window orientation in code
+
