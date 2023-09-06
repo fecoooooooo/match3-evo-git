@@ -168,6 +168,8 @@ namespace Match3_Evo
             throw new NotImplementedException();
         }
 
+
+        bool a = false;
         private void Update()
         {
             //DebugState();
@@ -208,7 +210,20 @@ namespace Match3_Evo
                 }
 
                 CheckComboBreak();
+
+                if (!a)
+                {
+                    a = true;
+                    StartCoroutine(Break());
+                }
             }
+            
+        }
+
+        IEnumerator Break()
+		{
+            yield return new WaitForSeconds(8f);
+            fields[0, 0].Break(1);
         }
 
         public void TopRowInit()
@@ -763,7 +778,7 @@ namespace Match3_Evo
                 if (lvMergables.Count > 0)
                 {
                     comboCount++;
-                    BreakMergeables(lvMergables);
+                    //BreakMergeables(lvMergables);
                     GM.scoreMng.AddComboBonus(null, comboCount);
                 }
                 else
