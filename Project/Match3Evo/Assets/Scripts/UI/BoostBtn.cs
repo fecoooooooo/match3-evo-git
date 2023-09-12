@@ -7,21 +7,23 @@ using UnityEngine.UI;
 
 public class BoostBtn : MonoBehaviour
 {
-    readonly float COOLDOWN_TIME = 30f;
-
     public RectTransform gameRoot;
     public Image cooldownImg;
     public Image draggableImg;
+    public BoostType boostType;
+
     Image ownImg;
 
     float currentCooldownTime = 0f;
     bool onCooldown;
     bool dragging;
 
+    bool clickable;
 
     void Start()
     {
         ownImg = GetComponent<Image>();
+        GM.boardMng.startGameDelegate += StartGameDelegate;
     }
 
     void Update()
@@ -29,7 +31,7 @@ public class BoostBtn : MonoBehaviour
 		if (onCooldown)
 		{
             currentCooldownTime -= Time.deltaTime;
-            cooldownImg.fillAmount = currentCooldownTime / COOLDOWN_TIME;
+            cooldownImg.fillAmount = currentCooldownTime / GM.boardMng.gameParameters.boostCooldown;
             if(currentCooldownTime < 0)
 			{
                 onCooldown = false;
@@ -49,6 +51,9 @@ public class BoostBtn : MonoBehaviour
 
     public void BeginDrag()
 	{
+        if (!clickable)
+            return;
+
         if (!onCooldown)
         {
             draggableImg.enabled = true;
@@ -76,14 +81,33 @@ public class BoostBtn : MonoBehaviour
             if (targetField != null)
                 break;
         }
-        Debug.Log(GM.Instance.transform.parent?.transform);
-
 
         bool overField = targetField != null;
         if (overField) 
         {
+            GM.boardMng.UseBoost(boostType, targetField);
             onCooldown = true;
-            currentCooldownTime = COOLDOWN_TIME;
+            currentCooldownTime = GM.boardMng.gameParameters.boostCooldown;
         }
     }
+
+    public void StartGameDelegate()
+    {
+        clickable = true;
+    }
+
+    private void OnDestroy()
+	{
+        GM.boardMng.startGameDelegate -= StartGameDelegate;
+    }
+}
+
+public enum BoostType
+{
+    Hint,
+    ColorFrenzy,
+    Hammer,
+    Shovel,
+    Fire,
+    Spiral
 }

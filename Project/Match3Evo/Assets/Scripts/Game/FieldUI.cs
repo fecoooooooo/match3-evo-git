@@ -8,12 +8,12 @@ namespace Match3_Evo
     {
         public RectTransform Rect { get { return rect; } }
 
-        [SerializeField] Image fieldImage;
+        [SerializeField] public Image fieldImage;
         [SerializeField] Image shadowImage;
         public Text debugText;
         public int matchOnSides = 0;
 
-        Field field;
+        public Field Field { get; private set; }
         RectTransform rect;
 
         bool updateMovement = false;
@@ -31,7 +31,7 @@ namespace Match3_Evo
 
         public void Initialize(Field _field)
         {
-            field = _field;
+            Field = _field;
             fieldImage.sprite = GM.boardMng.FieldDatas[_field.fieldVariant].basic;
             shadowImage.sprite = GM.boardMng.FieldDatas[_field.fieldVariant].basic;
         }
@@ -46,20 +46,20 @@ namespace Match3_Evo
             PointerEventData lvPointerEventData = _baseEventData as PointerEventData;
             Vector2 lvDelta = lvPointerEventData.position - lvPointerEventData.pressPosition;
             EnumSwapDirection lvSwapDirection = (EnumSwapDirection)Mathf.CeilToInt(Vector2.SignedAngle(Vector2.one, lvDelta) / 90f);
-            GM.boardMng.OnSwapFields(field, lvSwapDirection);
+            GM.boardMng.OnSwapFields(Field, lvSwapDirection);
         }
 
         #region FieldMovement
 
         public void StartTransition()
         {
-            if (field.FieldState == EnumFieldState.Break)
-                Invoke(nameof(Break), field.breakAfterSeconds);
+            if (Field.FieldState == EnumFieldState.Break)
+                Invoke(nameof(Break), Field.breakAfterSeconds);
             else
             {
                 updateMovement = true;
                 movementAcceleration = 0f;
-                movementDirection = (rect.anchoredPosition - field.fieldPosition);
+                movementDirection = (rect.anchoredPosition - Field.fieldPosition);
                 movementDirection.Normalize();
                 bounceMovement = false;
             }
@@ -68,12 +68,12 @@ namespace Match3_Evo
         public void ResetPosition()
         {
             updateMovement = false;
-            rect.anchoredPosition = field.fieldPosition;
+            rect.anchoredPosition = Field.fieldPosition;
         }
 
         public void ResetPositionToRefil(int _positionIndex)
         {
-            Vector2 lvPosition = field.fieldPosition;
+            Vector2 lvPosition = Field.fieldPosition;
             lvPosition.y = GM.boardMng.fieldSize * _positionIndex;
             rect.anchoredPosition = lvPosition;
             StartTransition();
@@ -92,15 +92,15 @@ namespace Match3_Evo
                     }
 
                     Vector2 lvPosition = rect.anchoredPosition;
-                    lvPosition = Vector2.MoveTowards(lvPosition, field.fieldPosition, movementAcceleration);
+                    lvPosition = Vector2.MoveTowards(lvPosition, Field.fieldPosition, movementAcceleration);
                     rect.anchoredPosition = lvPosition;
-                    if ((lvPosition - field.fieldPosition).sqrMagnitude < 0.1f)
+                    if ((lvPosition - Field.fieldPosition).sqrMagnitude < 0.1f)
                     {
-                        rect.anchoredPosition = field.fieldPosition;
+                        rect.anchoredPosition = Field.fieldPosition;
                         bounceMovement = true;
                         bounceTime = GM.boardMng.fieldBounceCurve[GM.boardMng.fieldBounceCurve.length - 1].time;
 
-                        if (field.FieldState == EnumFieldState.Move)
+                        if (Field.FieldState == EnumFieldState.Move)
                             GM.soundMng.Play(EnumSoundID.TileArrive);
                     }
                 }
@@ -109,13 +109,13 @@ namespace Match3_Evo
                     bounceTime -= Time.deltaTime;
                     bounceTime = bounceTime < 0 ? 0 : bounceTime;
 
-                    rect.anchoredPosition = field.fieldPosition + movementDirection * GM.boardMng.fieldBounceCurve.Evaluate(bounceTime);
+                    rect.anchoredPosition = Field.fieldPosition + movementDirection * GM.boardMng.fieldBounceCurve.Evaluate(bounceTime);
 
                     if (bounceTime == 0)
                     {
-                        rect.anchoredPosition = field.fieldPosition;
+                        rect.anchoredPosition = Field.fieldPosition;
                         updateMovement = false;
-                        field.EndTransition();
+                        Field.EndTransition();
                     }
                 }
             }
@@ -123,7 +123,7 @@ namespace Match3_Evo
 
         private void Break()
         {
-            field.EndTransition();
+            Field.EndTransition();
         }
         #endregion
     }

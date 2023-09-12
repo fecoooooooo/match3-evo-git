@@ -14,6 +14,10 @@ namespace Match3_Evo
         public int gamePauseCount;
         public bool finaleClear;
 
+        public int boostCooldown = 30;
+        public float timeTillFirstBreak = 0.3f;
+        public float timeBetweenBreaks = 0.05f;
+
         string match_timerKey = "match_timer";
         string hint_timeKey = "hint_time";
         string tile_variantMaxKey = "tile_id";

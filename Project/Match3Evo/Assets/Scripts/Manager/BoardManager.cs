@@ -6,6 +6,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using Sirenix.OdinInspector;
+using UnityEditor;
 
 namespace Match3_Evo
 {
@@ -67,6 +68,8 @@ namespace Match3_Evo
         public bool GameRunning { get { return gameRunning; } }
 
         public bool CanClickOnField { get; set; }
+
+        bool showHint;
 
         void Awake()
         {
@@ -163,13 +166,7 @@ namespace Match3_Evo
             PrepareGameStart();
         }
 
-        private void BoardOverride()
-        {
-            throw new NotImplementedException();
-        }
 
-
-        bool a = false;
         private void Update()
         {
             //DebugState();
@@ -211,19 +208,8 @@ namespace Match3_Evo
 
                 CheckComboBreak();
 
-                if (!a)
-                {
-                    a = true;
-                    StartCoroutine(Break());
-                }
             }
             
-        }
-
-        IEnumerator Break()
-		{
-            yield return new WaitForSeconds(8f);
-            fields[0, 0].Break(1);
         }
 
         public void TopRowInit()
@@ -595,9 +581,9 @@ namespace Match3_Evo
                         {
                             //Vector2Int disp = MatchDatas[i].displacements[MatchDatas[i].swapIndex];
                             //OnSwapFields(fields[y + disp.y, x + disp.x], MatchDatas[i].SwapDirection);
-                            if (fieldStateGlobalIdealTime == 0f)
+                            if (showHint)
                             {
-                                fieldStateGlobalIdealTime = -1;
+                                showHint = false;
                                 Vector2Int lvDisp = MatchDatas[i].displacements[MatchDatas[i].swapIndex];
                                 OnSwapFields(fields[lvRows + lvDisp.y, lvColumns + lvDisp.x], MatchDatas[i].SwapDirection, true);
                             }
@@ -862,6 +848,135 @@ namespace Match3_Evo
             }
         }
 
+		public void UseBoost(BoostType boostType, FieldUI targetField)
+		{
+			switch (boostType)
+			{
+				case BoostType.Hint:
+                    ShowHint();
+					break;
+				case BoostType.ColorFrenzy:
+                    ColorFrenzyBreak(targetField);
+					break;
+				case BoostType.Hammer:
+                    HammerBreak(targetField);
+					break;
+				case BoostType.Shovel:
+                    ShovelBreak(targetField);
+					break;
+				case BoostType.Fire:
+                    FireBreak(targetField);
+					break;
+				case BoostType.Spiral:
+                    SpiralBreak(targetField);
+					break;
+				default:
+                    throw new Exception("No such enum type");
+			}
+		}
+
+		void ShowHint()
+        {
+            showHint = true;
+        }
+
+        private void ColorFrenzyBreak(FieldUI targetField)
+        {
+            List<Field> fieldsToBreak = new List<Field>();
+            
+            foreach (var f in fields)
+            {
+                if (f.fieldVariant == targetField.Field.fieldVariant)
+                    fieldsToBreak.Add(f);
+            }
+
+            BreakMultipleDelayed(fieldsToBreak);
+        }
+
+        private void HammerBreak(FieldUI targetField)
+        {
+            targetField.Field.Break(.5f);
+        }
+
+        private void ShovelBreak(FieldUI targetField)
+        {
+            List<Field> fieldsToBreak = new List<Field>();
+
+            foreach (var f in fields)
+			{
+                if (f.rowIndex == targetField.Field.rowIndex)
+                    fieldsToBreak.Add(f);
+			}
+
+            BreakMultipleDelayed(fieldsToBreak);
+        }
+
+        private void FireBreak(FieldUI targetField)
+        {
+
+        }
+
+        Vector2Int[] spiralBreakSteps = new Vector2Int[] { 
+            new Vector2Int(0, -1), 
+            new Vector2Int(1, 0),
+            new Vector2Int(0, 1), new Vector2Int(0, 1),
+            new Vector2Int(-1, 0), new Vector2Int(-1, 0),
+            new Vector2Int(0, -1), new Vector2Int(0, -1), new Vector2Int(0, -1),
+        };
+        private void SpiralBreak(FieldUI targetField)
+		{
+            List<Field> fieldsToBreak = new List<Field>();
+            fieldsToBreak.Add(targetField.Field);
+
+            Vector2Int currentFieldPos = new Vector2Int(targetField.Field.rowIndex, targetField.Field.columnIndex);
+
+            int spiralSteps = 0;
+            int spiralStepsInCurrentDirection = 1;
+            Vector2Int spiralStepDirection = new Vector2Int(-1, 0);
+            bool spiralRunning = true;
+
+			while (spiralRunning)
+            {
+                for(int i = 0; i < spiralStepsInCurrentDirection; ++i)
+				{
+                    currentFieldPos += spiralStepDirection;
+                    if (currentFieldPos.x < 0 || currentFieldPos.y < 0 || rows <= currentFieldPos.x || columns <= currentFieldPos.y)
+					{
+                        spiralRunning = false;
+                        break;
+					}
+
+                    fieldsToBreak.Add(fields[currentFieldPos.x, currentFieldPos.y]);
+				}
+                
+                ++spiralSteps;
+
+                if (spiralSteps % 2 == 1)
+                    spiralStepDirection *= -1;
+                if (spiralSteps % 2 == 0)
+                    ++spiralStepsInCurrentDirection;
+
+                spiralStepDirection = new Vector2Int(spiralStepDirection.y, spiralStepDirection.x);
+            }
+
+            BreakMultipleDelayed(fieldsToBreak);
+        }
+
+
+		public void BreakMultipleDelayed(List<Field> fieldsToBreak)
+		{
+            int i = 0;
+            foreach(var f in fieldsToBreak)
+			{
+                ++i;
+                f.Break(gameParameters.timeTillFirstBreak + i * gameParameters.timeBetweenBreaks);
+                f.fieldUI.fieldImage.sprite = (Sprite)AssetDatabase.LoadAssetAtPath("Assets/Imports/Sprites/ui/CloseButton.png", typeof(Sprite));
+            }
+            Debug.Break();
+		}		
+
+
+
         public void FeedColumn(int _columnIndex, bool _initCall = false)
         {
             int lvFirstRefillField = 0;
@@ -873,65 +988,39 @@ namespace Match3_Evo
                     Debug.Log("index: " + _columnIndex + ", value: " + columnTopRow[_columnIndex]);
                 }
 
-                // if (lvRowIndex == 0 && columnTopRow[_columnIndex] == 0 && fields[0, _columnIndex].FieldState != EnumFieldState.Hidden)
-                // {
-                //     fields[0, _columnIndex].fieldUI.gameObject.SetActive(false);
-                //     fields[0, _columnIndex].ChangeFieldState(EnumFieldState.Hidden);
-                //     // fields[0, _columnIndex].FieldState = FieldState.Hidden;
-                //     // fieldStateCounter[(int)FieldState.Hidden]++;
-
-                //     // Debug.Log(fieldStateCounter[(int)FieldState.Hidden] + " - " + fields[0, _cIdx].fieldUI.name);
-                //     // Debug.Log(fields[0, _columnIndex].FieldState);
-
-                //     if (fieldStateCounter[(int)EnumFieldState.Hidden] == columns)
-                //     {
-                //         Debug.Log("RESET fieldStateCounter");
-
-                //         for (int i = 0; i < columnTopRow.Count; i++) {
-                //             fields[0, i].fieldUI.gameObject.SetActive(true);
-                //             fields[0, i].ChangeFieldState(EnumFieldState.Useable);
-                //             columnTopRow[i] = 1;
-                //         }
-
-                //         fieldStateCounter[(int)EnumFieldState.Hidden] = 0;
-                //         return;
-                //     }
-                //     continue;
-                // }
-
                 Field lvFieldAbove = null;
 
                 //feed column
                 if (fields[lvRowIndex, _columnIndex].FieldState == EnumFieldState.Empty)
                 {
-                    if (lvRowIndex > 0 && _columnIndex > 0)
-                    {
-                        fields[lvRowIndex, _columnIndex].fieldUI.debugText.text = "";
-                        if (fields[lvRowIndex - 1, _columnIndex].FieldState != EnumFieldState.Empty)
-                        {
-                            int variant = fields[lvRowIndex - 1, _columnIndex].fieldVariant;
-                            int match = 0;
-                            if (fields[lvRowIndex - 1, _columnIndex - 1].FieldState != EnumFieldState.Empty && fields[lvRowIndex - 1, _columnIndex - 1].fieldVariant == variant) match++;
-                            if (match > 0)
-                            {
-                                fields[lvRowIndex - 1, _columnIndex].fieldUI.debugText.text = match.ToString();
-                                fields[lvRowIndex - 1, _columnIndex - 1].fieldUI.debugText.text = match.ToString();
-                                fields[lvRowIndex - 1, _columnIndex].fieldUI.transform.localScale = new Vector3(2.0f, 2.0f, 2.0f);
-                                //fields[lvRowIndex - 1, _columnIndex].fieldUI.transform.lo = new Vector3(2.0f, 2.0f, 2.0f);
-                                continue;
-                            }
-                            else
-                            {
-                                fields[lvRowIndex, _columnIndex].fieldUI.debugText.text = "";
-                                fields[lvRowIndex - 1, _columnIndex].fieldUI.transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
-                            }
-                        }
-                    }
-                    else
-                    {
-                        fields[lvRowIndex, _columnIndex].fieldUI.debugText.text = "";
-                        fields[lvRowIndex, _columnIndex].fieldUI.transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
-                    }
+                    //if (lvRowIndex > 0 && _columnIndex > 0)
+                    //{
+                    //    fields[lvRowIndex, _columnIndex].fieldUI.debugText.text = "";
+                    //    if (fields[lvRowIndex - 1, _columnIndex].FieldState != EnumFieldState.Empty)
+                    //    {
+                    //        int variant = fields[lvRowIndex - 1, _columnIndex].fieldVariant;
+                    //        int match = 0;
+                    //        if (fields[lvRowIndex - 1, _columnIndex - 1].FieldState != EnumFieldState.Empty && fields[lvRowIndex - 1, _columnIndex - 1].fieldVariant == variant) match++;
+                    //        if (match > 0)
+                    //        {
+                    //            fields[lvRowIndex - 1, _columnIndex].fieldUI.debugText.text = match.ToString();
+                    //            fields[lvRowIndex - 1, _columnIndex - 1].fieldUI.debugText.text = match.ToString();
+                    //            fields[lvRowIndex - 1, _columnIndex].fieldUI.transform.localScale = new Vector3(2.0f, 2.0f, 2.0f);
+                    //            //fields[lvRowIndex - 1, _columnIndex].fieldUI.transform.lo = new Vector3(2.0f, 2.0f, 2.0f);
+                    //            continue;
+                    //        }
+                    //        else
+                    //        {
+                    //            fields[lvRowIndex, _columnIndex].fieldUI.debugText.text = "";
+                    //            fields[lvRowIndex - 1, _columnIndex].fieldUI.transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
+                    //        }
+                    //    }
+                    //}
+                    //else
+                    //{
+                    //    fields[lvRowIndex, _columnIndex].fieldUI.debugText.text = "";
+                    //    fields[lvRowIndex, _columnIndex].fieldUI.transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
+                    //}
 
                         for (int lvRowAbove = lvRowIndex - 1; lvRowAbove >= 0 && lvFieldAbove == null; lvRowAbove--)
                     {

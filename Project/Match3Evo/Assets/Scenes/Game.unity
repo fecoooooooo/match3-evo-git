@@ -1037,6 +1037,7 @@ MonoBehaviour:
   gameRoot: {fileID: 676518730}
   cooldownImg: {fileID: 630589207}
   draggableImg: {fileID: 1728877929}
+  boostType: 2
 --- !u!114 &249470935
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2189,6 +2190,7 @@ MonoBehaviour:
   gameRoot: {fileID: 676518730}
   cooldownImg: {fileID: 1129952015}
   draggableImg: {fileID: 1728877929}
+  boostType: 4
 --- !u!114 &497974821
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2771,6 +2773,9 @@ MonoBehaviour:
     tileScore: 50
     gamePauseCount: 3
     finaleClear: 1
+    boostCooldown: 3
+    timeTillFirstBreak: 0.3
+    timeBetweenBreaks: 0.05
   rows: 9
   columns: 6
   transitionSpeed: 280
@@ -4633,6 +4638,7 @@ MonoBehaviour:
   gameRoot: {fileID: 676518730}
   cooldownImg: {fileID: 774875094}
   draggableImg: {fileID: 1728877929}
+  boostType: 3
 --- !u!114 &1115470270
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4912,6 +4918,7 @@ MonoBehaviour:
   gameRoot: {fileID: 676518730}
   cooldownImg: {fileID: 1589798259}
   draggableImg: {fileID: 1728877929}
+  boostType: 1
 --- !u!114 &1184154731
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5380,6 +5387,7 @@ MonoBehaviour:
   gameRoot: {fileID: 676518730}
   cooldownImg: {fileID: 1245095997}
   draggableImg: {fileID: 1728877929}
+  boostType: 0
 --- !u!114 &1236878635
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7727,6 +7735,7 @@ MonoBehaviour:
   gameRoot: {fileID: 676518730}
   cooldownImg: {fileID: 1272339774}
   draggableImg: {fileID: 1728877929}
+  boostType: 5
 --- !u!114 &1711598468
 MonoBehaviour:
   m_ObjectHideFlags: 0
