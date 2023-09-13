@@ -7,6 +7,7 @@ using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using Sirenix.OdinInspector;
 using UnityEditor;
+using System.Linq;
 
 namespace Match3_Evo
 {
@@ -865,8 +866,8 @@ namespace Match3_Evo
                     ShovelBreak(targetField);
 					break;
 				case BoostType.Fire:
-                    FireBreak(targetField);
-					break;
+                    StartCoroutine(FireBreakRoutine(targetField));
+                    break;
 				case BoostType.Spiral:
                     SpiralBreak(targetField);
 					break;
@@ -911,18 +912,61 @@ namespace Match3_Evo
             BreakMultipleDelayed(fieldsToBreak);
         }
 
-        private void FireBreak(FieldUI targetField)
-        {
+        IEnumerator FireBreakRoutine(FieldUI targetField)
+		{
+            HashSet<Field> fieldsToBreak = new HashSet<Field>();
 
+            foreach (var f in fields)
+            {
+                if (f.fieldVariant == targetField.Field.fieldVariant)
+				{
+                    fieldsToBreak.Add(f);
+                    f.fieldUI.SetOnFire();
+				}
+            }
+
+            bool anyFieldOnFire;
+
+            do
+            {
+                yield return new WaitForSeconds(gameParameters.fireSpreadTime);
+
+                HashSet<Field> newFieldsOnFire = new HashSet<Field>();
+
+                foreach(var f in fieldsToBreak)
+				{
+                    bool fieldOnHorizontalOppositeSideOnFire = f.rowIndex + 2 < rows && f.fieldUI.OnFire && fields[f.rowIndex + 2, f.columnIndex].fieldUI.OnFire;
+                    bool fieldOnVerticalOppositeSideOnFire = f.columnIndex + 2 < columns && f.fieldUI.OnFire && fields[f.rowIndex, f.columnIndex + 2].fieldUI.OnFire;
+                    bool fieldOnDiagonalOppositeSideOnFire = f.rowIndex + 2 < rows && f.columnIndex + 2 < columns  && f.fieldUI.OnFire && fields[f.rowIndex + 2, f.columnIndex + 2].fieldUI.OnFire;
+
+                    if (fieldOnHorizontalOppositeSideOnFire)
+                        newFieldsOnFire.Add(fields[f.rowIndex + 1, f.columnIndex]);
+                    if (fieldOnVerticalOppositeSideOnFire)
+                        newFieldsOnFire.Add(fields[f.rowIndex, f.columnIndex + 1]);
+                    if (fieldOnDiagonalOppositeSideOnFire)
+                        newFieldsOnFire.Add(fields[f.rowIndex + 1, f.columnIndex + 1]);
+                }
+
+                foreach(var nf in newFieldsOnFire)
+                    nf.fieldUI.SetOnFire();
+
+                fieldsToBreak.UnionWith(newFieldsOnFire);
+
+                anyFieldOnFire = fieldsToBreak.Where(x => x.fieldUI.OnFire).Any();
+            } while (anyFieldOnFire);
+
+            BreakMultipleDelayed(fieldsToBreak.ToList());
         }
 
-        Vector2Int[] spiralBreakSteps = new Vector2Int[] { 
-            new Vector2Int(0, -1), 
-            new Vector2Int(1, 0),
-            new Vector2Int(0, 1), new Vector2Int(0, 1),
-            new Vector2Int(-1, 0), new Vector2Int(-1, 0),
-            new Vector2Int(0, -1), new Vector2Int(0, -1), new Vector2Int(0, -1),
-        };
+        //Vector2Int[] spiralBreakSteps = new Vector2Int[] { 
+        //    new Vector2Int(0, -1),    --> egyet fel
+        //    new Vector2Int(1, 0),     --> egyet jobbra
+        //    new Vector2Int(0, 1), new Vector2Int(0, 1),   --> kettot le
+        //    new Vector2Int(-1, 0), new Vector2Int(-1, 0), --> kettot balra
+        //    new Vector2Int(0, -1), new Vector2Int(0, -1), new Vector2Int(0, -1),  --> hátmat fel
+        //    ...
+        //};
+
         private void SpiralBreak(FieldUI targetField)
 		{
             List<Field> fieldsToBreak = new List<Field>();
@@ -970,9 +1014,8 @@ namespace Match3_Evo
 			{
                 ++i;
                 f.Break(gameParameters.timeTillFirstBreak + i * gameParameters.timeBetweenBreaks);
-                f.fieldUI.fieldImage.sprite = (Sprite)AssetDatabase.LoadAssetAtPath("Assets/Imports/Sprites/ui/CloseButton.png", typeof(Sprite));
+                //f.fieldUI.fieldImage.sprite = (Sprite)AssetDatabase.LoadAssetAtPath("Assets/Imports/Sprites/ui/CloseButton.png", typeof(Sprite));
             }
-            Debug.Break();
 		}		
 
 

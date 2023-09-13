@@ -17,6 +17,9 @@ namespace Match3_Evo
         public int boostCooldown = 30;
         public float timeTillFirstBreak = 0.3f;
         public float timeBetweenBreaks = 0.05f;
+        
+        public float fireTime = 2f;
+        public float fireSpreadTime = .5f;
 
         string match_timerKey = "match_timer";
         string hint_timeKey = "hint_time";

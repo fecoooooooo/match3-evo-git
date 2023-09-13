@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Match3_Evo
@@ -24,7 +25,7 @@ namespace Match3_Evo
         private bool swapDone = false;
         private bool swapToUseable = false;
 
-        public Field(int _rowIndex, int _columnIndex, int _fieldVariant, int _score, Vector2 _fieldPosition, FieldUI _fieldUI)
+		public Field(int _rowIndex, int _columnIndex, int _fieldVariant, int _score, Vector2 _fieldPosition, FieldUI _fieldUI)
         {
             rowIndex = _rowIndex;
             columnIndex = _columnIndex;
@@ -257,6 +258,9 @@ namespace Match3_Evo
 
                 ChangeFieldState(EnumFieldState.Empty);
                 fieldUI.gameObject.SetActive(false);
+#if DEBUG
+                fieldUI.fieldImage.color = Color.white;
+#endif
             }
             else if (FieldState == EnumFieldState.Move)
                 ChangeFieldState(EnumFieldState.ComboReady);
@@ -283,7 +287,7 @@ namespace Match3_Evo
 
             return lvSimilarCount;
         }
-    }
+	}
 
     public enum EnumFieldState
     {

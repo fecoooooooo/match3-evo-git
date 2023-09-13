@@ -2775,7 +2775,9 @@ MonoBehaviour:
     finaleClear: 1
     boostCooldown: 3
     timeTillFirstBreak: 0.3
-    timeBetweenBreaks: 0.05
+    timeBetweenBreaks: 0.03
+    fireTime: 2
+    fireSpreadTime: 0.5
   rows: 9
   columns: 6
   transitionSpeed: 280

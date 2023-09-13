@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
@@ -12,6 +13,9 @@ namespace Match3_Evo
         [SerializeField] Image shadowImage;
         public Text debugText;
         public int matchOnSides = 0;
+        
+        public bool OnFire { get; private set; }
+        float fireTime;
 
         public Field Field { get; private set; }
         RectTransform rect;
@@ -38,10 +42,26 @@ namespace Match3_Evo
 
         void Update()
         {
-            PositionTransition();            
+            PositionTransition();
+            HandleFire();
         }
 
-        public void OnBeginDrag(BaseEventData _baseEventData)
+		private void HandleFire()
+		{
+			if (OnFire)
+			{
+                fireTime -= Time.deltaTime;
+                if (fireTime < 0)
+                {
+                    OnFire = false;
+#if DEBUG
+                    fieldImage.color = Color.gray;
+#endif
+                }
+            }
+		}
+
+		public void OnBeginDrag(BaseEventData _baseEventData)
         {
             PointerEventData lvPointerEventData = _baseEventData as PointerEventData;
             Vector2 lvDelta = lvPointerEventData.position - lvPointerEventData.pressPosition;
@@ -126,6 +146,15 @@ namespace Match3_Evo
             Field.EndTransition();
         }
         #endregion
+
+        internal void SetOnFire()
+        {
+            OnFire = true;
+            fireTime = GM.boardMng.gameParameters.fireTime;
+#if DEBUG
+            fieldImage.color = Color.red;
+#endif
+        }
     }
 }
 
