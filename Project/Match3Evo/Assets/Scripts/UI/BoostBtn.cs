@@ -83,7 +83,7 @@ public class BoostBtn : MonoBehaviour
         }
 
         bool overField = targetField != null;
-        if (overField) 
+        if (overField && false == targetField.Locked) 
         {
             GM.boardMng.UseBoost(boostType, targetField);
             onCooldown = true;
