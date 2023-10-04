@@ -63,6 +63,12 @@ namespace Match3_Evo
             
             Sprite newImage;
 
+            if(animationQueue.Count == 0 && UnityEngine.Random.Range(0f, 1000f) < GM.boardMng.animationProbability)
+			{
+                animationQueue.Add(GM.boardMng.FieldDatas[Field.fieldVariant].bubbleAnimation);
+                animationTime = 0;
+            }
+
             if (animationQueue.Count > 0)
             {
                 if (animationTime >= animationQueue[0].Count)
@@ -86,8 +92,9 @@ namespace Match3_Evo
          
             if (newImage != fieldImage.sprite)
                 fieldImage.sprite = newImage;
-        }
 
+        }
+        
         private void HandleFire()
 		{
 			if (OnFire)
@@ -121,8 +128,6 @@ namespace Match3_Evo
             if (Field.FieldState == EnumFieldState.Break)
 			{
                 Invoke(nameof(Break), Field.breakAfterSeconds);
-                animationQueue.Add(GM.boardMng.FieldDatas[Field.fieldVariant].bubbleAnimation);
-                animationQueue.Add(GM.boardMng.FieldDatas[Field.fieldVariant].bubbleAnimation);
             }
             else
             {
@@ -131,17 +136,6 @@ namespace Match3_Evo
                 movementDirection = (rect.anchoredPosition - Field.fieldPosition);
                 movementDirection.Normalize();
                 bounceMovement = false;
-                animationTime = 0;
-
-                if (Field.FieldState == EnumFieldState.Move || Field.FieldState == EnumFieldState.SwapBack)
-                {
-                    animationQueue.Add(GM.boardMng.FieldDatas[Field.fieldVariant].bubbleAnimation);
-                    animationQueue.Add(GM.boardMng.FieldDatas[Field.fieldVariant].bubbleAnimation);
-                }
-                else if (Field.FieldState == EnumFieldState.Swap)
-                {
-                    animationQueue.Insert(0, GM.boardMng.FieldDatas[Field.fieldVariant].bubbleAnimation);
-                }
             }
         }
 

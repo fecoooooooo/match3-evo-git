@@ -16,8 +16,11 @@ namespace Match3_Evo
         [SerializeField] List<int> columnTopRow = new List<int>();
         [SerializeField] BoardOverride boardOverride;
 
-        [Required, GUIColor(0.6f, 1, 0.4f)] public GameParameters gameParameters;
+        [Required, GUIColor(0.6f, 1, 0.4f)] 
+        public GameParameters gameParameters;
         public float fieldAnimationFPS = 20;
+        [Range(0,.5f)]
+        public float animationProbability = .15f;
         [Required, FoldoutGroup("Playfield Size"), GUIColor(0.6f, 1, 0.4f)] public int rows, columns;
         public float transitionSpeed, transitionMaxSpeed;
         public AnimationCurve fieldBounceCurve;
@@ -207,19 +210,27 @@ namespace Match3_Evo
                 {
                     for (int i = 0; i < columns; i++)
                         FeedColumn(i);
+                    
                 }
+                
+                BreakNewlyFallendFieldsIfPossible();
 
                 CheckComboBreak();
 
-                List<Mergeable> lvBreakable = FindBreakableFields();
-                BreakMergeables(lvBreakable);
+                
             }
 
             if (Input.GetKeyDown(KeyCode.A))
                 levelBg.Shift();
         }
 
-        public void TopRowInit()
+		private void BreakNewlyFallendFieldsIfPossible()
+		{
+            List<Mergeable> lvBreakable = FindBreakableFields();
+            BreakMergeables(lvBreakable);
+        }
+
+		public void TopRowInit()
         {
             for (int i = 0; i < columnTopRow.Count; i++)
                 columnTopRow[i] = 1;

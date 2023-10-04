@@ -2780,6 +2780,7 @@ MonoBehaviour:
     fireTime: 2
     fireSpreadTime: 0.5
   fieldAnimationFPS: 20
+  animationProbability: 0.15
   rows: 10
   columns: 7
   transitionSpeed: 280
