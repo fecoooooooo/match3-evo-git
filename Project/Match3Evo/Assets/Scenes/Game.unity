@@ -2466,7 +2466,7 @@ MonoBehaviour:
   gameParameters:
     matchTimer: 1800
     hintTime: 5
-    tileVariantMax: 6
+    tileVariantMax: 4
     tileScore: 50
     gamePauseCount: 3
     finaleClear: 1
@@ -2590,43 +2590,6 @@ MonoBehaviour:
     - {fileID: 21300000, guid: 8b4239620e2dd8d469269f817de6c8b7, type: 3}
     - {fileID: 21300000, guid: 310c44946299c294db388aae4db3d1a3, type: 3}
     - {fileID: 21300000, guid: 60f9791029083b0498a8b8510d7c67f8, type: 3}
-  - basic: {fileID: 21300000, guid: b14121e034501fd4098005a31228331c, type: 3}
-    shadow: {fileID: 0}
-    bubbleAnimation:
-    - {fileID: 21300000, guid: 1118d3bc7760b9d4780987e75b76e099, type: 3}
-  - basic: {fileID: 21300000, guid: a3117c3fb6c2c7c439c26a85cc3dc591, type: 3}
-    shadow: {fileID: 0}
-    bubbleAnimation:
-    - {fileID: 21300000, guid: a3117c3fb6c2c7c439c26a85cc3dc591, type: 3}
-    - {fileID: 21300000, guid: e648df2de7b470a438fcf929c53a4d4b, type: 3}
-    - {fileID: 21300000, guid: eaf6ddd015b195745a6dfd1472ede3f3, type: 3}
-    - {fileID: 21300000, guid: d8263b7a6d2031740b2b8d920a5092dd, type: 3}
-    - {fileID: 21300000, guid: 12cd70b5c9ded52438c9ed80c26dff92, type: 3}
-    - {fileID: 21300000, guid: 6eab19987987fc149b46883027420b02, type: 3}
-    - {fileID: 21300000, guid: a84153605cd19f745b2805efef334a43, type: 3}
-    - {fileID: 21300000, guid: cb700ae898fa4a64ca948b3c3a25078d, type: 3}
-    - {fileID: 21300000, guid: 3e9745e49a16a134d864cf7cce7617f0, type: 3}
-    - {fileID: 21300000, guid: 4fcffd1fb8b4ac04e81249ade5a62f99, type: 3}
-    - {fileID: 21300000, guid: 42902aed512a71043bf3fc780739f1c5, type: 3}
-    - {fileID: 21300000, guid: b59fcd1459b79954d92ac8ad83bcd412, type: 3}
-    - {fileID: 21300000, guid: 1694d3f5bad242643957e98b471003a1, type: 3}
-    - {fileID: 21300000, guid: 5296c4c2430402342b8568d1bf6025f6, type: 3}
-    - {fileID: 21300000, guid: ede463339e766b542b304e4dab24ff50, type: 3}
-    - {fileID: 21300000, guid: 33283a54f5546ab47a22503b737b49a6, type: 3}
-    - {fileID: 21300000, guid: 9fe7b5f72b2b1344d951e31aede72983, type: 3}
-    - {fileID: 21300000, guid: ba6267a00df3f6e4eb44271214baca36, type: 3}
-    - {fileID: 21300000, guid: 377f99fb19bf84f4a85d9071314491c7, type: 3}
-    - {fileID: 21300000, guid: 97c617aa4747fca478cedc82d4d7baeb, type: 3}
-    - {fileID: 21300000, guid: e21d77e3d3e943b4295fdbf70079aefa, type: 3}
-    - {fileID: 21300000, guid: 895e5dfe8fb21a0419f417c5dcf19fe4, type: 3}
-    - {fileID: 21300000, guid: 10f0528982f0bd643a7c6afcd500d90d, type: 3}
-    - {fileID: 21300000, guid: f587dac77ba6da943a150fbeb78fa810, type: 3}
-    - {fileID: 21300000, guid: d45daebe85c831f4db08b3883c815562, type: 3}
-    - {fileID: 21300000, guid: e0999597ec229134b931c2d56afc4bd4, type: 3}
-    - {fileID: 21300000, guid: 9b8816073232a76469777042457ce666, type: 3}
-    - {fileID: 21300000, guid: 6fdd38685cef15244af7ebfc5a6dacfe, type: 3}
-    - {fileID: 21300000, guid: 02bc8c11044470b4abc1130de6533c1b, type: 3}
-    - {fileID: 21300000, guid: 9020689de063cc544897c7c603ef0fd1, type: 3}
   MatchDatas:
   - displacements:
     - {x: 0, y: 1}

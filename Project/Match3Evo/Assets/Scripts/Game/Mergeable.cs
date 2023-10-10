@@ -52,9 +52,9 @@ namespace Match3_Evo
             else if (_count == 3)
                 mergeableType = EnumMergeableType.Three;
             else if (_count == 5)
-                mergeableType = EnumMergeableType.Box;
+                mergeableType = EnumMergeableType.Three;    //TODO redo this
             else
-                mergeableType = EnumMergeableType.Line;
+                mergeableType = EnumMergeableType.Three;    //TODO redo this
         }
 
         public Vector2 GetScoreFXPosition()

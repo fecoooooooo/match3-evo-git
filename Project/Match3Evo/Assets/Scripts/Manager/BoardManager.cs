@@ -79,12 +79,12 @@ namespace Match3_Evo
 
         bool showHint;
 
-        int lastRow;
+        float currentWaitTillShift = 0.5f;
+        readonly float WAIT_TILL_SHIFT_TIME = 0.5f;
+        bool isShifting = false;
 
         void Awake()
         {
-            lastRow = rows - 1;
-
             CanClickOnField = true;
             GM.boardMng = this;
             fieldStateCounter = new int[Enum.GetNames(typeof(EnumFieldState)).Length];
@@ -172,15 +172,15 @@ namespace Match3_Evo
             fieldStateCounter[(int)EnumFieldState.Empty] = 0;
             fieldStateCounter[(int)EnumFieldState.Useable] = 0;
             fieldStateCounter[(int)EnumFieldState.Hidden] = 0;
-            SetRowLocked(rows - 1);
+            SetRowLocked(rows - 2);
+            SetRowUnBreakAble(rows - 1);
 
             PrepareGameStart();
         }
 
-
-        private void Update()
+		private void Update()
         {
-            //DebugState();
+			//DebugState();
             if (gameStarted)
             {
                 HandleFieldStateChange();
@@ -189,16 +189,19 @@ namespace Match3_Evo
              
                 CheckComboBreak();
 
-                if (Input.GetKeyDown(KeyCode.A))
-                    ShiftIfPossible();
+                ShiftIfPossible();
             }
-
         }
 
 		private void ShiftIfPossible()
 		{
-			if (IsRowUnlocked(lastRow) || Input.GetKeyDown(KeyCode.A))
+            int breakableFields = fields?.Cast<Field>()?.ToArray()?.Count(x => x.FieldState == EnumFieldState.Break) ?? int.MaxValue;
+            if(breakableFields > 0)
+                currentWaitTillShift = WAIT_TILL_SHIFT_TIME;
+
+            if (currentWaitTillShift < 0 && IsRowUnlocked(rows - 2) && !isShifting || Input.GetKeyDown(KeyCode.A))
 			{
+                isShifting = true;
 
                 Vector2 startPosition = fields[rows - 1, 0].fieldPosition + new Vector2(0, -fieldSize);
                 Field[] newFields = new Field[8];
@@ -229,6 +232,10 @@ namespace Match3_Evo
                 
                 StartCoroutine(ShiftBoard(newFields));
             }
+			else
+			{
+                currentWaitTillShift -= Time.deltaTime;
+			}
         }
 
         private IEnumerator ShiftBoard(Field[] newFields)
@@ -261,12 +268,14 @@ namespace Match3_Evo
 
             for (int columnIndex = 0; columnIndex < columns; columnIndex++)
 			{
-                fields[lastRow, columnIndex].fieldVariant = newFields[columnIndex].fieldVariant;
-                fields[lastRow, columnIndex].fieldUI.Initialize(fields[lastRow, columnIndex]);
+                fields[rows - 1, columnIndex].fieldVariant = newFields[columnIndex].fieldVariant;
+                fields[rows - 1, columnIndex].fieldUI.Initialize(fields[rows - 1, columnIndex]);
                 Destroy(newFields[columnIndex].fieldUI.gameObject);
 			}
 
-            SetRowLocked(lastRow);
+            SetRowLocked(rows - 2);
+
+            isShifting = false;
         }
 
         void HandleFieldStateChange()
@@ -494,8 +503,8 @@ namespace Match3_Evo
         public List<Mergeable> FindBreakableFields(bool _ignoreFieldState = false)
         {
             List<Mergeable> lvResult = new List<Mergeable>();
-            int lvStartIndex = 0;
-            int lvEndIndex = 0;
+            int lvStartIndex;
+            int lvEndIndex;
 
             for (int lvColumnIndex = 0; lvColumnIndex < columns; lvColumnIndex++)
             {
@@ -506,12 +515,13 @@ namespace Match3_Evo
                 {
                     if (lvStartIndex == -1)
                     {
-                        if (_ignoreFieldState || fields[lvRowInxed, lvColumnIndex].FieldState == EnumFieldState.Useable)
+                        if (_ignoreFieldState || fields[lvRowInxed, lvColumnIndex].FieldState == EnumFieldState.Useable && false == fields[lvRowInxed, lvColumnIndex].fieldUI.Locked)
                             lvStartIndex = lvRowInxed;
                     }
                     else
                     {
-                        if (!_ignoreFieldState && (fields[lvRowInxed, lvColumnIndex].FieldState != EnumFieldState.Useable) || fields[lvStartIndex, lvColumnIndex].fieldVariant != fields[lvRowInxed, lvColumnIndex].fieldVariant)
+                        if (!_ignoreFieldState && 
+                            ((fields[lvRowInxed, lvColumnIndex].FieldState != EnumFieldState.Useable) || fields[lvStartIndex, lvColumnIndex].fieldVariant != fields[lvRowInxed, lvColumnIndex].fieldVariant || fields[lvRowInxed, lvColumnIndex].fieldUI.Locked))
                         {
                             lvEndIndex = lvRowInxed - 1;
                             lvRowInxed--;
@@ -551,12 +561,13 @@ namespace Match3_Evo
                 {
                     if (lvStartIndex == -1)
                     {
-                        if (_ignoreFieldState || fields[lvRowInxed, lvColumnIndex].FieldState == EnumFieldState.Useable)
+                        if (_ignoreFieldState || fields[lvRowInxed, lvColumnIndex].FieldState == EnumFieldState.Useable && false == fields[lvRowInxed, lvColumnIndex].fieldUI.Locked)
                             lvStartIndex = lvColumnIndex;
                     }
                     else
                     {
-                        if ((!_ignoreFieldState && fields[lvRowInxed, lvColumnIndex].FieldState != EnumFieldState.Useable) || fields[lvRowInxed, lvStartIndex].fieldVariant != fields[lvRowInxed, lvColumnIndex].fieldVariant)
+                        if ((!_ignoreFieldState && 
+                            (fields[lvRowInxed, lvColumnIndex].FieldState != EnumFieldState.Useable) || fields[lvRowInxed, lvStartIndex].fieldVariant != fields[lvRowInxed, lvColumnIndex].fieldVariant || fields[lvRowInxed, lvColumnIndex].fieldUI.Locked))
                         {
                             lvEndIndex = lvColumnIndex - 1;
                             lvColumnIndex--;
@@ -948,7 +959,6 @@ namespace Match3_Evo
                     UnlockFieldIfPossible(_mergeables[i].fields[j].Bottom);
                 }
 
-                ShiftIfPossible();
                 _mergeables[i].PlayBreakSound();
             }
         }
@@ -956,7 +966,7 @@ namespace Match3_Evo
 		private void UnlockFieldIfPossible(Field bottom)
 		{
             if (bottom != null && bottom.fieldUI.Locked)
-                bottom.fieldUI.SetUnlocked();
+                bottom.fieldUI.SetUnlockedIfNotUnbreakable();
         }
 
 		public void UseBoost(BoostType boostType, FieldUI targetField)
@@ -1138,7 +1148,7 @@ namespace Match3_Evo
             {
                 if (lvRowIndex == rows - 1 && fields[lvRowIndex, _columnIndex].FieldState == EnumFieldState.Empty && !_initCall) {
                     columnTopRow[_columnIndex] = 0;
-                    Debug.Log("index: " + _columnIndex + ", value: " + columnTopRow[_columnIndex]);
+                    //Debug.Log("index: " + _columnIndex + ", value: " + columnTopRow[_columnIndex]);
                 }
 
                 Field lvFieldAbove = null;
@@ -1220,6 +1230,12 @@ namespace Match3_Evo
             for (int i = 0; i < columns; ++i)
                 fields[row, i].fieldUI.SetLocked();
 		}
+
+        private void SetRowUnBreakAble(int row)
+        {
+            for (int i = 0; i < columns; ++i)
+                fields[row, i].fieldUI.SetUnbreakableAndLocked();
+        }
 
         // public void AddCoinToBoard(Field _onField)
         // {

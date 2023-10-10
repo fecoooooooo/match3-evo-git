@@ -17,6 +17,7 @@ namespace Match3_Evo
         public int matchOnSides = 0;
         
         public bool Locked { get; private set; }
+        public bool Unbreakable { get; private set; }
 
         public bool OnFire { get; private set; }
         float fireTime;
@@ -216,10 +217,20 @@ namespace Match3_Evo
             lockedImage.gameObject.SetActive(true);
 		}
 
-		internal void SetUnlocked()
+		internal void SetUnlockedIfNotUnbreakable()
 		{
+            if (Unbreakable)
+                return;
+
             Locked = false;
             lockedImage.gameObject.SetActive(false);
+        }
+
+		internal void SetUnbreakableAndLocked()
+		{
+            Locked = true;
+            Unbreakable = true;
+            lockedImage.gameObject.SetActive(true);
         }
 	}
 }
