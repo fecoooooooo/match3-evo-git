@@ -188,13 +188,16 @@ namespace Match3_Evo
                 BreakNewlyFallendFieldsIfPossible();
              
                 CheckComboBreak();
+
+                if (Input.GetKeyDown(KeyCode.A))
+                    ShiftIfPossible();
             }
 
         }
 
 		private void ShiftIfPossible()
 		{
-			if (IsRowUnlocked(lastRow))
+			if (IsRowUnlocked(lastRow) || Input.GetKeyDown(KeyCode.A))
 			{
 
                 Vector2 startPosition = fields[rows - 1, 0].fieldPosition + new Vector2(0, -fieldSize);
@@ -223,7 +226,6 @@ namespace Match3_Evo
 
                     newFields[i] = field;
                 }
-
                 
                 StartCoroutine(ShiftBoard(newFields));
             }
@@ -237,8 +239,8 @@ namespace Match3_Evo
             while (t < shiftTimeInSeconds)
             {
                 float t01 = t / shiftTimeInSeconds;
-                float deltaY = -t01 * fieldSize;
-                fieldUIParent.anchoredPosition = new Vector2(fieldUIParent.anchoredPosition.x, fieldStartingY - deltaY);
+                float deltaY = t01 * fieldSize;
+                fieldUIParent.anchoredPosition = new Vector2(fieldUIParent.anchoredPosition.x, fieldStartingY + deltaY);
                 levelBg.rectTransform.anchoredPosition = new Vector2(levelBg.rectTransform.anchoredPosition.x, levelBgStartingY + deltaY);
 
                 t += Time.deltaTime;
@@ -246,6 +248,7 @@ namespace Match3_Evo
             }
 
             fieldUIParent.anchoredPosition = new Vector2(fieldUIParent.anchoredPosition.x, fieldStartingY);
+            levelBg.rectTransform.anchoredPosition = new Vector2(levelBg.rectTransform.anchoredPosition.x, levelBgStartingY + fieldSize);
 
             for (int columnIndex = 0; columnIndex < columns; columnIndex++)
             {

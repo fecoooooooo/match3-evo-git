@@ -16,8 +16,9 @@ public class LevelBg : MonoBehaviour
         rectTransform.anchoredPosition = new Vector2(rectTransform.anchoredPosition.x, rectTransform.sizeDelta.y / 2);
     }
 
-    internal void Shift()
+    internal void ShiftToY()
 	{
         rectTransform.anchoredPosition = new Vector2(rectTransform.anchoredPosition.x, rectTransform.anchoredPosition.y - GM.boardMng.fieldSize);
     }
+
 }
