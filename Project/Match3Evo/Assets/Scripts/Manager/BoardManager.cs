@@ -21,6 +21,7 @@ namespace Match3_Evo
         public float fieldAnimationFPS = 20;
         [Range(0,.5f)]
         public float animationProbability = .15f;
+        public float shiftTimeInSeconds = .5f;
         [Required, FoldoutGroup("Playfield Size"), GUIColor(0.6f, 1, 0.4f)] public int rows, columns;
         public float transitionSpeed, transitionMaxSpeed;
         public AnimationCurve fieldBounceCurve;
@@ -78,8 +79,12 @@ namespace Match3_Evo
 
         bool showHint;
 
+        int lastRow;
+
         void Awake()
         {
+            lastRow = rows - 1;
+
             CanClickOnField = true;
             GM.boardMng = this;
             fieldStateCounter = new int[Enum.GetNames(typeof(EnumFieldState)).Length];
@@ -178,50 +183,124 @@ namespace Match3_Evo
             //DebugState();
             if (gameStarted)
             {
-                fieldStateGlobalChangeTime -= Time.deltaTime;
+                HandleFieldStateChange();
 
-                if (fieldStateGlobalIdealTime > 0 && fieldStateGlobalIdealTime - Time.deltaTime <= 0f)
-                    fieldStateGlobalIdealTime = 0;
-                else
-                    fieldStateGlobalIdealTime -= Time.deltaTime;
-
-                if (fieldStateGlobalChangeTime < 0f && fieldStateCounter[(int)EnumFieldState.Useable] < columns * rows && gameRunning)
-                {
-                    int lvEmpty = 0;
-                    for (int i = 0; i < fieldsList.Count; i++)
-                    {
-                        if (fieldsList[i].FieldState == EnumFieldState.Empty)
-                            lvEmpty++;
-                        else
-                        {
-                            fieldsList[i].FieldState = EnumFieldState.Useable;
-                            fieldsList[i].fieldUI.ResetPosition();
-                        }
-                    }
-
-                    for (int i = 0; i < fieldStateCounter.Length; i++)
-                        fieldStateCounter[i] = 0;
-
-                    fieldStateCounter[(int)EnumFieldState.Useable] = columns * rows - lvEmpty;
-                    fieldStateCounter[(int)EnumFieldState.Empty] = lvEmpty;
-                }
-
-                if (fieldStateCounter[(int)EnumFieldState.Empty] > 0)
-                {
-                    for (int i = 0; i < columns; i++)
-                        FeedColumn(i);
-                    
-                }
-                
                 BreakNewlyFallendFieldsIfPossible();
-
+             
                 CheckComboBreak();
-
-                
             }
 
-            if (Input.GetKeyDown(KeyCode.A))
-                levelBg.Shift();
+        }
+
+		private void ShiftIfPossible()
+		{
+			if (IsRowUnlocked(lastRow))
+			{
+
+                Vector2 startPosition = fields[rows - 1, 0].fieldPosition + new Vector2(0, -fieldSize);
+                Field[] newFields = new Field[8];
+
+                for(int i = 0; i < columns; ++i)
+				{
+                    FieldUI fieldUI = Instantiate(fieldUIPrefab, fieldUIParent);
+                    Vector2 fieldPos = startPosition + new Vector2(fieldSize * i, 0);
+
+                    int fieldVariant;
+                    bool verticalMatch;
+                    bool horizontalMatch;
+                    do
+                    {
+                        fieldVariant = GM.GetRandom(0, gameParameters.TileVariantMax());
+                        verticalMatch = fields[rows - 1, i].fieldVariant == fields[rows - 2, i].fieldVariant && fields[rows - 1, i].fieldVariant == fieldVariant;
+                        horizontalMatch = 1 < i && newFields[i - 1].fieldVariant == newFields[i - 2].fieldVariant && newFields[i - 1].fieldVariant == fieldVariant;
+                    } while (verticalMatch || horizontalMatch);
+
+                    Field field = new Field(-1, -1, fieldVariant, 1, fieldPos, fieldUI);
+                    fieldUI.transform.position = fieldPos;
+                    fieldUI.Initialize(field);
+                    fieldUI.ResetPosition();
+                    fieldUI.SetLocked();
+
+                    newFields[i] = field;
+                }
+
+                
+                StartCoroutine(ShiftBoard(newFields));
+            }
+        }
+
+        private IEnumerator ShiftBoard(Field[] newFields)
+        {
+            float t = 0;
+            float levelBgStartingY = levelBg.rectTransform.anchoredPosition.y;
+            float fieldStartingY = fieldUIParent.anchoredPosition.y;
+            while (t < shiftTimeInSeconds)
+            {
+                float t01 = t / shiftTimeInSeconds;
+                float deltaY = -t01 * fieldSize;
+                fieldUIParent.anchoredPosition = new Vector2(fieldUIParent.anchoredPosition.x, fieldStartingY - deltaY);
+                levelBg.rectTransform.anchoredPosition = new Vector2(levelBg.rectTransform.anchoredPosition.x, levelBgStartingY + deltaY);
+
+                t += Time.deltaTime;
+                yield return null;
+            }
+
+            fieldUIParent.anchoredPosition = new Vector2(fieldUIParent.anchoredPosition.x, fieldStartingY);
+
+            for (int columnIndex = 0; columnIndex < columns; columnIndex++)
+            {
+                for (int rowIndex = 0; rowIndex < rows - 1; rowIndex++)
+                {
+                    fields[rowIndex, columnIndex].fieldVariant = fields[rowIndex + 1, columnIndex].fieldVariant;
+                    fields[rowIndex, columnIndex].fieldUI.Initialize(fields[rowIndex, columnIndex]);
+                }
+            }
+
+            for (int columnIndex = 0; columnIndex < columns; columnIndex++)
+			{
+                fields[lastRow, columnIndex].fieldVariant = newFields[columnIndex].fieldVariant;
+                fields[lastRow, columnIndex].fieldUI.Initialize(fields[lastRow, columnIndex]);
+                Destroy(newFields[columnIndex].fieldUI.gameObject);
+			}
+
+            SetRowLocked(lastRow);
+        }
+
+        void HandleFieldStateChange()
+		{
+            fieldStateGlobalChangeTime -= Time.deltaTime;
+
+            if (fieldStateGlobalIdealTime > 0 && fieldStateGlobalIdealTime - Time.deltaTime <= 0f)
+                fieldStateGlobalIdealTime = 0;
+            else
+                fieldStateGlobalIdealTime -= Time.deltaTime;
+
+            if (fieldStateGlobalChangeTime < 0f && fieldStateCounter[(int)EnumFieldState.Useable] < columns * rows && gameRunning)
+            {
+                int lvEmpty = 0;
+                for (int i = 0; i < fieldsList.Count; i++)
+                {
+                    if (fieldsList[i].FieldState == EnumFieldState.Empty)
+                        lvEmpty++;
+                    else
+                    {
+                        fieldsList[i].FieldState = EnumFieldState.Useable;
+                        fieldsList[i].fieldUI.ResetPosition();
+                    }
+                }
+
+                for (int i = 0; i < fieldStateCounter.Length; i++)
+                    fieldStateCounter[i] = 0;
+
+                fieldStateCounter[(int)EnumFieldState.Useable] = columns * rows - lvEmpty;
+                fieldStateCounter[(int)EnumFieldState.Empty] = lvEmpty;
+            }
+
+            if (fieldStateCounter[(int)EnumFieldState.Empty] > 0)
+            {
+                for (int i = 0; i < columns; i++)
+                    FeedColumn(i);
+            }
         }
 
 		private void BreakNewlyFallendFieldsIfPossible()
@@ -866,6 +945,7 @@ namespace Match3_Evo
                     UnlockFieldIfPossible(_mergeables[i].fields[j].Bottom);
                 }
 
+                ShiftIfPossible();
                 _mergeables[i].PlayBreakSound();
             }
         }
@@ -874,7 +954,6 @@ namespace Match3_Evo
 		{
             if (bottom != null && bottom.fieldUI.Locked)
                 bottom.fieldUI.SetUnlocked();
-
         }
 
 		public void UseBoost(BoostType boostType, FieldUI targetField)
@@ -1119,6 +1198,18 @@ namespace Match3_Evo
                     }
                 }
             }
+        }
+
+
+        bool IsRowUnlocked(int row)
+		{
+            for (int i = 0; i < columns; ++i)
+			{
+                if (fields[row, i].fieldUI.Locked)
+                    return false;
+			}
+
+            return true;
         }
 
         void SetRowLocked(int row)

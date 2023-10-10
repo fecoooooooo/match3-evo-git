@@ -142,7 +142,7 @@ namespace Match3_Evo
         public void ResetPosition()
         {
             updateMovement = false;
-            rect.anchoredPosition = Field.fieldPosition;
+            rect.anchoredPosition3D = new Vector3(Field.fieldPosition.x, Field.fieldPosition.y, 0);
         }
 
         public void ResetPositionToRefil(int _positionIndex)
