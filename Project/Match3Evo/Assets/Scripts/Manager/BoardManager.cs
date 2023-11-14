@@ -957,6 +957,8 @@ namespace Match3_Evo
                         _mergeables[i].fields[j].Break(breakDelayTime);
 
                     UnlockFieldIfPossible(_mergeables[i].fields[j].Bottom);
+                    UnlockFieldIfPossible(_mergeables[i].fields[j].Left);
+                    UnlockFieldIfPossible(_mergeables[i].fields[j].Right);
                 }
 
                 _mergeables[i].PlayBreakSound();
