@@ -8,6 +8,7 @@ using UnityEngine.SceneManagement;
 using Sirenix.OdinInspector;
 using UnityEditor;
 using System.Linq;
+using UnityEngine.Events;
 
 namespace Match3_Evo
 {
@@ -26,7 +27,23 @@ namespace Match3_Evo
         public float transitionSpeed, transitionMaxSpeed;
         public AnimationCurve fieldBounceCurve;
 
-        public List<FieldData> FieldDatas;
+        public List<FieldDataEvo> FieldData;
+        public List<FieldDataTier> CurrentFieldDataTiers
+        {
+            get {
+                List<FieldDataTier> currentFieldDataTiers = new List<FieldDataTier>();
+
+                for (int i = 0; i < currentEvolutionStates.Length; ++i)
+				{
+                    int evolutionForTileVariant = currentEvolutionStates[i];
+
+                    currentFieldDataTiers.Add(FieldData[i].fieldDataTiers[evolutionForTileVariant]);
+                }
+
+                return currentFieldDataTiers;
+            }
+        }
+
         public MatchData[] MatchDatas;
         [Tooltip("Extra 5x5 Breakable combinations. Basic 3 matching elements in column and extra elements relative to the starting field from the 3 basic matching fields! SwapIndex is the center of the 5x5 break.")]
         public MatchData[] ExactMatchDatas;
@@ -83,6 +100,14 @@ namespace Match3_Evo
         readonly float WAIT_TILL_SHIFT_TIME = 0.5f;
         bool isShifting = false;
 
+        const int MAX_EVOLUTION = 4;
+        [HideInInspector]
+        public int[] currentEvolutionStates;
+        [HideInInspector]
+        public int[] currentMergeToEvolve;
+
+        public MergeEvent mergeEvent = new MergeEvent();
+
         void Awake()
         {
             CanClickOnField = true;
@@ -97,8 +122,25 @@ namespace Match3_Evo
             TopRowInit();
         }
 
+        void Evolve(int variantIndex)
+		{
+            if(currentEvolutionStates[variantIndex] + 1 < MAX_EVOLUTION)
+                currentEvolutionStates[variantIndex]++;
+
+            int evoLvlForVariant = currentEvolutionStates[variantIndex];
+            currentMergeToEvolve[variantIndex] = gameParameters.mergesToNextEvolution[evoLvlForVariant];
+		}
+
         void Start()
         {
+            mergeEvent.AddListener(OnMergeEvent);
+
+            currentEvolutionStates = new int[gameParameters.tileVariantMax];
+            currentMergeToEvolve = new int[gameParameters.tileVariantMax];
+
+            for (int i = 0; i < currentMergeToEvolve.Length; ++i)
+                currentMergeToEvolve[i] = gameParameters.mergesToNextEvolution[0];
+
             Canvas.ForceUpdateCanvases();
             StartCoroutine(InitializeGame());
             GM.soundMng.StopAll();
@@ -244,6 +286,7 @@ namespace Match3_Evo
             float t = 0;
             float levelBgStartingY = levelBg.rectTransform.anchoredPosition.y;
             float fieldStartingY = fieldUIParent.anchoredPosition.y;
+
             while (t < shiftTimeInSeconds)
             {
                 float t01 = t / shiftTimeInSeconds;
@@ -962,6 +1005,8 @@ namespace Match3_Evo
                     UnlockFieldIfPossible(_mergeables[i].fields[j].Right);
                 }
 
+                
+                mergeEvent.Invoke(_mergeables[i].fields[0].fieldVariant);
                 _mergeables[i].PlayBreakSound();
             }
         }
@@ -1283,6 +1328,14 @@ namespace Match3_Evo
         //     }
         // }
 
+        void OnMergeEvent(int variant)
+        {
+            currentMergeToEvolve[variant]--;
+
+            if (currentMergeToEvolve[variant] <= 0)
+                Evolve(variant);
+        }
+
         public IEnumerator ShowBreakBackground(Mergeable _mergeable)
         {
             BreakBackground lvBg = GM.Pool.GetObject<BreakBackground>(breakBackgroundPrefab);
@@ -1392,7 +1445,13 @@ namespace Match3_Evo
 
 
     [Serializable]
-    public class FieldData
+    public class FieldDataEvo
+	{
+        public FieldDataTier[] fieldDataTiers;
+	}
+
+    [Serializable]
+    public class FieldDataTier
     {
         public Sprite basic;
         public Sprite shadow;
@@ -1443,5 +1502,10 @@ namespace Match3_Evo
 
             return lvFound;
         }
+    }
+
+    [Serializable]
+    public class MergeEvent : UnityEvent<int>
+    {
     }
 }

@@ -10,7 +10,7 @@ namespace Match3_Evo
     {
         private void OnEnable()
         {
-            List<FieldData> data = (target as BoardManager).FieldDatas;
+            List<FieldDataEvo> data = (target as BoardManager).FieldData;
             // data.ForEach(x => { x.bubbleAnimation.Sort((y, z) => y.name.CompareTo(z.name)); x.wobbleAnimation.Sort((y, z) => y.name.CompareTo(z.name)); });
             EditorUtility.SetDirty(target);
         }

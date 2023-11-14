@@ -1,6 +1,4 @@
 ﻿using Match3_Evo;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class LevelBg : MonoBehaviour

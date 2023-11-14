@@ -24,8 +24,10 @@ namespace Match3_Evo
             GameObject lvNewTile;
             for (int i = 0; i < GM.boardMng.gameParameters.tileVariantMax; i++)
             {
+                int evolutionForTileVariant = GM.boardMng.currentEvolutionStates[i];
+
                 lvNewTile = Instantiate(collectedTile, transform);
-                lvNewTile.GetComponent<CollectedTile>().image.sprite = GM.boardMng.FieldDatas[i].basic;
+                lvNewTile.GetComponent<CollectedTile>().image.sprite = GM.boardMng.FieldData[i].fieldDataTiers[evolutionForTileVariant].basic;
             }
         }
 

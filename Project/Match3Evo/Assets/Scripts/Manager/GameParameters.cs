@@ -21,6 +21,8 @@ namespace Match3_Evo
         public float fireTime = 2f;
         public float fireSpreadTime = .5f;
 
+        public int[] mergesToNextEvolution = new int[4];
+
         string match_timerKey = "match_timer";
         string hint_timeKey = "hint_time";
         string tile_variantMaxKey = "tile_id";
@@ -35,7 +37,7 @@ namespace Match3_Evo
 
         public void UpdateFromSkillz(Dictionary<string, string> _gameParams)
         {
-            int tryParseInt = 0;
+            int tryParseInt;
 
             if (_gameParams != null)
             {

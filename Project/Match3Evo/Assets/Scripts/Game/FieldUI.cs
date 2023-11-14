@@ -47,8 +47,8 @@ namespace Match3_Evo
             animationTime = 0;
 
             Field = _field;
-            fieldImage.sprite = GM.boardMng.FieldDatas[_field.fieldVariant].basic;
-            shadowImage.sprite = GM.boardMng.FieldDatas[_field.fieldVariant].basic;
+            fieldImage.sprite = GM.boardMng.CurrentFieldDataTiers[_field.fieldVariant].basic;
+            shadowImage.sprite = GM.boardMng.CurrentFieldDataTiers[_field.fieldVariant].basic;
         }
 
         void Update()
@@ -66,7 +66,7 @@ namespace Match3_Evo
 
             if(animationQueue.Count == 0 && UnityEngine.Random.Range(0f, 1000f) < GM.boardMng.animationProbability)
 			{
-                animationQueue.Add(GM.boardMng.FieldDatas[Field.fieldVariant].bubbleAnimation);
+                animationQueue.Add(GM.boardMng.CurrentFieldDataTiers[Field.fieldVariant].bubbleAnimation);
                 animationTime = 0;
             }
 
@@ -75,7 +75,7 @@ namespace Match3_Evo
                 if (animationTime >= animationQueue[0].Count)
                 {
                     animationQueue.RemoveAt(0);
-                    newImage = GM.boardMng.FieldDatas[Field.fieldVariant].basic;
+                    newImage = GM.boardMng.CurrentFieldDataTiers[Field.fieldVariant].basic;
                 }
                 else
                 {
@@ -83,12 +83,12 @@ namespace Match3_Evo
                     if (animationQueue[0].Count > 0 && repeatedTime != 0 && repeatedTime < animationQueue[0].Count)
                         newImage = animationQueue[0][Mathf.FloorToInt(repeatedTime)];
                     else
-                        newImage = GM.boardMng.FieldDatas[Field.fieldVariant].basic;
+                        newImage = GM.boardMng.CurrentFieldDataTiers[Field.fieldVariant].basic;
                 }
             }
             else
             {
-                newImage = GM.boardMng.FieldDatas[Field.fieldVariant].basic;
+                newImage = GM.boardMng.CurrentFieldDataTiers[Field.fieldVariant].basic;
             }
          
             if (newImage != fieldImage.sprite)
