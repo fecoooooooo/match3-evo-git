@@ -158,13 +158,12 @@ namespace Match3_Evo
                 boardOverride = null;
             }
 
+            new MapPregenerator().PregenerateToColumns(columnFeeds);
+
             for (int lvColumnIndex = 0; lvColumnIndex < columns; lvColumnIndex++)
             {
                 for (int lvRowIndex = rows - 1; lvRowIndex >= 0; lvRowIndex--)
-                {
-                    columnFeeds[lvColumnIndex].AddField(fields[lvRowIndex, lvColumnIndex].fieldVariant);
                     fields[lvRowIndex, lvColumnIndex].FieldState = EnumFieldState.Empty;
-                }
 
                 FeedColumn(lvColumnIndex, true);
             }
@@ -177,6 +176,8 @@ namespace Match3_Evo
 
             PrepareGameStart();
         }
+
+
 
 		private void Update()
         {
@@ -1388,47 +1389,7 @@ namespace Match3_Evo
         #endregion
     }
 
-    [System.Serializable]
-    public class ColumnFeed
-    {
-        public int column;
-        public List<int> fieldTypes;
 
-        System.Random seed = new System.Random(GM.GetRandom(0, int.MaxValue));
-
-        public ColumnFeed(int _column, List<int> _colors = null)
-        {
-            column = _column;
-            fieldTypes = new List<int>();
-
-            if (_colors != null)
-                fieldTypes.AddRange(_colors);
-        }
-
-        public int GetFieldType(FieldUI _fieldUI)
-        {
-            if (fieldTypes.Count > 0)
-            {
-                int lvResult = fieldTypes[0];
-
-                fieldTypes.RemoveAt(0);
-
-                return lvResult;
-            }
-            else
-                return seed.Next() % GM.boardMng.gameParameters.TileVariantMax();
-        }
-
-        public void AddField(int _fieldType)
-        {
-            fieldTypes.Add(_fieldType);
-        }
-
-        // public bool HasCoin()
-        // {
-        //     return fieldTypes.Count > 0 && fieldTypes.Contains(GM.boardMng.gameParameters.TileVariantMax());
-        // }
-    }
 
     [Serializable]
     public class FieldData

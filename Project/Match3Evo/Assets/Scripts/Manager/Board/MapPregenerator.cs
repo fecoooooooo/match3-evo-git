@@ -1,0 +1,50 @@
+﻿using Match3_Evo;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class MapPregenerator
+{
+	const int PREGENERATED_ROW_COUNT = 10000;
+
+	public void PregenerateToColumns(ColumnFeed[] columnFeeds)
+	{
+        int[,] pregeneratedMap = PreGenerateMap();
+
+        for (int r = 0; r < PREGENERATED_ROW_COUNT; ++r)
+        {
+            for (int c = 0; c < GM.boardMng.columns; ++c)
+                columnFeeds[c].AddField(pregeneratedMap[r,c]);
+        }
+    }
+
+    private int[,] PreGenerateMap()
+    {
+        System.Random seed = new System.Random(GM.GetRandom(0, int.MaxValue));
+        int[,] pregeneratedMap = new int[PREGENERATED_ROW_COUNT, GM.boardMng.columns];
+
+        for (int r = 0; r < PREGENERATED_ROW_COUNT; ++r)
+        {
+            for (int c = 0; c < GM.boardMng.columns; ++c)
+            {
+                bool matchWithThisField;
+                do
+                {
+                    pregeneratedMap[r, c] = seed.Next() % GM.boardMng.gameParameters.TileVariantMax();
+
+                    bool yPrevFieldMatch = 0 < r - 1 && pregeneratedMap[r - 1,c]  == pregeneratedMap[r,c];
+                    bool yPrevPrevFieldMatch = 0 < r - 2 && pregeneratedMap[r - 1,c]  == pregeneratedMap[r,c];
+
+                    bool xPrevFieldMatch = 0 < c - 1 && pregeneratedMap[r,c - 1] == pregeneratedMap[r,c];
+                    bool xPrevPrevFieldMatch = 0 < c - 2 && pregeneratedMap[r,c - 2] == pregeneratedMap[r,c];
+
+                    matchWithThisField = (yPrevFieldMatch && yPrevPrevFieldMatch) || (xPrevFieldMatch && xPrevPrevFieldMatch);
+                }
+                while (matchWithThisField);
+            }
+        }
+
+        return pregeneratedMap;
+    }
+}
