@@ -72,7 +72,7 @@ public class MapPregenerator
             int c;
             do
             {
-                r = seed.Next() % GM.boardMng.rows; //TODO REVERT to PREGENERATED_ROW_COUNT
+                r = seed.Next() % PREGENERATED_ROW_COUNT;
                 c = seed.Next() % GM.boardMng.columns;
             }
             while ((int)FieldVariant.SPECIAL <= pregeneratedMap[r, c]);
