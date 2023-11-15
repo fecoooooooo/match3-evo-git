@@ -47,8 +47,19 @@ namespace Match3_Evo
             animationTime = 0;
 
             Field = _field;
-            fieldImage.sprite = GM.boardMng.CurrentFieldDataTiers[_field.fieldVariant].basic;
-            shadowImage.sprite = GM.boardMng.CurrentFieldDataTiers[_field.fieldVariant].basic;
+
+			if (_field.SpecialVariant)
+			{
+                if (_field.fieldVariant == (int)FieldVariant.DNS)
+                    fieldImage.sprite = GM.boardMng.dnsSprite;
+                if (_field.fieldVariant == (int)FieldVariant.TREASURE)
+                    fieldImage.sprite = GM.boardMng.treasureSprite;
+            }
+            else
+			{
+                fieldImage.sprite = GM.boardMng.CurrentFieldDataTiers[_field.fieldVariant].basic;
+                shadowImage.sprite = GM.boardMng.CurrentFieldDataTiers[_field.fieldVariant].basic;
+			}
         }
 
         void Update()
@@ -60,6 +71,9 @@ namespace Match3_Evo
 
         public void UpdateUI()
         {
+            if (Field.SpecialVariant)
+                return;
+
             animationTime += Time.deltaTime * GM.boardMng.fieldAnimationFPS;
             
             Sprite newImage;
@@ -120,6 +134,14 @@ namespace Match3_Evo
             Vector2 lvDelta = lvPointerEventData.position - lvPointerEventData.pressPosition;
             EnumSwapDirection lvSwapDirection = (EnumSwapDirection)Mathf.CeilToInt(Vector2.SignedAngle(Vector2.one, lvDelta) / 90f);
             GM.boardMng.OnSwapFields(Field, lvSwapDirection);
+        }
+
+        public void OnClick()
+        {
+            if (false == Field.SpecialVariant)
+                return;
+
+            GM.boardMng.HammerBreak(this);
         }
 
         #region FieldMovement

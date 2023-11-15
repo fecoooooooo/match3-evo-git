@@ -1,4 +1,5 @@
 ﻿using Match3_Evo;
+using System;
 
 public class MapPregenerator
 {
@@ -44,6 +45,39 @@ public class MapPregenerator
             }
         }
 
+        AddTreasureAndDns(pregeneratedMap);
+
         return pregeneratedMap;
+    }
+
+	private void AddTreasureAndDns(int[,] pregeneratedMap)
+	{
+        for (int i = 0; i < GM.boardMng.dnsCount; ++i)
+        {
+            int r;
+            int c;
+            do
+            {
+                r = seed.Next() % PREGENERATED_ROW_COUNT;
+                c = seed.Next() % GM.boardMng.columns;
+            }
+            while ((int)FieldVariant.SPECIAL <= pregeneratedMap[r, c]);
+
+            pregeneratedMap[r, c] = (int)FieldVariant.DNS;
+        }
+
+        for (int i = 0; i < GM.boardMng.treasureCount; ++i)
+        {
+            int r;
+            int c;
+            do
+            {
+                r = seed.Next() % GM.boardMng.rows; //TODO REVERT to PREGENERATED_ROW_COUNT
+                c = seed.Next() % GM.boardMng.columns;
+            }
+            while ((int)FieldVariant.SPECIAL <= pregeneratedMap[r, c]);
+
+            pregeneratedMap[r, c] = (int)FieldVariant.TREASURE;
+        }
     }
 }

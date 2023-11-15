@@ -15,11 +15,13 @@ namespace Match3_Evo
         public float breakAfterSeconds;
         public Vector2 fieldPosition;
         public FieldUI fieldUI;
-
+		
         [HideInInspector] public Field Left = null;
         [HideInInspector] public Field Right = null;
         [HideInInspector] public Field Top = null;
         [HideInInspector] public Field Bottom = null;
+        
+        public bool SpecialVariant { get => (int)FieldVariant.SPECIAL <= fieldVariant; }
 
         private Field swapField;
         private bool swapDone = false;
@@ -253,7 +255,19 @@ namespace Match3_Evo
             {
                 GM.scoreMng.AddTileBreak();
                 
-                GM.boardMng.collectedTileRoot.GetChild(fieldVariant).GetComponent<CollectedTile>().AddToCounter(1);
+                if(!SpecialVariant)
+                    GM.boardMng.collectedTileRoot.GetChild(fieldVariant).GetComponent<CollectedTile>().AddToCounter(1);
+				else
+				{
+                    if (fieldVariant == (int)FieldVariant.DNS)
+                    {
+
+                    }
+                    else if (fieldVariant == (int)FieldVariant.TREASURE)
+					{
+                        GM.boardMng.TreasureBreak(fieldUI);
+					}
+                }
 
                 ChangeFieldState(EnumFieldState.Empty);
                 fieldUI.gameObject.SetActive(false);
@@ -299,4 +313,21 @@ namespace Match3_Evo
         ComboReady = 6,
         Hidden,
     }
+
+    public enum FieldVariant
+	{
+        V1 = 0,
+        V2,
+        V3,
+        V4,
+        V5,
+        V6,
+        V7,
+        V8,
+        V9,
+        V10,
+        SPECIAL = 10,
+        DNS = 10,
+        TREASURE,
+	}
 }

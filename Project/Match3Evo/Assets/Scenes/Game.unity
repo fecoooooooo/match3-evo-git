@@ -3631,6 +3631,11 @@ MonoBehaviour:
     - basic: {fileID: 21300000, guid: 33bc3b73a0d8b0243b0e8e5dde93f139, type: 3}
       shadow: {fileID: 0}
       bubbleAnimation: []
+  dnsSprite: {fileID: 21300000, guid: 26fa350100d38424d94810d8c4b70d8d, type: 3}
+  dnsCount: 10
+  treasureSprite: {fileID: 21300000, guid: ce3033bdabb01a74289e8a3454542022, type: 3}
+  treasureCount: 10
+  treasureScore: 1000
   MatchDatas:
   - displacements:
     - {x: 0, y: 1}

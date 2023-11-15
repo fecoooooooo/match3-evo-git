@@ -28,6 +28,12 @@ namespace Match3_Evo
         public AnimationCurve fieldBounceCurve;
 
         public List<FieldDataEvo> FieldData;
+        public Sprite dnsSprite;
+        public int dnsCount;
+        public Sprite treasureSprite;
+        public int treasureCount;
+        public int treasureScore;
+
         public List<FieldDataTier> CurrentFieldDataTiers
         {
             get {
@@ -1032,6 +1038,7 @@ namespace Match3_Evo
                 bottom.fieldUI.SetUnlockedIfNotUnbreakable();
         }
 
+		#region boost
 		public void UseBoost(BoostType boostType, FieldUI targetField)
         {
             switch (boostType)
@@ -1077,10 +1084,10 @@ namespace Match3_Evo
             BreakMultipleDelayed(fieldsToBreak);
         }
 
-        private void HammerBreak(FieldUI targetField)
+        public void HammerBreak(FieldUI targetField)
         {
             if(false == targetField.Locked)
-                targetField.Field.Break(.5f);
+                targetField.Field.Break(.1f);
         }
 
         private void ShovelBreak(FieldUI targetField)
@@ -1276,6 +1283,13 @@ namespace Match3_Evo
             }
         }
 
+        #endregion
+
+		public void TreasureBreak(FieldUI targetField)
+        {
+            ScoreFX.CreateForTreasure(targetField.Field);
+        }
+
 
         bool IsRowUnlocked(int row)
 		{
@@ -1460,8 +1474,8 @@ namespace Match3_Evo
 
         public ThereIsNoPossibleMergeDelegate thereIsNoPossibleMergeDelegate;
 
-        #endregion
-    }
+		#endregion
+	}
 
 
 
