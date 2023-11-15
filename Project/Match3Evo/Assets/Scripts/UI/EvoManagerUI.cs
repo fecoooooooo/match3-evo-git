@@ -7,10 +7,13 @@ using UnityEngine;
 public class EvoManagerUI : MonoBehaviour
 {
     public int variantIndex = -1;
+    List<EvoImg> evoImgs;
     List<EvoBtn> evoBtns;
+    bool decidingEvo;
 
     private void Start()
     {
+        evoImgs = GetComponentsInChildren<EvoImg>().ToList();
         evoBtns = GetComponentsInChildren<EvoBtn>().ToList();
 
         SetupGraphicsAndCounterLabels();
@@ -18,35 +21,71 @@ public class EvoManagerUI : MonoBehaviour
         UpdateUI();
 
         GM.boardMng.mergeEvent.AddListener(OnMergeEvent);
+        GM.boardMng.promptDecideEvolutionEvent.AddListener(OnPromptDecideEvolutionEvent);
+        GM.boardMng.evolutionDecidedEvent.AddListener(OnEvolutionDecidedEvent);
     }
 
-	private void SetupGraphicsAndCounterLabels()
+	void SetupGraphicsAndCounterLabels()
 	{
 		FieldDataEvo fieldData = GM.boardMng.FieldData[variantIndex];
-        for(int i = 0; i < fieldData.fieldDataTiers.Length; ++i)
-            evoBtns[i].art.sprite = fieldData.fieldDataTiers[i].basic;
+        
+        for(int i = 0; i < evoImgs.Count; ++i)
+		{
+            evoImgs[i].art.sprite = fieldData.fieldDataTiers[i].basic;
+            evoImgs[i].counterTxt.text = GM.boardMng.gameParameters.mergesToNextEvolution[i].ToString();
+        }
 
-        for(int i = 0; i < GM.boardMng.gameParameters.mergesToNextEvolution.Length; ++i)
-            evoBtns[i].counterTxt.text = GM.boardMng.gameParameters.mergesToNextEvolution[i].ToString();
-	}
-
-	void UpdateUI()
-	{
-        int evolutionLvlForVariant = GM.boardMng.currentEvolutionStates[variantIndex];
         for(int i = 0; i < evoBtns.Count; ++i)
 		{
-            evoBtns[i].gameObject.SetActive(i <= evolutionLvlForVariant);
-            evoBtns[i].counterTxt.gameObject.SetActive(i == evolutionLvlForVariant);
+            int fieldDataIndex = BoardManager.DECIDE_EVOLUTION_LEVEL + i;
+            evoBtns[i].art.sprite = fieldData.fieldDataTiers[fieldDataIndex].basic;
+		}
+    }
+
+    void UpdateUI()
+	{
+        int evolutionLvlForVariant = GM.boardMng.currentEvolutionLvlPerVariant[variantIndex];
+
+        for(int i = 0; i < evoImgs.Count; ++i)
+		{
+            evoImgs[i].gameObject.SetActive(i <= evolutionLvlForVariant);
+            evoImgs[i].counterTxt.gameObject.SetActive(i == evolutionLvlForVariant && !decidingEvo);
 
             if(i == evolutionLvlForVariant)
-                evoBtns[i].counterTxt.text = GM.boardMng.currentMergeToEvolve[variantIndex].ToString();
+                evoImgs[i].counterTxt.text = GM.boardMng.currentMergeCountToNextEvolvePerVariant[variantIndex].ToString();
 		}
+
+        for (int i = 0; i < evoBtns.Count; ++i)
+	    {
+            bool currentEnabled = evolutionLvlForVariant == i + BoardManager.DECIDE_EVOLUTION_LEVEL;
+
+            evoBtns[i].SetClickListenerEnabled(decidingEvo || currentEnabled);
+            evoBtns[i].gameObject.SetActive(decidingEvo || currentEnabled);
+        }
 	}
 
     void OnMergeEvent(int variant)
 	{
         if (variantIndex == variant)
             UpdateUI();
+	}
+
+    void OnPromptDecideEvolutionEvent(int variant)
+    {
+        if (variantIndex == variant)
+		{
+            decidingEvo = true;
+            UpdateUI();
+        }
+    }
+
+    void OnEvolutionDecidedEvent(int variant)
+	{
+        if (variantIndex == variant)
+        {
+            decidingEvo = false;
+            UpdateUI();
+        }
 	}
 }
 

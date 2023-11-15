@@ -22,6 +22,7 @@ namespace Match3_Evo
         public float fireSpreadTime = .5f;
 
         public int[] mergesToNextEvolution = new int[4];
+        public int[] scoreMultiplierPerEvolution = new int[6];
 
         string match_timerKey = "match_timer";
         string hint_timeKey = "hint_time";

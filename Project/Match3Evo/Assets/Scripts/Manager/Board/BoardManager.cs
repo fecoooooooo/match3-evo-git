@@ -33,9 +33,9 @@ namespace Match3_Evo
             get {
                 List<FieldDataTier> currentFieldDataTiers = new List<FieldDataTier>();
 
-                for (int i = 0; i < currentEvolutionStates.Length; ++i)
+                for (int i = 0; i < currentEvolutionLvlPerVariant.Length; ++i)
 				{
-                    int evolutionForTileVariant = currentEvolutionStates[i];
+                    int evolutionForTileVariant = currentEvolutionLvlPerVariant[i];
 
                     currentFieldDataTiers.Add(FieldData[i].fieldDataTiers[evolutionForTileVariant]);
                 }
@@ -99,14 +99,16 @@ namespace Match3_Evo
         float currentWaitTillShift = 0.5f;
         readonly float WAIT_TILL_SHIFT_TIME = 0.5f;
         bool isShifting = false;
-
-        const int MAX_EVOLUTION = 4;
+            
+        public const int DECIDE_EVOLUTION_LEVEL = 4;
         [HideInInspector]
-        public int[] currentEvolutionStates;
+        public int[] currentEvolutionLvlPerVariant;
         [HideInInspector]
-        public int[] currentMergeToEvolve;
+        public int[] currentMergeCountToNextEvolvePerVariant;
 
         public MergeEvent mergeEvent = new MergeEvent();
+        public PromptDecideEvolutionEvent promptDecideEvolutionEvent = new PromptDecideEvolutionEvent();
+        public EvolutionDecidedEvent evolutionDecidedEvent = new EvolutionDecidedEvent();
 
         void Awake()
         {
@@ -122,24 +124,34 @@ namespace Match3_Evo
             TopRowInit();
         }
 
-        void Evolve(int variantIndex)
+        void Evolve(int variantIndex, int? evolutionIndex = null)
 		{
-            if(currentEvolutionStates[variantIndex] + 1 < MAX_EVOLUTION)
-                currentEvolutionStates[variantIndex]++;
-
-            int evoLvlForVariant = currentEvolutionStates[variantIndex];
-            currentMergeToEvolve[variantIndex] = gameParameters.mergesToNextEvolution[evoLvlForVariant];
+            if (evolutionIndex == null) 
+            {
+                if (currentEvolutionLvlPerVariant[variantIndex] + 1 < DECIDE_EVOLUTION_LEVEL)
+				{
+                    currentEvolutionLvlPerVariant[variantIndex]++;
+                    int evoLvlForVariant = currentEvolutionLvlPerVariant[variantIndex];
+                    currentMergeCountToNextEvolvePerVariant[variantIndex] = gameParameters.mergesToNextEvolution[evoLvlForVariant];
+                }
+                else if (currentEvolutionLvlPerVariant[variantIndex] + 1 == DECIDE_EVOLUTION_LEVEL)
+                    promptDecideEvolutionEvent.Invoke(variantIndex);
+            }
+			else
+			{
+                currentEvolutionLvlPerVariant[variantIndex] = evolutionIndex.Value;
+            }
 		}
 
         void Start()
         {
             mergeEvent.AddListener(OnMergeEvent);
 
-            currentEvolutionStates = new int[gameParameters.tileVariantMax];
-            currentMergeToEvolve = new int[gameParameters.tileVariantMax];
+            currentEvolutionLvlPerVariant = new int[gameParameters.tileVariantMax];
+            currentMergeCountToNextEvolvePerVariant = new int[gameParameters.tileVariantMax];
 
-            for (int i = 0; i < currentMergeToEvolve.Length; ++i)
-                currentMergeToEvolve[i] = gameParameters.mergesToNextEvolution[0];
+            for (int i = 0; i < currentMergeCountToNextEvolvePerVariant.Length; ++i)
+                currentMergeCountToNextEvolvePerVariant[i] = gameParameters.mergesToNextEvolution[0];
 
             Canvas.ForceUpdateCanvases();
             StartCoroutine(InitializeGame());
@@ -516,14 +528,14 @@ namespace Match3_Evo
 
                         if (!lvSwapTopLeft)
                         {
-                            lvHintSwapMergeable.fields.Add(_field);
-                            lvHintSwapMergeable.fields.Add(lvSwapFieldTo);
+                            lvHintSwapMergeable.AddField(_field);
+                            lvHintSwapMergeable.AddField(lvSwapFieldTo);
                             lvHintSwapMergeable.TopLeftField = _field;
                         }
                         else
                         {
-                            lvHintSwapMergeable.fields.Add(lvSwapFieldTo);
-                            lvHintSwapMergeable.fields.Add(_field);
+                            lvHintSwapMergeable.AddField(lvSwapFieldTo);
+                            lvHintSwapMergeable.AddField(_field);
                             lvHintSwapMergeable.TopLeftField = lvSwapFieldTo;
                         }
                     }
@@ -583,7 +595,7 @@ namespace Match3_Evo
                         {
                             Mergeable lvMergeable = new Mergeable(lvEndIndex - lvStartIndex + 1, false, fields[lvStartIndex, lvColumnIndex].fieldVariant);
                             for (int i = lvStartIndex; i <= lvEndIndex; i++)
-                                lvMergeable.fields.Add(fields[i, lvColumnIndex]);
+                                lvMergeable.AddField(fields[i, lvColumnIndex]);
 
                             if (lvMergeable.mergeableType == EnumMergeableType.Box)
                                 lvMergeable.UpdateBoxFieldTo();
@@ -629,7 +641,7 @@ namespace Match3_Evo
                         {
                             Mergeable lvMergeable = new Mergeable(lvEndIndex - lvStartIndex + 1, true, fields[lvRowInxed, lvStartIndex].fieldVariant);
                             for (int i = lvStartIndex; i <= lvEndIndex; i++)
-                                lvMergeable.fields.Add(fields[lvRowInxed, i]);
+                                lvMergeable.AddField(fields[lvRowInxed, i]);
 
                             if (lvMergeable.mergeableType == EnumMergeableType.Box)
                                 lvMergeable.UpdateBoxFieldTo();
@@ -647,18 +659,18 @@ namespace Match3_Evo
 
             for (int i = 0; i < lvResult.Count; i++)
             {
-                if (!lvResult[i].isRow && lvResult[i].fields.Count == minimumFieldCountForBreak)
+                if (!lvResult[i].isRow && lvResult[i].Fields.Count == minimumFieldCountForBreak)
                 {
-                    Field lvField = lvResult[i].fields[0];
+                    Field lvField = lvResult[i].Fields[0];
 
                     for (int j = 0; j < ExactMatchDatas.Length; j++)
                     {
                         if (ExactMatchDatas[j].GetExactMatchingFields(lvField, lvExactMatchs))
                         {
                             Mergeable lvMergeable = new Mergeable(5, false, lvField.fieldVariant);
-                            lvMergeable.fields.AddRange(lvExactMatchs);
-                            lvMergeable.fields.AddRange(lvResult[i].fields);
-                            lvMergeable.UpdateBoxFieldTo(lvResult[i].fields[ExactMatchDatas[j].swapIndex]);
+                            lvMergeable.AddFieldRange(lvExactMatchs);
+                            lvMergeable.AddFieldRange(lvResult[i].Fields);
+                            lvMergeable.UpdateBoxFieldTo(lvResult[i].Fields[ExactMatchDatas[j].swapIndex]);
                             lvNewExactMergeable.Add(lvMergeable);
                             break;
                         }
@@ -668,13 +680,13 @@ namespace Match3_Evo
 
             for (int i = 0; i < lvResult.Count; i++)
             {
-                if (lvResult[i].fields.Count == minimumFieldCountForBreak)
+                if (lvResult[i].Fields.Count == minimumFieldCountForBreak)
                 {
                     for (int j = 0; j < lvNewExactMergeable.Count; j++)
                     {
-                        if (lvNewExactMergeable[j].fields.Contains(lvResult[i].fields[0]) &&
-                            lvNewExactMergeable[j].fields.Contains(lvResult[i].fields[1]) &&
-                            lvNewExactMergeable[j].fields.Contains(lvResult[i].fields[2]))
+                        if (lvNewExactMergeable[j].Fields.Contains(lvResult[i].Fields[0]) &&
+                            lvNewExactMergeable[j].Fields.Contains(lvResult[i].Fields[1]) &&
+                            lvNewExactMergeable[j].Fields.Contains(lvResult[i].Fields[2]))
                         {
                             lvResult.RemoveAt(i--);
                             break;
@@ -786,9 +798,9 @@ namespace Match3_Evo
                 for (int i = 0; i <= goodFieldCount; i++)
                 {
                     if (_isRow)
-                        lvMergeable.fields.Add(fields[startField.rowIndex, startField.columnIndex + i]);
+                        lvMergeable.AddField(fields[startField.rowIndex, startField.columnIndex + i]);
                     else
-                        lvMergeable.fields.Add(fields[startField.rowIndex + i, startField.columnIndex]);
+                        lvMergeable.AddField(fields[startField.rowIndex + i, startField.columnIndex]);
                 }
 
                 return lvMergeable;
@@ -875,7 +887,7 @@ namespace Match3_Evo
                 {
                     for (int i = 0; i < _mergeables.Count; i++)
                     {
-                        if (_mergeables[i].fields.Contains(lvResultField))
+                        if (_mergeables[i].Fields.Contains(lvResultField))
                         {
                             lvResultField = null;
                             break;
@@ -941,24 +953,24 @@ namespace Match3_Evo
                 {
                     if (_mergeables[i].isRow)
                     {
-                        int lvRowIndex = _mergeables[i].fields[0].rowIndex;
+                        int lvRowIndex = _mergeables[i].Fields[0].rowIndex;
 
-                        _mergeables[i].fields.Clear();
+                        _mergeables[i].ClearFields();
 
                         for (int j = 0; j < columns; j++)
-                            _mergeables[i].fields.Add(fields[lvRowIndex, j]);
+                            _mergeables[i].AddField(fields[lvRowIndex, j]);
 
                         _mergeables[i].breakUIWidth = new Vector2(columns, 1);
                         _mergeables[i].TopLeftField = fields[lvRowIndex, 0];
                     }
                     else
                     {
-                        int lvColumnIndex = _mergeables[i].fields[0].columnIndex;
+                        int lvColumnIndex = _mergeables[i].Fields[0].columnIndex;
 
-                        _mergeables[i].fields.Clear();
+                        _mergeables[i].ClearFields();
 
                         for (int j = 0; j < rows; j++)
-                            _mergeables[i].fields.Add(fields[j, lvColumnIndex]);
+                            _mergeables[i].AddField(fields[j, lvColumnIndex]);
 
                         _mergeables[i].breakUIWidth = new Vector2(1, rows);
                         _mergeables[i].TopLeftField = fields[0, lvColumnIndex];
@@ -967,7 +979,7 @@ namespace Match3_Evo
 
                 if (_mergeables[i].mergeableType == EnumMergeableType.Box)
                 {
-                    _mergeables[i].fields.Clear();
+                    _mergeables[i].ClearFields();
 
                     Vector2Int lvTopLeft = new Vector2Int(Mathf.Clamp(_mergeables[i].BoxField.columnIndex - 2, 0, columns - 1), Mathf.Clamp(_mergeables[i].BoxField.rowIndex - 2, 0, rows - 1));
                     Vector2Int lvBottomRight = new Vector2Int(Mathf.Clamp(_mergeables[i].BoxField.columnIndex + 2, 0, columns - 1), Mathf.Clamp(_mergeables[i].BoxField.rowIndex + 2, 0, rows - 1));
@@ -975,7 +987,7 @@ namespace Match3_Evo
                     for (int row = lvTopLeft.y; row <= lvBottomRight.y; row++)
                     {
                         for (int column = lvTopLeft.x; column <= lvBottomRight.x; column++)
-                            _mergeables[i].fields.Add(fields[row, column]);
+                            _mergeables[i].AddField(fields[row, column]);
                     }
 
                     _mergeables[i].breakUIWidth = lvBottomRight - lvTopLeft + Vector2.one;
@@ -983,30 +995,30 @@ namespace Match3_Evo
                 }
 
                 //Go backward to break the lowest tile first
-                for (int j = _mergeables[i].fields.Count - 1; j >= 0; j--)
+                for (int j = _mergeables[i].Fields.Count - 1; j >= 0; j--)
                 {
                     if (_mergeables[i].TopLeftField == null)
                     {
                         if (_mergeables[i].isRow)
-                            _mergeables[i].breakUIWidth = new Vector2(_mergeables[i].fields.Count, 1);
+                            _mergeables[i].breakUIWidth = new Vector2(_mergeables[i].Fields.Count, 1);
                         else
-                            _mergeables[i].breakUIWidth = new Vector2(1, _mergeables[i].fields.Count);
+                            _mergeables[i].breakUIWidth = new Vector2(1, _mergeables[i].Fields.Count);
 
-                        _mergeables[i].TopLeftField = _mergeables[i].fields[0];
+                        _mergeables[i].TopLeftField = _mergeables[i].Fields[0];
                     }
 
-                    if (_mergeables[i].fields.Count == minimumFieldCountForBreak)
-                        _mergeables[i].fields[j].Break(breakDelayTimeFast);
+                    if (_mergeables[i].Fields.Count == minimumFieldCountForBreak)
+                        _mergeables[i].Fields[j].Break(breakDelayTimeFast);
                     else
-                        _mergeables[i].fields[j].Break(breakDelayTime);
+                        _mergeables[i].Fields[j].Break(breakDelayTime);
 
-                    UnlockFieldIfPossible(_mergeables[i].fields[j].Bottom);
-                    UnlockFieldIfPossible(_mergeables[i].fields[j].Left);
-                    UnlockFieldIfPossible(_mergeables[i].fields[j].Right);
+                    UnlockFieldIfPossible(_mergeables[i].Fields[j].Bottom);
+                    UnlockFieldIfPossible(_mergeables[i].Fields[j].Left);
+                    UnlockFieldIfPossible(_mergeables[i].Fields[j].Right);
                 }
 
                 
-                mergeEvent.Invoke(_mergeables[i].fields[0].fieldVariant);
+                mergeEvent.Invoke(_mergeables[i].Fields[0].fieldVariant);
                 _mergeables[i].PlayBreakSound();
             }
         }
@@ -1330,9 +1342,9 @@ namespace Match3_Evo
 
         void OnMergeEvent(int variant)
         {
-            currentMergeToEvolve[variant]--;
+            currentMergeCountToNextEvolvePerVariant[variant]--;
 
-            if (currentMergeToEvolve[variant] <= 0)
+            if (currentMergeCountToNextEvolvePerVariant[variant] <= 0)
                 Evolve(variant);
         }
 
@@ -1396,7 +1408,7 @@ namespace Match3_Evo
                     lvMergeables.Add(new Mergeable(rows, false));
 
                     for (int lvRowIndex = 0; lvRowIndex < rows; lvRowIndex++)
-                        lvMergeables[0].fields.Add(fields[lvRowIndex, lvColumnIndex]);
+                        lvMergeables[0].AddField(fields[lvRowIndex, lvColumnIndex]);
 
                     BreakMergeables(lvMergeables);
                     FeedColumn(lvColumnIndex);
@@ -1415,11 +1427,17 @@ namespace Match3_Evo
             GM.scoreMng.ScoreSummary();
         }
 
-        #endregion
+		internal void ChooseEvoltion(int variantIndex, int evolutionIndex)
+		{
+            Evolve(variantIndex, evolutionIndex);
+            evolutionDecidedEvent.Invoke(variantIndex);
+		}
 
-        #region eventDelegates
+		#endregion
 
-        public delegate void StartGameDelegate();
+		#region eventDelegates
+
+		public delegate void StartGameDelegate();
 
         public StartGameDelegate startGameDelegate;
 
@@ -1504,8 +1522,7 @@ namespace Match3_Evo
         }
     }
 
-    [Serializable]
-    public class MergeEvent : UnityEvent<int>
-    {
-    }
+    public class MergeEvent : UnityEvent<int>{}
+    public class PromptDecideEvolutionEvent : UnityEvent<int>{}
+    public class EvolutionDecidedEvent : UnityEvent<int>{}
 }
