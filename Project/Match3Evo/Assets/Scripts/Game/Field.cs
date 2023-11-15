@@ -96,7 +96,6 @@ namespace Match3_Evo
                 {
                     if (lvBreakable[i].Fields.Contains(this) || lvBreakable[i].Fields.Contains(_newSwapField))
                     {
-                        //Debug.Log("SwapWithField found");
                         lvFound = true;
                         break;
                     }

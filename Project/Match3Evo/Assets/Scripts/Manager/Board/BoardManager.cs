@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Text;
 using System.Collections;
 using System.Collections.Generic;
@@ -110,6 +110,8 @@ namespace Match3_Evo
         public PromptDecideEvolutionEvent promptDecideEvolutionEvent = new PromptDecideEvolutionEvent();
         public EvolutionDecidedEvent evolutionDecidedEvent = new EvolutionDecidedEvent();
 
+        MapPregenerator mapPregenerator;
+
         void Awake()
         {
             CanClickOnField = true;
@@ -212,7 +214,8 @@ namespace Match3_Evo
                 boardOverride = null;
             }
 
-            new MapPregenerator().PregenerateToColumns(columnFeeds);
+            mapPregenerator = new MapPregenerator();
+            mapPregenerator.PregenerateToColumns(columnFeeds);
 
             for (int lvColumnIndex = 0; lvColumnIndex < columns; lvColumnIndex++)
             {
