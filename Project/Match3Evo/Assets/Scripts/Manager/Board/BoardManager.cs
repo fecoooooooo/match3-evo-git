@@ -91,6 +91,7 @@ namespace Match3_Evo
 
         public bool CanClickOnField { get; set; }
 		public bool DebugEnabled { get; internal set; }
+		public bool DnsMeterFilled { get; private set; }
 
 		bool showHint;
 
@@ -105,7 +106,6 @@ namespace Match3_Evo
         public int[] currentMergeCountToNextEvolvePerVariant;
 
         public MergeEvent mergeEvent = new MergeEvent();
-        public PromptDecideEvolutionEvent promptDecideEvolutionEvent = new PromptDecideEvolutionEvent();
         public EvolutionDecidedEvent evolutionDecidedEvent = new EvolutionDecidedEvent();
 
         MapPregenerator mapPregenerator;
@@ -126,22 +126,34 @@ namespace Match3_Evo
             TopRowInit();
         }
 
-        void Evolve(int variantIndex, int? evolutionIndex = null)
+        void Evolve(int evolvingVariant)
 		{
-            if (evolutionIndex == null) 
-            {
-                if (currentEvolutionLvlPerVariant[variantIndex] + 1 < DECIDE_EVOLUTION_LEVEL)
-				{
-                    currentEvolutionLvlPerVariant[variantIndex]++;
-                    int evoLvlForVariant = currentEvolutionLvlPerVariant[variantIndex];
-                    currentMergeCountToNextEvolvePerVariant[variantIndex] = gameParameters.mergesToNextEvolution[evoLvlForVariant];
-                }
-                else if (currentEvolutionLvlPerVariant[variantIndex] + 1 == DECIDE_EVOLUTION_LEVEL)
-                    promptDecideEvolutionEvent.Invoke(variantIndex);
-            }
-			else
+            if (currentEvolutionLvlPerVariant[evolvingVariant] + 1 < DECIDE_EVOLUTION_LEVEL)
 			{
-                currentEvolutionLvlPerVariant[variantIndex] = evolutionIndex.Value;
+                currentEvolutionLvlPerVariant[evolvingVariant]++;
+                int evoLvlForVariant = currentEvolutionLvlPerVariant[evolvingVariant];
+                currentMergeCountToNextEvolvePerVariant[evolvingVariant] = gameParameters.mergesToNextEvolution[evoLvlForVariant];
+            }
+            else if (currentEvolutionLvlPerVariant[evolvingVariant] + 1 == DECIDE_EVOLUTION_LEVEL)
+			{
+                currentEvolutionLvlPerVariant[evolvingVariant]++;
+
+				if (DnsMeterFilled)
+                    currentEvolutionLvlPerVariant[evolvingVariant]++;
+
+                evolutionDecidedEvent.Invoke(evolvingVariant);
+			}
+
+            int newEvoLvl = currentEvolutionLvlPerVariant[evolvingVariant];
+
+            bottomFeedMap.Evolve(evolvingVariant, newEvoLvl);
+            foreach (var cf in columnFeeds)
+                cf.Evolve(evolvingVariant, newEvoLvl);
+
+            foreach(var f in fields)
+			{
+                if (f.EvoLvl < newEvoLvl && evolvingVariant == f.FieldVariant)
+                    f.FieldType = Field.EvoLvlAndVariantToType(newEvoLvl, evolvingVariant);
             }
 		}
 
@@ -1290,49 +1302,6 @@ namespace Match3_Evo
                 fields[row, i].fieldUI.SetUnbreakableAndLocked();
         }
 
-        // public void AddCoinToBoard(Field _onField)
-        // {
-        //     if (_onField != null)
-        //         columnFeeds[_onField.columnIndex].AddField(gameParameters.TileVariantMax());
-        //     else
-        //     {
-        //         lastComboBreakColumn++;
-        //         lastComboBreakColumn = lastComboBreakColumn == columns ? 0 : lastComboBreakColumn;
-
-        //         Field lvFirstBreakField = null;
-
-        //         for (int lvColumnIndex = lastComboBreakColumn; lvColumnIndex < columns && lvFirstBreakField == null; lvColumnIndex++)
-        //         {
-        //             if (!columnFeeds[lvColumnIndex].HasCoin())
-        //             {
-        //                 for (int rowIndex = 0; rowIndex < rows && lvFirstBreakField == null; rowIndex++)
-        //                 {
-        //                     if (fields[rowIndex, lvColumnIndex].FieldState == EnumFieldState.Break)
-        //                         lvFirstBreakField = fields[rowIndex, lvColumnIndex];
-        //                 }
-        //             }
-
-        //         }
-
-        //         for (int lvColumnIndex = 0; lvColumnIndex < lastComboBreakColumn && lvFirstBreakField == null; lvColumnIndex++)
-        //         {
-        //             if (!columnFeeds[lvColumnIndex].HasCoin())
-        //             {
-        //                 for (int rowIndex = 0; rowIndex < rows && lvFirstBreakField == null; rowIndex++)
-        //                 {
-        //                     if (fields[rowIndex, lvColumnIndex].FieldState == EnumFieldState.Break)
-        //                         lvFirstBreakField = fields[rowIndex, lvColumnIndex];
-        //                 }
-        //             }
-        //         }
-
-        //         if (lvFirstBreakField != null)
-        //             columnFeeds[lvFirstBreakField.columnIndex].AddField(gameParameters.TileVariantMax());
-        //         else
-        //             columnFeeds[lastComboBreakColumn].AddField(gameParameters.TileVariantMax());
-        //     }
-        // }
-
         void OnMergeEvent(int variant)
         {
             currentMergeCountToNextEvolvePerVariant[variant]--;
@@ -1419,12 +1388,6 @@ namespace Match3_Evo
             GM.soundMng.Play(EnumSoundID.GameEnd);
             GM.scoreMng.ScoreSummary();
         }
-
-		internal void ChooseEvoltion(int variantIndex, int evolutionIndex)
-		{
-            Evolve(variantIndex, evolutionIndex);
-            evolutionDecidedEvent.Invoke(variantIndex);
-		}
 
 		#endregion
 
@@ -1516,6 +1479,5 @@ namespace Match3_Evo
     }
 
     public class MergeEvent : UnityEvent<int>{}
-    public class PromptDecideEvolutionEvent : UnityEvent<int>{}
     public class EvolutionDecidedEvent : UnityEvent<int>{}
 }

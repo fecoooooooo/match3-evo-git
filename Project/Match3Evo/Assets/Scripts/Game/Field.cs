@@ -18,7 +18,7 @@ namespace Match3_Evo
         public int FieldVariant { get => (int)FieldType % GM.boardMng.gameParameters.TileVariantMax(); }
         public int EvoLvl { get => (int)FieldType / GM.boardMng.gameParameters.TileVariantMax(); }
 
-        [HideInInspector] public Field Left = null;
+		[HideInInspector] public Field Left = null;
         [HideInInspector] public Field Right = null;
         [HideInInspector] public Field Top = null;
         [HideInInspector] public Field Bottom = null;
@@ -305,7 +305,27 @@ namespace Match3_Evo
 
             return lvSimilarCount;
         }
-	}
+
+        internal static bool IsSameVariantOnSmallerEvoLvlThanCurrent(FieldType fieldType, int variantIndex)
+        {
+            return (int)fieldType % GM.boardMng.gameParameters.TileVariantMax() == variantIndex && (int)fieldType < GM.boardMng.currentEvolutionLvlPerVariant[variantIndex];
+        }
+
+        public static int TypeToVariant(FieldType fieldType)
+		{
+            return (int)fieldType % GM.boardMng.gameParameters.TileVariantMax();
+        }
+
+        public static int TypeToVEvoLvl(FieldType fieldType)
+        {
+            return (int)fieldType / GM.boardMng.gameParameters.TileVariantMax();
+        }
+
+        public static FieldType EvoLvlAndVariantToType(int evoLvl, int variant)
+		{
+            return (FieldType)(evoLvl * GM.boardMng.gameParameters.TileVariantMax() + variant);
+		}
+    }
 
     public enum EnumFieldState
     {

@@ -27,7 +27,6 @@ public class EvoBtn : MonoBehaviour
 	{
 		if (clickListenerEnabled)
 		{
-			GM.boardMng.ChooseEvoltion(variantIndex, evolutionIndex);
 			clickListenerEnabled = false;
 		}
 	}

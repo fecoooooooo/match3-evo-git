@@ -5,7 +5,7 @@ public class MapPregenerator
 {
 	const int PREGENERATED_ROW_COUNT_TOP_PART = 1000;
 	const int PREGENERATED_ROW_COUNT_BOTTOM_PART = 100;
-    const int HIGHER_EVO_FILL_STEP = 3;
+    const int HIGHER_EVO_FILL_STEP = 5;
     Random seed;
 
     public void PregenerateToColumns(ColumnFeed[] columnFeeds)

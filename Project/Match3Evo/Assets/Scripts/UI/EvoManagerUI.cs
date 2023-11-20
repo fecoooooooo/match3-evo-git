@@ -9,7 +9,6 @@ public class EvoManagerUI : MonoBehaviour
     public int variantIndex = -1;
     List<EvoImg> evoImgs;
     List<EvoBtn> evoBtns;
-    bool decidingEvo;
 
     private void Start()
     {
@@ -21,7 +20,6 @@ public class EvoManagerUI : MonoBehaviour
         UpdateUI();
 
         GM.boardMng.mergeEvent.AddListener(OnMergeEvent);
-        GM.boardMng.promptDecideEvolutionEvent.AddListener(OnPromptDecideEvolutionEvent);
         GM.boardMng.evolutionDecidedEvent.AddListener(OnEvolutionDecidedEvent);
     }
 
@@ -49,7 +47,7 @@ public class EvoManagerUI : MonoBehaviour
         for(int i = 0; i < evoImgs.Count; ++i)
 		{
             evoImgs[i].gameObject.SetActive(i <= evolutionLvlForVariant);
-            evoImgs[i].counterTxt.gameObject.SetActive(i == evolutionLvlForVariant && !decidingEvo);
+            evoImgs[i].counterTxt.gameObject.SetActive(i == evolutionLvlForVariant);
 
             if(i == evolutionLvlForVariant)
                 evoImgs[i].counterTxt.text = GM.boardMng.currentMergeCountToNextEvolvePerVariant[variantIndex].ToString();
@@ -57,10 +55,7 @@ public class EvoManagerUI : MonoBehaviour
 
         for (int i = 0; i < evoBtns.Count; ++i)
 	    {
-            bool currentEnabled = evolutionLvlForVariant == i + BoardManager.DECIDE_EVOLUTION_LEVEL;
-
-            evoBtns[i].SetClickListenerEnabled(decidingEvo || currentEnabled);
-            evoBtns[i].gameObject.SetActive(decidingEvo || currentEnabled);
+            evoBtns[i].gameObject.SetActive(evolutionLvlForVariant == i + BoardManager.DECIDE_EVOLUTION_LEVEL);
         }
 	}
 
@@ -70,22 +65,10 @@ public class EvoManagerUI : MonoBehaviour
             UpdateUI();
 	}
 
-    void OnPromptDecideEvolutionEvent(int variant)
-    {
-        if (variantIndex == variant)
-		{
-            decidingEvo = true;
-            UpdateUI();
-        }
-    }
-
     void OnEvolutionDecidedEvent(int variant)
 	{
         if (variantIndex == variant)
-        {
-            decidingEvo = false;
             UpdateUI();
-        }
 	}
 }
 

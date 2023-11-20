@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+﻿using Match3_Evo;
 
 public class BottomFeedMap
 {
@@ -22,5 +22,20 @@ public class BottomFeedMap
 		}
 
 		return row;
+	}
+
+	internal void Evolve(int evolvingVariant, int newEvoLvl)
+	{
+		for (int r = 0; r < map.GetLength(1); ++r)
+		{
+			for (int c = 0; c < map.GetLength(1); ++c)
+			{
+				int variant = Field.TypeToVariant((FieldType)map[r, c]);
+				int evoLvl = Field.TypeToVEvoLvl((FieldType)map[r, c]);
+
+				if (evoLvl < newEvoLvl && evolvingVariant == variant)
+					map[r, c] = (int)Field.EvoLvlAndVariantToType(newEvoLvl, evolvingVariant);
+			}
+		}
 	}
 }

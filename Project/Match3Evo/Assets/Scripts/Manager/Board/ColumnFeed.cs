@@ -1,4 +1,5 @@
 ﻿using Match3_Evo;
+using System;
 using System.Collections.Generic;
 
 [System.Serializable]
@@ -7,7 +8,7 @@ public class ColumnFeed
     public int column;
     public List<int> fieldTypes;
 
-    System.Random seed = new System.Random(GM.GetRandom(0, int.MaxValue));
+    Random seed = new System.Random(GM.GetRandom(0, int.MaxValue));
 
     public ColumnFeed(int _column, List<int> _colors = null)
     {
@@ -37,4 +38,15 @@ public class ColumnFeed
         fieldTypes.Add(_fieldType);
     }
 
+    internal void Evolve(int evolvingVariant, int newEvoLvl)
+    {
+        for (int i = 0; i < fieldTypes.Count; ++i)
+        {
+            int variant = Field.TypeToVariant((FieldType)fieldTypes[i]);
+            int evoLvl = Field.TypeToVEvoLvl((FieldType)fieldTypes[i]);
+
+            if (evoLvl < newEvoLvl && evolvingVariant == variant)
+                fieldTypes[i] = (int)Field.EvoLvlAndVariantToType(newEvoLvl, evolvingVariant);
+        }
+    }
 }
