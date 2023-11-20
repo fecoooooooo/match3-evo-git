@@ -81,9 +81,7 @@ namespace Match3_Evo
         int comboCount;
         // int lastComboBreakColumn = 0;
 
-        Field[,] fields;
-
-        public Field[,] Fields { get { return fields; } }
+        public Field[,] Fields { get; private set; }
 
         public int Columns { get { return columns; } }
 
@@ -150,7 +148,7 @@ namespace Match3_Evo
             foreach (var cf in columnFeeds)
                 cf.Evolve(evolvingVariant, newEvoLvl);
 
-            foreach(var f in fields)
+            foreach(var f in Fields)
 			{
                 if (f.EvoLvl < newEvoLvl && evolvingVariant == f.FieldVariant)
                     f.FieldType = Field.EvoLvlAndVariantToType(newEvoLvl, evolvingVariant);
@@ -187,7 +185,7 @@ namespace Match3_Evo
             GM.scoreMng.Initialize();
 
             GM.timeMng.InitGameTime();
-            fields = new Field[rows, columns];
+            Fields = new Field[rows, columns];
             columnFeeds = new ColumnFeed[columns];
 
             fieldSize = fieldUIParent.rect.width / columns;
@@ -202,10 +200,10 @@ namespace Match3_Evo
                     FieldUI lvFieldUI = Instantiate(fieldUIPrefab, fieldUIParent);
 
                     lvFieldPosition = new Vector2(fieldSize * lvColumnIndex, -fieldSize * lvRowIndex);
-                    fields[lvRowIndex, lvColumnIndex] = new Field(lvRowIndex, lvColumnIndex, FieldType.V1_E0, 1, lvFieldPosition, lvFieldUI);
-                    lvFieldUI.Initialize(fields[lvRowIndex, lvColumnIndex]);
+                    Fields[lvRowIndex, lvColumnIndex] = new Field(lvRowIndex, lvColumnIndex, FieldType.V1_E0, 1, lvFieldPosition, lvFieldUI);
+                    lvFieldUI.Initialize(Fields[lvRowIndex, lvColumnIndex]);
                     lvFieldUI.ResetPosition();
-                    fieldsList.Add(fields[lvRowIndex, lvColumnIndex]);
+                    fieldsList.Add(Fields[lvRowIndex, lvColumnIndex]);
                 }
 
                 columnFeeds[lvColumnIndex] = new ColumnFeed(lvColumnIndex);
@@ -214,7 +212,7 @@ namespace Match3_Evo
             for (int lvColumnIndex = 0; lvColumnIndex < columns; lvColumnIndex++)
             {
                 for (int lvRowIndex = rows - 1; lvRowIndex >= 0; lvRowIndex--)
-                    fields[lvRowIndex, lvColumnIndex].FindRelations();
+                    Fields[lvRowIndex, lvColumnIndex].FindRelations();
             }
 
             if (boardOverride != null)
@@ -230,7 +228,7 @@ namespace Match3_Evo
             for (int lvColumnIndex = 0; lvColumnIndex < columns; lvColumnIndex++)
             {
                 for (int lvRowIndex = rows - 1; lvRowIndex >= 0; lvRowIndex--)
-                    fields[lvRowIndex, lvColumnIndex].FieldState = EnumFieldState.Empty;
+                    Fields[lvRowIndex, lvColumnIndex].FieldState = EnumFieldState.Empty;
 
                 FeedColumn(lvColumnIndex, true);
             }
@@ -273,7 +271,7 @@ namespace Match3_Evo
 
     private void HandleInputEnabled()
 		{
-            int breakableFields = fields?.Cast<Field>()?.ToArray()?.Count(x => x.FieldState == EnumFieldState.Break) ?? int.MaxValue;
+            int breakableFields = Fields?.Cast<Field>()?.ToArray()?.Count(x => x.FieldState == EnumFieldState.Break) ?? int.MaxValue;
             bool thereAreFieldsToBreak = breakableFields > 0;
 
             if (thereAreFieldsToBreak || isShifting)
@@ -290,7 +288,7 @@ namespace Match3_Evo
 			{
                 isShifting = true;
 
-                Vector2 startPosition = fields[rows - 1, 0].fieldPosition + new Vector2(0, -fieldSize);
+                Vector2 startPosition = Fields[rows - 1, 0].fieldPosition + new Vector2(0, -fieldSize);
                 Field[] newFields = new Field[columns];
 
                 int[] newFieldTypes = bottomFeedMap.PopRow();
@@ -306,7 +304,7 @@ namespace Match3_Evo
                     do
                     {
                         fieldVariant = GM.GetRandom(0, gameParameters.TileVariantMax());
-                        verticalMatch = fields[rows - 1, i].FieldVariant == fields[rows - 2, i].FieldVariant && fields[rows - 1, i].FieldVariant == fieldVariant;
+                        verticalMatch = Fields[rows - 1, i].FieldVariant == Fields[rows - 2, i].FieldVariant && Fields[rows - 1, i].FieldVariant == fieldVariant;
                         horizontalMatch = 1 < i && newFields[i - 1].FieldVariant == newFields[i - 2].FieldVariant && newFields[i - 1].FieldVariant == fieldVariant;
                     } while (verticalMatch || horizontalMatch);
 
@@ -347,15 +345,15 @@ namespace Match3_Evo
             {
                 for (int rowIndex = 0; rowIndex < rows - 1; rowIndex++)
                 {
-                    fields[rowIndex, columnIndex].FieldType = fields[rowIndex + 1, columnIndex].FieldType;
-                    fields[rowIndex, columnIndex].fieldUI.Initialize(fields[rowIndex, columnIndex]);
+                    Fields[rowIndex, columnIndex].FieldType = Fields[rowIndex + 1, columnIndex].FieldType;
+                    Fields[rowIndex, columnIndex].fieldUI.Initialize(Fields[rowIndex, columnIndex]);
                 }
             }
 
             for (int columnIndex = 0; columnIndex < columns; columnIndex++)
 			{
-                fields[rows - 1, columnIndex].FieldType = newFields[columnIndex].FieldType;
-                fields[rows - 1, columnIndex].fieldUI.Initialize(fields[rows - 1, columnIndex]);
+                Fields[rows - 1, columnIndex].FieldType = newFields[columnIndex].FieldType;
+                Fields[rows - 1, columnIndex].fieldUI.Initialize(Fields[rows - 1, columnIndex]);
                 Destroy(newFields[columnIndex].fieldUI.gameObject);
 			}
 
@@ -490,7 +488,7 @@ namespace Match3_Evo
                 {
                     if (_field.columnIndex < columns - 1)
                     {
-                        lvSwapFieldTo = fields[_field.rowIndex, _field.columnIndex + 1];
+                        lvSwapFieldTo = Fields[_field.rowIndex, _field.columnIndex + 1];
                         lvIsRow = true;
                     }
                 }
@@ -498,7 +496,7 @@ namespace Match3_Evo
                 {
                     if (_field.columnIndex > 0)
                     {
-                        lvSwapFieldTo = fields[_field.rowIndex, _field.columnIndex - 1];
+                        lvSwapFieldTo = Fields[_field.rowIndex, _field.columnIndex - 1];
                         lvSwapTopLeft = true;
                         lvIsRow = true;
                     }
@@ -507,15 +505,15 @@ namespace Match3_Evo
                 {
                     if (_field.rowIndex > 0)
                     {
-                        lvSwapFieldTo = fields[_field.rowIndex - 1, _field.columnIndex];
+                        lvSwapFieldTo = Fields[_field.rowIndex - 1, _field.columnIndex];
                         lvSwapTopLeft = true;
                     }
                 }
                 else if (_swapDirection == EnumSwapDirection.Down)
                 {
-                    if (_field.rowIndex < rows - 1 && false == fields[_field.rowIndex + 1, _field.columnIndex].fieldUI.Locked)
+                    if (_field.rowIndex < rows - 1 && false == Fields[_field.rowIndex + 1, _field.columnIndex].fieldUI.Locked)
 					{
-                        lvSwapFieldTo = fields[_field.rowIndex + 1, _field.columnIndex];
+                        lvSwapFieldTo = Fields[_field.rowIndex + 1, _field.columnIndex];
 					}
                 }
 
@@ -576,13 +574,13 @@ namespace Match3_Evo
                 {
                     if (lvStartIndex == -1)
                     {
-                        if (_ignoreFieldState || fields[lvRowInxed, lvColumnIndex].FieldState == EnumFieldState.Useable && false == fields[lvRowInxed, lvColumnIndex].fieldUI.Unbreakable)
+                        if (_ignoreFieldState || Fields[lvRowInxed, lvColumnIndex].FieldState == EnumFieldState.Useable && false == Fields[lvRowInxed, lvColumnIndex].fieldUI.Unbreakable)
                             lvStartIndex = lvRowInxed;
                     }
                     else
                     {
                         if (!_ignoreFieldState && 
-                            ((fields[lvRowInxed, lvColumnIndex].FieldState != EnumFieldState.Useable) || fields[lvStartIndex, lvColumnIndex].FieldType != fields[lvRowInxed, lvColumnIndex].FieldType || fields[lvRowInxed, lvColumnIndex].fieldUI.Unbreakable))
+                            ((Fields[lvRowInxed, lvColumnIndex].FieldState != EnumFieldState.Useable) || Fields[lvStartIndex, lvColumnIndex].FieldType != Fields[lvRowInxed, lvColumnIndex].FieldType || Fields[lvRowInxed, lvColumnIndex].fieldUI.Unbreakable))
                         {
                             lvEndIndex = lvRowInxed - 1;
                             lvRowInxed--;
@@ -598,9 +596,9 @@ namespace Match3_Evo
                     {
                         if (lvEndIndex - lvStartIndex + 1 >= minimumFieldCountForBreak)
                         {
-                            Mergeable lvMergeable = new Mergeable(lvEndIndex - lvStartIndex + 1, false, fields[lvStartIndex, lvColumnIndex].FieldType);
+                            Mergeable lvMergeable = new Mergeable(lvEndIndex - lvStartIndex + 1, false, Fields[lvStartIndex, lvColumnIndex].FieldType);
                             for (int i = lvStartIndex; i <= lvEndIndex; i++)
-                                lvMergeable.AddField(fields[i, lvColumnIndex]);
+                                lvMergeable.AddField(Fields[i, lvColumnIndex]);
 
                             if (lvMergeable.mergeableType == EnumMergeableType.Box)
                                 lvMergeable.UpdateBoxFieldTo();
@@ -622,13 +620,13 @@ namespace Match3_Evo
                 {
                     if (lvStartIndex == -1)
                     {
-                        if (_ignoreFieldState || fields[lvRowInxed, lvColumnIndex].FieldState == EnumFieldState.Useable && false == fields[lvRowInxed, lvColumnIndex].fieldUI.Unbreakable)
+                        if (_ignoreFieldState || Fields[lvRowInxed, lvColumnIndex].FieldState == EnumFieldState.Useable && false == Fields[lvRowInxed, lvColumnIndex].fieldUI.Unbreakable)
                             lvStartIndex = lvColumnIndex;
                     }
                     else
                     {
                         if ((!_ignoreFieldState && 
-                            (fields[lvRowInxed, lvColumnIndex].FieldState != EnumFieldState.Useable) || fields[lvRowInxed, lvStartIndex].FieldType != fields[lvRowInxed, lvColumnIndex].FieldType || fields[lvRowInxed, lvColumnIndex].fieldUI.Unbreakable))
+                            (Fields[lvRowInxed, lvColumnIndex].FieldState != EnumFieldState.Useable) || Fields[lvRowInxed, lvStartIndex].FieldType != Fields[lvRowInxed, lvColumnIndex].FieldType || Fields[lvRowInxed, lvColumnIndex].fieldUI.Unbreakable))
                         {
                             lvEndIndex = lvColumnIndex - 1;
                             lvColumnIndex--;
@@ -644,9 +642,9 @@ namespace Match3_Evo
                     {
                         if (lvEndIndex - lvStartIndex + 1 >= minimumFieldCountForBreak)
                         {
-                            Mergeable lvMergeable = new Mergeable(lvEndIndex - lvStartIndex + 1, true, fields[lvRowInxed, lvStartIndex].FieldType);
+                            Mergeable lvMergeable = new Mergeable(lvEndIndex - lvStartIndex + 1, true, Fields[lvRowInxed, lvStartIndex].FieldType);
                             for (int i = lvStartIndex; i <= lvEndIndex; i++)
-                                lvMergeable.AddField(fields[lvRowInxed, i]);
+                                lvMergeable.AddField(Fields[lvRowInxed, i]);
 
                             if (lvMergeable.mergeableType == EnumMergeableType.Box)
                                 lvMergeable.UpdateBoxFieldTo();
@@ -719,7 +717,7 @@ namespace Match3_Evo
             {
                 for (int lvRows = 0; lvRows < rows; lvRows++)
                 {
-                    int lvFieldType = fields[lvRows, lvColumns].FieldVariant;
+                    int lvFieldType = Fields[lvRows, lvColumns].FieldVariant;
 
                     for (int i = 0; i < MatchDatas.Length; i++)
                     {
@@ -741,7 +739,7 @@ namespace Match3_Evo
                                 break;
                             }
 
-                            if (fields[lvYDis, lvXDis].FieldVariant != lvFieldType)
+                            if (Fields[lvYDis, lvXDis].FieldVariant != lvFieldType)
                             {
                                 lvFound = false;
                                 break;
@@ -759,7 +757,7 @@ namespace Match3_Evo
                             {
                                 showHint = false;
                                 Vector2Int lvDisp = MatchDatas[i].displacements[MatchDatas[i].swapIndex];
-                                OnSwapFields(fields[lvRows + lvDisp.y, lvColumns + lvDisp.x], MatchDatas[i].SwapDirection, true);
+                                OnSwapFields(Fields[lvRows + lvDisp.y, lvColumns + lvDisp.x], MatchDatas[i].SwapDirection, true);
                             }
 
                             return true;
@@ -803,9 +801,9 @@ namespace Match3_Evo
                 for (int i = 0; i <= goodFieldCount; i++)
                 {
                     if (_isRow)
-                        lvMergeable.AddField(fields[startField.rowIndex, startField.columnIndex + i]);
+                        lvMergeable.AddField(Fields[startField.rowIndex, startField.columnIndex + i]);
                     else
-                        lvMergeable.AddField(fields[startField.rowIndex + i, startField.columnIndex]);
+                        lvMergeable.AddField(Fields[startField.rowIndex + i, startField.columnIndex]);
                 }
 
                 return lvMergeable;
@@ -827,10 +825,10 @@ namespace Match3_Evo
             {
                 for (int lvColumnIndex = 0; lvColumnIndex < columns; lvColumnIndex++)
                 {
-                    swapField = fields[GM.GetRandom(0, rows), GM.GetRandom(0, columns)];
+                    swapField = Fields[GM.GetRandom(0, rows), GM.GetRandom(0, columns)];
 
-                    if (swapField != fields[lvRowIndex, lvColumnIndex] && swapField.FieldVariant != fields[lvRowIndex, lvColumnIndex].FieldVariant)
-                        fields[lvRowIndex, lvColumnIndex].RandomSwap(swapField);
+                    if (swapField != Fields[lvRowIndex, lvColumnIndex] && swapField.FieldVariant != Fields[lvRowIndex, lvColumnIndex].FieldVariant)
+                        Fields[lvRowIndex, lvColumnIndex].RandomSwap(swapField);
                 }
             }
 
@@ -887,7 +885,7 @@ namespace Match3_Evo
 
             while (lvResultField == null)
             {
-                lvResultField = fields[GM.GetRandom(0, rows), GM.GetRandom(0, columns)];
+                lvResultField = Fields[GM.GetRandom(0, rows), GM.GetRandom(0, columns)];
                 if (lvResultField.NeighborsWithFieldType(_replaceField.FieldVariant) == 0 && _replaceField.NeighborsWithFieldType(lvResultField.FieldVariant) == 0)
                 {
                     for (int i = 0; i < _mergeables.Count; i++)
@@ -928,8 +926,8 @@ namespace Match3_Evo
                 {
                     for (int columnIndex = 0; columnIndex < columns; columnIndex++)
                     {
-                        if (fields[rowIndex, columnIndex].FieldState != EnumFieldState.Useable)
-                            fields[rowIndex, columnIndex].ChangeFieldState(EnumFieldState.Useable);
+                        if (Fields[rowIndex, columnIndex].FieldState != EnumFieldState.Useable)
+                            Fields[rowIndex, columnIndex].ChangeFieldState(EnumFieldState.Useable);
                     }
                 }
 
@@ -963,10 +961,10 @@ namespace Match3_Evo
                         _mergeables[i].ClearFields();
 
                         for (int j = 0; j < columns; j++)
-                            _mergeables[i].AddField(fields[lvRowIndex, j]);
+                            _mergeables[i].AddField(Fields[lvRowIndex, j]);
 
                         _mergeables[i].breakUIWidth = new Vector2(columns, 1);
-                        _mergeables[i].TopLeftField = fields[lvRowIndex, 0];
+                        _mergeables[i].TopLeftField = Fields[lvRowIndex, 0];
                     }
                     else
                     {
@@ -975,10 +973,10 @@ namespace Match3_Evo
                         _mergeables[i].ClearFields();
 
                         for (int j = 0; j < rows; j++)
-                            _mergeables[i].AddField(fields[j, lvColumnIndex]);
+                            _mergeables[i].AddField(Fields[j, lvColumnIndex]);
 
                         _mergeables[i].breakUIWidth = new Vector2(1, rows);
-                        _mergeables[i].TopLeftField = fields[0, lvColumnIndex];
+                        _mergeables[i].TopLeftField = Fields[0, lvColumnIndex];
                     }
                 }
 
@@ -992,11 +990,11 @@ namespace Match3_Evo
                     for (int row = lvTopLeft.y; row <= lvBottomRight.y; row++)
                     {
                         for (int column = lvTopLeft.x; column <= lvBottomRight.x; column++)
-                            _mergeables[i].AddField(fields[row, column]);
+                            _mergeables[i].AddField(Fields[row, column]);
                     }
 
                     _mergeables[i].breakUIWidth = lvBottomRight - lvTopLeft + Vector2.one;
-                    _mergeables[i].TopLeftField = fields[lvTopLeft.y, lvTopLeft.x];
+                    _mergeables[i].TopLeftField = Fields[lvTopLeft.y, lvTopLeft.x];
                 }
 
                 //Go backward to break the lowest tile first
@@ -1063,7 +1061,7 @@ namespace Match3_Evo
         {
             List<Field> fieldsToBreak = new List<Field>();
 
-            foreach (var f in fields)
+            foreach (var f in Fields)
             {
                 if (f.FieldVariant == targetField.Field.FieldVariant && false == f.fieldUI.Locked)
                     fieldsToBreak.Add(f);
@@ -1082,7 +1080,7 @@ namespace Match3_Evo
         {
             List<Field> fieldsToBreak = new List<Field>();
 
-            foreach (var f in fields)
+            foreach (var f in Fields)
             {
                 if (f.rowIndex == targetField.Field.rowIndex && false == f.fieldUI.Locked)
                     fieldsToBreak.Add(f);
@@ -1095,7 +1093,7 @@ namespace Match3_Evo
         {
             HashSet<Field> fieldsToBreak = new HashSet<Field>();
 
-            foreach (var f in fields)
+            foreach (var f in Fields)
             {
                 if (f.FieldVariant == targetField.Field.FieldVariant && false == f.fieldUI.Locked)
                 {
@@ -1114,16 +1112,16 @@ namespace Match3_Evo
 
                 foreach (var f in fieldsToBreak)
                 {
-                    bool fieldOnHorizontalOppositeSideOnFire = f.rowIndex + 2 < rows && f.fieldUI.OnFire && fields[f.rowIndex + 2, f.columnIndex].fieldUI.OnFire;
-                    bool fieldOnVerticalOppositeSideOnFire = f.columnIndex + 2 < columns && f.fieldUI.OnFire && fields[f.rowIndex, f.columnIndex + 2].fieldUI.OnFire;
-                    bool fieldOnDiagonalOppositeSideOnFire = f.rowIndex + 2 < rows && f.columnIndex + 2 < columns && f.fieldUI.OnFire && fields[f.rowIndex + 2, f.columnIndex + 2].fieldUI.OnFire;
+                    bool fieldOnHorizontalOppositeSideOnFire = f.rowIndex + 2 < rows && f.fieldUI.OnFire && Fields[f.rowIndex + 2, f.columnIndex].fieldUI.OnFire;
+                    bool fieldOnVerticalOppositeSideOnFire = f.columnIndex + 2 < columns && f.fieldUI.OnFire && Fields[f.rowIndex, f.columnIndex + 2].fieldUI.OnFire;
+                    bool fieldOnDiagonalOppositeSideOnFire = f.rowIndex + 2 < rows && f.columnIndex + 2 < columns && f.fieldUI.OnFire && Fields[f.rowIndex + 2, f.columnIndex + 2].fieldUI.OnFire;
 
-                    if (fieldOnHorizontalOppositeSideOnFire && false == fields[f.rowIndex + 1, f.columnIndex].fieldUI.Locked)
-                        newFieldsOnFire.Add(fields[f.rowIndex + 1, f.columnIndex]);
-                    if (fieldOnVerticalOppositeSideOnFire && false == fields[f.rowIndex, f.columnIndex + 1].fieldUI.Locked)
-                        newFieldsOnFire.Add(fields[f.rowIndex, f.columnIndex + 1]);
-                    if (fieldOnDiagonalOppositeSideOnFire && false == fields[f.rowIndex + 1, f.columnIndex + 1].fieldUI.Locked)
-                        newFieldsOnFire.Add(fields[f.rowIndex + 1, f.columnIndex + 1]);
+                    if (fieldOnHorizontalOppositeSideOnFire && false == Fields[f.rowIndex + 1, f.columnIndex].fieldUI.Locked)
+                        newFieldsOnFire.Add(Fields[f.rowIndex + 1, f.columnIndex]);
+                    if (fieldOnVerticalOppositeSideOnFire && false == Fields[f.rowIndex, f.columnIndex + 1].fieldUI.Locked)
+                        newFieldsOnFire.Add(Fields[f.rowIndex, f.columnIndex + 1]);
+                    if (fieldOnDiagonalOppositeSideOnFire && false == Fields[f.rowIndex + 1, f.columnIndex + 1].fieldUI.Locked)
+                        newFieldsOnFire.Add(Fields[f.rowIndex + 1, f.columnIndex + 1]);
                 }
 
                 foreach (var nf in newFieldsOnFire)
@@ -1169,8 +1167,8 @@ namespace Match3_Evo
                         break;
                     }
 
-                    if(false == fields[currentFieldPos.x, currentFieldPos.y].fieldUI.Locked)
-                        fieldsToBreak.Add(fields[currentFieldPos.x, currentFieldPos.y]);
+                    if(false == Fields[currentFieldPos.x, currentFieldPos.y].fieldUI.Locked)
+                        fieldsToBreak.Add(Fields[currentFieldPos.x, currentFieldPos.y]);
                 }
 
                 ++spiralSteps;
@@ -1204,7 +1202,7 @@ namespace Match3_Evo
 
             for (int lvRowIndex = rows - 1; lvRowIndex >= 0; lvRowIndex--)
             {
-                if (lvRowIndex == rows - 1 && fields[lvRowIndex, _columnIndex].FieldState == EnumFieldState.Empty && !_initCall) {
+                if (lvRowIndex == rows - 1 && Fields[lvRowIndex, _columnIndex].FieldState == EnumFieldState.Empty && !_initCall) {
                     columnTopRow[_columnIndex] = 0;
                     //Debug.Log("index: " + _columnIndex + ", value: " + columnTopRow[_columnIndex]);
                 }
@@ -1212,7 +1210,7 @@ namespace Match3_Evo
                 Field lvFieldAbove = null;
 
                 //feed column
-                if (fields[lvRowIndex, _columnIndex].FieldState == EnumFieldState.Empty)
+                if (Fields[lvRowIndex, _columnIndex].FieldState == EnumFieldState.Empty)
                 {
                     //if (lvRowIndex > 0 && _columnIndex > 0)
                     //{
@@ -1245,13 +1243,13 @@ namespace Match3_Evo
 
                     for (int lvRowAbove = lvRowIndex - 1; lvRowAbove >= 0 && lvFieldAbove == null; lvRowAbove--)
                     {
-                        if (fields[lvRowAbove, _columnIndex].FieldState == EnumFieldState.Useable || fields[lvRowAbove, _columnIndex].FieldState == EnumFieldState.Move || fields[lvRowAbove, _columnIndex].FieldState == EnumFieldState.ComboReady)
+                        if (Fields[lvRowAbove, _columnIndex].FieldState == EnumFieldState.Useable || Fields[lvRowAbove, _columnIndex].FieldState == EnumFieldState.Move || Fields[lvRowAbove, _columnIndex].FieldState == EnumFieldState.ComboReady)
                         {
-                            lvFieldAbove = fields[lvRowAbove, _columnIndex];
-                            fields[lvRowIndex, _columnIndex].MoveFieldHere(lvFieldAbove);
+                            lvFieldAbove = Fields[lvRowAbove, _columnIndex];
+                            Fields[lvRowIndex, _columnIndex].MoveFieldHere(lvFieldAbove);
                         }
-                        else if (fields[lvRowAbove, _columnIndex].FieldState != EnumFieldState.Empty && fields[lvRowAbove, _columnIndex].FieldState != EnumFieldState.Hidden)
-                            lvFieldAbove = fields[lvRowAbove, _columnIndex];
+                        else if (Fields[lvRowAbove, _columnIndex].FieldState != EnumFieldState.Empty && Fields[lvRowAbove, _columnIndex].FieldState != EnumFieldState.Hidden)
+                            lvFieldAbove = Fields[lvRowAbove, _columnIndex];
                     }
 
                     //Add new tile to top
@@ -1261,11 +1259,11 @@ namespace Match3_Evo
                             continue;
 
                         lvFirstRefillField++;
-                        fields[lvRowIndex, _columnIndex].ChangeFieldState(EnumFieldState.Move);
-                        fields[lvRowIndex, _columnIndex].fieldUI.ResetPositionToRefil(lvFirstRefillField);
-                        fields[lvRowIndex, _columnIndex].FieldType = (FieldType)columnFeeds[_columnIndex].GetFieldType(fields[lvRowIndex, _columnIndex].fieldUI);
-                        fields[lvRowIndex, _columnIndex].fieldUI.Initialize(fields[lvRowIndex, _columnIndex]);
-                        fields[lvRowIndex, _columnIndex].fieldUI.gameObject.SetActive(true);
+                        Fields[lvRowIndex, _columnIndex].ChangeFieldState(EnumFieldState.Move);
+                        Fields[lvRowIndex, _columnIndex].fieldUI.ResetPositionToRefil(lvFirstRefillField);
+                        Fields[lvRowIndex, _columnIndex].FieldType = (FieldType)columnFeeds[_columnIndex].GetFieldType(Fields[lvRowIndex, _columnIndex].fieldUI);
+                        Fields[lvRowIndex, _columnIndex].fieldUI.Initialize(Fields[lvRowIndex, _columnIndex]);
+                        Fields[lvRowIndex, _columnIndex].fieldUI.gameObject.SetActive(true);
                     }
                 }
             }
@@ -1283,7 +1281,7 @@ namespace Match3_Evo
 		{
             for (int i = 0; i < columns; ++i)
 			{
-                if (fields[row, i].fieldUI.Locked)
+                if (Fields[row, i].fieldUI.Locked)
                     return false;
 			}
 
@@ -1293,13 +1291,13 @@ namespace Match3_Evo
         void SetRowLocked(int row)
 		{
             for (int i = 0; i < columns; ++i)
-                fields[row, i].fieldUI.SetLocked();
+                Fields[row, i].fieldUI.SetLocked();
 		}
 
         private void SetRowUnBreakAble(int row)
         {
             for (int i = 0; i < columns; ++i)
-                fields[row, i].fieldUI.SetUnbreakableAndLocked();
+                Fields[row, i].fieldUI.SetUnbreakableAndLocked();
         }
 
         void OnMergeEvent(int variant)
@@ -1370,7 +1368,7 @@ namespace Match3_Evo
                     lvMergeables.Add(new Mergeable(rows, false));
 
                     for (int lvRowIndex = 0; lvRowIndex < rows; lvRowIndex++)
-                        lvMergeables[0].AddField(fields[lvRowIndex, lvColumnIndex]);
+                        lvMergeables[0].AddField(Fields[lvRowIndex, lvColumnIndex]);
 
                     BreakMergeables(lvMergeables);
                     FeedColumn(lvColumnIndex);
