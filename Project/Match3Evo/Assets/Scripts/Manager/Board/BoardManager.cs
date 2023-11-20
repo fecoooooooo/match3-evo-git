@@ -1279,9 +1279,9 @@ namespace Match3_Evo
 
         bool IsRowUnlocked(int row)
 		{
-            for (int i = 0; i < columns; ++i)
+            for (int col = 0; col < columns; ++col)
 			{
-                if (Fields[row, i].fieldUI.Locked)
+                if (Fields[row, col].fieldUI.Locked && !Fields[row, col].SpecialType)
                     return false;
 			}
 
