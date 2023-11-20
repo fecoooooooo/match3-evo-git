@@ -5,7 +5,7 @@ public class MapPregenerator
 {
 	const int PREGENERATED_ROW_COUNT_TOP_PART = 1000;
 	const int PREGENERATED_ROW_COUNT_BOTTOM_PART = 100;
-    const int HIGHER_EVO_FILL_STEP = 1;
+    const int HIGHER_EVO_FILL_STEP = 3;
     Random seed;
 
     public void PregenerateToColumns(ColumnFeed[] columnFeeds)
@@ -103,7 +103,7 @@ public class MapPregenerator
 
     private void AddHigherEvoLvlTiles(int[,] pregeneratedMap)
     {
-        FieldType[] fieldVariants = new FieldType[] { FieldType.V1_E0, FieldType.V2_E0, FieldType.V2_E0, FieldType.V2_E0 };
+        FieldType[] fieldVariants = new FieldType[] { FieldType.V1_E0, FieldType.V2_E0, FieldType.V3_E0, FieldType.V4_E0 };
         int fieldVariantIndex = -1;
         int amountToAdd = fieldVariants.Length;
 
@@ -116,14 +116,24 @@ public class MapPregenerator
                 amountToAdd += fieldVariants.Length;
             }
 
-            for (int j = 0; j < GM.boardMng.columns; ++j)
-			{
-                if ((FieldType)pregeneratedMap[i, j] == fieldVariants[fieldVariantIndex])
-				{
-                    int evolvedVariant = pregeneratedMap[i, j] + amountToAdd;
-                    pregeneratedMap[i, j] += evolvedVariant;
-				}
-            }
+            bool foundAndReplaced = false;
+            int rowIndex = i;
+
+            do
+            {
+                for (int j = 0; j < GM.boardMng.columns; ++j)
+                {
+                    if ((FieldType)pregeneratedMap[rowIndex, j] == fieldVariants[fieldVariantIndex])
+                    {
+                        int evolvedVariant = pregeneratedMap[rowIndex, j] + amountToAdd;
+                        pregeneratedMap[rowIndex, j] = Math.Min(evolvedVariant, (int)FieldType.LAST_NORMAL);
+                        foundAndReplaced = true;
+                    }
+                }
+
+                rowIndex++;
+
+            } while (foundAndReplaced == false);
 		}
     }
 

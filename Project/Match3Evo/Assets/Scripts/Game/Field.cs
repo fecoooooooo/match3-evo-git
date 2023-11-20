@@ -354,6 +354,7 @@ namespace Match3_Evo
         V2_E5,
         V3_E5,
         V4_E5,
+        LAST_NORMAL = V4_E5,
 
         SPECIAL,
         DNS = SPECIAL,
