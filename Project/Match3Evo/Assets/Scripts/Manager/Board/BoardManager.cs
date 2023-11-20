@@ -90,8 +90,9 @@ namespace Match3_Evo
         public bool GameRunning { get { return gameRunning; } }
 
         public bool CanClickOnField { get; set; }
+		public bool DebugEnabled { get; internal set; }
 
-        bool showHint;
+		bool showHint;
 
         float currentWaitTillInputEnabled = 0.5f;
         readonly float WAIT_TILL_INPUT_ENABLED_TIME = 0.5f;
@@ -108,6 +109,8 @@ namespace Match3_Evo
         public EvolutionDecidedEvent evolutionDecidedEvent = new EvolutionDecidedEvent();
 
         MapPregenerator mapPregenerator;
+
+        BottomFeedMap bottomFeedMap;
 
         void Awake()
         {
@@ -210,6 +213,7 @@ namespace Match3_Evo
 
             mapPregenerator = new MapPregenerator();
             mapPregenerator.PregenerateToColumns(columnFeeds);
+            mapPregenerator.PregenerateBottomFeedMap(out bottomFeedMap);
 
             for (int lvColumnIndex = 0; lvColumnIndex < columns; lvColumnIndex++)
             {
@@ -245,9 +249,17 @@ namespace Match3_Evo
 
                 ShiftIfPossible();
             }
+
+            HandleDebug();
         }
 
-		private void HandleInputEnabled()
+		private void HandleDebug()
+		{
+            if (Input.GetKeyDown(KeyCode.D))
+                DebugEnabled = !DebugEnabled;
+        }
+
+    private void HandleInputEnabled()
 		{
             int breakableFields = fields?.Cast<Field>()?.ToArray()?.Count(x => x.FieldState == EnumFieldState.Break) ?? int.MaxValue;
             bool thereAreFieldsToBreak = breakableFields > 0;
@@ -262,12 +274,14 @@ namespace Match3_Evo
 
         private void ShiftIfPossible()
 		{
-            if (InputEnabled && IsRowUnlocked(rows - 2) && !isShifting)
+            if (InputEnabled && IsRowUnlocked(rows - 2) && !isShifting || Input.GetKeyDown(KeyCode.A))
 			{
                 isShifting = true;
 
                 Vector2 startPosition = fields[rows - 1, 0].fieldPosition + new Vector2(0, -fieldSize);
-                Field[] newFields = new Field[8];
+                Field[] newFields = new Field[columns];
+
+                int[] newFieldTypes = bottomFeedMap.PopRow();
 
                 for(int i = 0; i < columns; ++i)
 				{
@@ -284,7 +298,7 @@ namespace Match3_Evo
                         horizontalMatch = 1 < i && newFields[i - 1].FieldVariant == newFields[i - 2].FieldVariant && newFields[i - 1].FieldVariant == fieldVariant;
                     } while (verticalMatch || horizontalMatch);
 
-                    Field field = new Field(-1, -1, (FieldType)10, 1, fieldPos, fieldUI); //TODO: feed with bottom generated map
+                    Field field = new Field(-1, -1, (FieldType)newFieldTypes[i], 1, fieldPos, fieldUI);
                     fieldUI.transform.position = fieldPos;
                     fieldUI.Initialize(field);
                     fieldUI.ResetPosition();
@@ -487,7 +501,7 @@ namespace Match3_Evo
                 }
                 else if (_swapDirection == EnumSwapDirection.Down)
                 {
-                    if (_field.rowIndex < rows - 1 && false == fields[_field.rowIndex + 1, _field.columnIndex].fieldUI.Unbreakable)
+                    if (_field.rowIndex < rows - 1 && false == fields[_field.rowIndex + 1, _field.columnIndex].fieldUI.Locked)
 					{
                         lvSwapFieldTo = fields[_field.rowIndex + 1, _field.columnIndex];
 					}
@@ -602,7 +616,7 @@ namespace Match3_Evo
                     else
                     {
                         if ((!_ignoreFieldState && 
-                            (fields[lvRowInxed, lvColumnIndex].FieldState != EnumFieldState.Useable) || fields[lvRowInxed, lvStartIndex].FieldVariant != fields[lvRowInxed, lvColumnIndex].FieldVariant || fields[lvRowInxed, lvColumnIndex].fieldUI.Unbreakable))
+                            (fields[lvRowInxed, lvColumnIndex].FieldState != EnumFieldState.Useable) || fields[lvRowInxed, lvStartIndex].FieldType != fields[lvRowInxed, lvColumnIndex].FieldType || fields[lvRowInxed, lvColumnIndex].fieldUI.Unbreakable))
                         {
                             lvEndIndex = lvColumnIndex - 1;
                             lvColumnIndex--;

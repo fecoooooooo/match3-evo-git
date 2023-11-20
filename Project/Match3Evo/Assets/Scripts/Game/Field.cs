@@ -23,7 +23,7 @@ namespace Match3_Evo
         [HideInInspector] public Field Top = null;
         [HideInInspector] public Field Bottom = null;
         
-        public bool SpecialVariant { get => (int)FieldType.SPECIAL <= (int)FieldType; }
+        public bool SpecialType { get => (int)FieldType.SPECIAL <= (int)FieldType; }
 
         private Field swapField;
         private bool swapDone = false;
@@ -260,15 +260,15 @@ namespace Match3_Evo
             {
                 GM.scoreMng.AddTileBreak();
                 
-                if(!SpecialVariant)
+                if(!SpecialType)
                     GM.boardMng.collectedTileRoot.GetChild(FieldVariant).GetComponent<CollectedTile>().AddToCounter(1);
 				else
 				{
-                    if (FieldVariant == (int)FieldType.DNS)
+                    if (FieldType == FieldType.DNS)
                     {
 
                     }
-                    else if (FieldVariant == (int)FieldType.TREASURE)
+                    else if (FieldType == FieldType.TREASURE)
 					{
                         GM.boardMng.TreasureBreak(fieldUI);
 					}
@@ -327,6 +327,8 @@ namespace Match3_Evo
         V2_E0,
         V3_E0,
         V4_E0,
+
+        STARTER_TYPE = V4_E0,
 
         V1_E1,
         V2_E1,

@@ -48,11 +48,11 @@ namespace Match3_Evo
 
             Field = _field;
 
-			if (_field.SpecialVariant)
+			if (_field.SpecialType)
 			{
-                if (_field.FieldVariant == (int)FieldType.DNS)
+                if (_field.FieldType == FieldType.DNS)
                     fieldImage.sprite = GM.boardMng.dnsSprite;
-                if (_field.FieldVariant == (int)FieldType.TREASURE)
+                if (_field.FieldType == FieldType.TREASURE)
                     fieldImage.sprite = GM.boardMng.treasureSprite;
             }
             else
@@ -67,11 +67,22 @@ namespace Match3_Evo
             PositionTransition();
             UpdateUI();
             HandleFire();
+
+            HandleDebug();
         }
 
-        public void UpdateUI()
+		private void HandleDebug()
+		{
+			if(GM.boardMng.DebugEnabled != debugText.IsActive())
+                debugText.gameObject.SetActive(GM.boardMng.DebugEnabled);
+
+			if (GM.boardMng.DebugEnabled)
+                debugText.text = ((int)Field.FieldType).ToString();
+		}
+
+		public void UpdateUI()
         {
-            if (Field.SpecialVariant)
+            if (Field.SpecialType)
                 return;
 
             animationTime += Time.deltaTime * GM.boardMng.fieldAnimationFPS;
@@ -138,7 +149,7 @@ namespace Match3_Evo
 
         public void OnClick()
         {
-            if (false == Field.SpecialVariant)
+            if (false == Field.SpecialType)
                 return;
 
             GM.boardMng.HammerBreak(this);

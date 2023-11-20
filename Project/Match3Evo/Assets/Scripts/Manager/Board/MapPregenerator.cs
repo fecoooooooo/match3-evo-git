@@ -3,28 +3,50 @@ using System;
 
 public class MapPregenerator
 {
-	const int PREGENERATED_ROW_COUNT = 1000;
-    System.Random seed;
+	const int PREGENERATED_ROW_COUNT_TOP_PART = 1000;
+	const int PREGENERATED_ROW_COUNT_BOTTOM_PART = 100;
+    const int HIGHER_EVO_FILL_STEP = 1;
+    Random seed;
 
     public void PregenerateToColumns(ColumnFeed[] columnFeeds)
 	{
-        int[,] pregeneratedMap = PreGenerateMap();
+        int[,] pregeneratedMap = PreGenerateMap(PREGENERATED_ROW_COUNT_TOP_PART);
 
-        for (int r = 0; r < PREGENERATED_ROW_COUNT; ++r)
+        for (int r = 0; r < PREGENERATED_ROW_COUNT_TOP_PART; ++r)
         {
             for (int c = 0; c < GM.boardMng.columns; ++c)
                 columnFeeds[c].AddField(pregeneratedMap[r,c]);
         }
     }
 
-    private int[,] PreGenerateMap()
+    public void PregenerateBottomFeedMap(out BottomFeedMap bottomFeedMap)
+	{
+        int[,] pregeneratedMap = PreGenerateMap(PREGENERATED_ROW_COUNT_BOTTOM_PART);
+
+        AddTreasureAndDns(pregeneratedMap);
+        AddHigherEvoLvlTiles(pregeneratedMap);
+
+        string s = "";
+        for(int i = 0; i < pregeneratedMap.GetLength(0); ++i)
+		{
+            for(int j = 0; j < pregeneratedMap.GetLength(1); ++j)
+			{
+                s += pregeneratedMap[i, j].ToString();
+			}
+            s += "\n";
+		}
+
+        bottomFeedMap = new BottomFeedMap(pregeneratedMap);
+    }
+
+	private int[,] PreGenerateMap(int rowCount)
     {
         if (seed == null)
-            seed = new System.Random(GM.GetRandom(0, int.MaxValue));
+            seed = new Random(GM.GetRandom(0, int.MaxValue));
 
-        int[,] pregeneratedMap = new int[PREGENERATED_ROW_COUNT, GM.boardMng.columns];
+        int[,] pregeneratedMap = new int[rowCount, GM.boardMng.columns];
 
-        for (int r = 0; r < PREGENERATED_ROW_COUNT; ++r)
+        for (int r = 0; r < rowCount; ++r)
         {
             for (int c = 0; c < GM.boardMng.columns; ++c)
             {
@@ -45,8 +67,6 @@ public class MapPregenerator
             }
         }
 
-        AddTreasureAndDns(pregeneratedMap);
-
         return pregeneratedMap;
     }
 
@@ -58,10 +78,10 @@ public class MapPregenerator
             int c;
             do
             {
-                r = seed.Next() % PREGENERATED_ROW_COUNT;
+                r = seed.Next() % pregeneratedMap.GetLength(0);
                 c = seed.Next() % GM.boardMng.columns;
             }
-            while ((int)FieldType.SPECIAL <= pregeneratedMap[r, c]);
+            while ((int)FieldType.STARTER_TYPE <= pregeneratedMap[r, c]);
 
             pregeneratedMap[r, c] = (int)FieldType.DNS;
         }
@@ -72,12 +92,40 @@ public class MapPregenerator
             int c;
             do
             {
-                r = seed.Next() % PREGENERATED_ROW_COUNT;
+                r = seed.Next() % pregeneratedMap.GetLength(0);
                 c = seed.Next() % GM.boardMng.columns;
             }
-            while ((int)FieldType.SPECIAL <= pregeneratedMap[r, c]);
+            while ((int)FieldType.STARTER_TYPE <= pregeneratedMap[r, c]);
 
             pregeneratedMap[r, c] = (int)FieldType.TREASURE;
         }
     }
+
+    private void AddHigherEvoLvlTiles(int[,] pregeneratedMap)
+    {
+        FieldType[] fieldVariants = new FieldType[] { FieldType.V1_E0, FieldType.V2_E0, FieldType.V2_E0, FieldType.V2_E0 };
+        int fieldVariantIndex = -1;
+        int amountToAdd = fieldVariants.Length;
+
+        for(int i = 0; i < pregeneratedMap.GetLength(0); i += HIGHER_EVO_FILL_STEP)
+		{
+            fieldVariantIndex++;
+            if (fieldVariantIndex == fieldVariants.Length)
+            {
+                fieldVariantIndex = 0;
+                amountToAdd += fieldVariants.Length;
+            }
+
+            for (int j = 0; j < GM.boardMng.columns; ++j)
+			{
+                if ((FieldType)pregeneratedMap[i, j] == fieldVariants[fieldVariantIndex])
+				{
+                    int evolvedVariant = pregeneratedMap[i, j] + amountToAdd;
+                    pregeneratedMap[i, j] += evolvedVariant;
+				}
+            }
+		}
+    }
+
+
 }
