@@ -72,7 +72,7 @@ public class MapPregenerator
 
 	private void AddTreasureAndDns(int[,] pregeneratedMap)
 	{
-        for (int i = 0; i < GM.boardMng.dnsCount; ++i)
+        for (int i = 0; i < GM.boardMng.gameParameters.dnsCount; ++i)
         {
             int r;
             int c;
@@ -86,7 +86,7 @@ public class MapPregenerator
             pregeneratedMap[r, c] = (int)FieldType.DNS;
         }
 
-        for (int i = 0; i < GM.boardMng.treasureCount; ++i)
+        for (int i = 0; i < GM.boardMng.gameParameters.treasureCount; ++i)
         {
             int r;
             int c;

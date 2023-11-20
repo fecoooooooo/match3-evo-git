@@ -29,10 +29,9 @@ namespace Match3_Evo
 
         public List<FieldDataEvo> FieldData;
         public Sprite dnsSprite;
-        public int dnsCount;
+        public DnsManager dnsManager;
         public Sprite treasureSprite;
-        public int treasureCount;
-        public int treasureScore;
+
 
         public bool InputEnabled { get; set; } = true;
 
@@ -89,7 +88,6 @@ namespace Match3_Evo
 
         public bool CanClickOnField { get; set; }
 		public bool DebugEnabled { get; internal set; }
-		public bool DnsMeterFilled { get; private set; }
 
 		bool showHint;
 
@@ -136,7 +134,7 @@ namespace Match3_Evo
 			{
                 currentEvolutionLvlPerVariant[evolvingVariant]++;
 
-				if (DnsMeterFilled)
+				if (dnsManager.DnsMeterFilled)
                     currentEvolutionLvlPerVariant[evolvingVariant]++;
 
                 evolutionDecidedEvent.Invoke(evolvingVariant);
@@ -1276,6 +1274,11 @@ namespace Match3_Evo
             ScoreFX.CreateForTreasure(targetField.Field);
         }
 
+        public void DnsBreak(FieldUI targetField)
+        {
+            ScoreFX.CreateForDns(targetField.Field);
+            dnsManager.CollectDns();
+        }
 
         bool IsRowUnlocked(int row)
 		{

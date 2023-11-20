@@ -23,18 +23,29 @@ namespace Match3_Evo
             Instantiate(GM.boardMng.scoreFXPrefab, GM.boardMng.topFXParent, false).Setup(_mergeable.GetScoreFXPosition(), _mergeable.GetScoreBonus());
         }
 
+        public static void CreateForDns(Field treasureField)
+        {
+            Instantiate(GM.boardMng.scoreFXPrefab, GM.boardMng.topFXParent, false).Setup(treasureField.fieldUI.Field.fieldPosition, "DNS");
+        }
+
         public static void CreateForTreasure(Field treasureField)
         {
-            Instantiate(GM.boardMng.scoreFXPrefab, GM.boardMng.topFXParent, false).Setup(treasureField.fieldUI.Field.fieldPosition, GM.boardMng.treasureScore);
+            Instantiate(GM.boardMng.scoreFXPrefab, GM.boardMng.topFXParent, false).Setup(treasureField.fieldUI.Field.fieldPosition, GM.boardMng.gameParameters.treasureScore);
+        }
+
+        public void Setup(Vector2 _anchoredStartPosition, string _score)
+        {
+            text.text = _score;
+            rect = GetComponent<RectTransform>();
+            rect.anchoredPosition = _anchoredStartPosition;
+            startPosition = rect.localPosition;
+            endPosition = startPosition + Vector2.up * transitionDistance;
         }
 
         public void Setup(Vector2 _anchoredStartPosition, int _score)
         {
             text.text = GM.scoreMng.FormatScore(_score);
-            rect = GetComponent<RectTransform>();
-            rect.anchoredPosition = _anchoredStartPosition;
-            startPosition = rect.localPosition;
-            endPosition = startPosition + Vector2.up * transitionDistance;
+            Setup(_anchoredStartPosition, _score.ToString());
         }
 
         private void Update()

@@ -69,7 +69,9 @@ namespace Match3_Evo
 
         public int GameScore()
         {
-            //We return only the simple because the max srore merge bonus is handleld separatly
+            if (FieldType == FieldType.TREASURE)
+                return GM.boardMng.gameParameters.treasureScore;
+
             return GM.boardMng.gameParameters.tileScore;
         }
 
@@ -265,13 +267,9 @@ namespace Match3_Evo
 				else
 				{
                     if (FieldType == FieldType.DNS)
-                    {
-
-                    }
+                        GM.boardMng.DnsBreak(fieldUI);
                     else if (FieldType == FieldType.TREASURE)
-					{
                         GM.boardMng.TreasureBreak(fieldUI);
-					}
                 }
 
                 ChangeFieldState(EnumFieldState.Empty);

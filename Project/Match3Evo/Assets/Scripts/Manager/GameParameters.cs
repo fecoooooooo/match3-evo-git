@@ -31,6 +31,12 @@ namespace Match3_Evo
         string game_pause_countKey = "game_pause_Count";
         string finale_clearKey = "finale_Clear";
 
+        public int treasureCount;
+        public int treasureScore;
+
+        public int dnsCount;
+        public float dnsAmountPerCollect = .5f;
+
         public int TileVariantMax()
         {
             return tileVariantMax;
