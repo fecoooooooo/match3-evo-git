@@ -50,15 +50,15 @@ namespace Match3_Evo
 
 			if (_field.SpecialVariant)
 			{
-                if (_field.fieldVariant == (int)FieldVariant.DNS)
+                if (_field.FieldVariant == (int)FieldType.DNS)
                     fieldImage.sprite = GM.boardMng.dnsSprite;
-                if (_field.fieldVariant == (int)FieldVariant.TREASURE)
+                if (_field.FieldVariant == (int)FieldType.TREASURE)
                     fieldImage.sprite = GM.boardMng.treasureSprite;
             }
             else
 			{
-                fieldImage.sprite = GM.boardMng.CurrentFieldDataTiers[_field.fieldVariant].basic;
-                shadowImage.sprite = GM.boardMng.CurrentFieldDataTiers[_field.fieldVariant].basic;
+                fieldImage.sprite = GM.boardMng.GetFieldDataForFieldType(Field.FieldVariant, Field.EvoLvl).basic;
+                shadowImage.sprite = GM.boardMng.GetFieldDataForFieldType(Field.FieldVariant, Field.EvoLvl).basic;
 			}
         }
 
@@ -80,7 +80,7 @@ namespace Match3_Evo
 
             if(animationQueue.Count == 0 && UnityEngine.Random.Range(0f, 1000f) < GM.boardMng.animationProbability)
 			{
-                animationQueue.Add(GM.boardMng.CurrentFieldDataTiers[Field.fieldVariant].bubbleAnimation);
+                animationQueue.Add(GM.boardMng.GetFieldDataForFieldType(Field.FieldVariant, Field.EvoLvl).bubbleAnimation);
                 animationTime = 0;
             }
 
@@ -89,7 +89,7 @@ namespace Match3_Evo
                 if (animationTime >= animationQueue[0].Count)
                 {
                     animationQueue.RemoveAt(0);
-                    newImage = GM.boardMng.CurrentFieldDataTiers[Field.fieldVariant].basic;
+                    newImage = GM.boardMng.GetFieldDataForFieldType(Field.FieldVariant, Field.EvoLvl).basic;
                 }
                 else
                 {
@@ -97,12 +97,12 @@ namespace Match3_Evo
                     if (animationQueue[0].Count > 0 && repeatedTime != 0 && repeatedTime < animationQueue[0].Count)
                         newImage = animationQueue[0][Mathf.FloorToInt(repeatedTime)];
                     else
-                        newImage = GM.boardMng.CurrentFieldDataTiers[Field.fieldVariant].basic;
+                        newImage = GM.boardMng.GetFieldDataForFieldType(Field.FieldVariant, Field.EvoLvl).basic;
                 }
             }
             else
             {
-                newImage = GM.boardMng.CurrentFieldDataTiers[Field.fieldVariant].basic;
+                newImage = GM.boardMng.GetFieldDataForFieldType(Field.FieldVariant, Field.EvoLvl).basic;
             }
          
             if (newImage != fieldImage.sprite)
@@ -127,7 +127,7 @@ namespace Match3_Evo
 
 		public void OnBeginDrag(BaseEventData _baseEventData)
         {
-            if (Locked)
+            if (Locked || false == GM.boardMng.InputEnabled)
                 return;
 
             PointerEventData lvPointerEventData = _baseEventData as PointerEventData;

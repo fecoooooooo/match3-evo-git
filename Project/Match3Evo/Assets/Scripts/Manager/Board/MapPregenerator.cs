@@ -61,9 +61,9 @@ public class MapPregenerator
                 r = seed.Next() % PREGENERATED_ROW_COUNT;
                 c = seed.Next() % GM.boardMng.columns;
             }
-            while ((int)FieldVariant.SPECIAL <= pregeneratedMap[r, c]);
+            while ((int)FieldType.SPECIAL <= pregeneratedMap[r, c]);
 
-            pregeneratedMap[r, c] = (int)FieldVariant.DNS;
+            pregeneratedMap[r, c] = (int)FieldType.DNS;
         }
 
         for (int i = 0; i < GM.boardMng.treasureCount; ++i)
@@ -75,9 +75,9 @@ public class MapPregenerator
                 r = seed.Next() % PREGENERATED_ROW_COUNT;
                 c = seed.Next() % GM.boardMng.columns;
             }
-            while ((int)FieldVariant.SPECIAL <= pregeneratedMap[r, c]);
+            while ((int)FieldType.SPECIAL <= pregeneratedMap[r, c]);
 
-            pregeneratedMap[r, c] = (int)FieldVariant.TREASURE;
+            pregeneratedMap[r, c] = (int)FieldType.TREASURE;
         }
     }
 }

@@ -82,7 +82,7 @@ namespace Match3_Evo
 		{
             if(scoreMultiplier == -1)
 			{
-                int currentVariant = f.fieldVariant;
+                int currentVariant = f.FieldVariant;
                 int evolutionLvlForVariant = GM.boardMng.currentEvolutionLvlPerVariant[currentVariant];
                 scoreMultiplier = GM.boardMng.gameParameters.scoreMultiplierPerEvolution[evolutionLvlForVariant];
             }
@@ -94,7 +94,7 @@ namespace Match3_Evo
         {
             if (scoreMultiplier == -1)
             {
-                int currentVariant = allFieldToAdd[0].fieldVariant;
+                int currentVariant = allFieldToAdd[0].FieldVariant;
                 int evolutionLvlForVariant = GM.boardMng.currentEvolutionLvlPerVariant[currentVariant];
                 scoreMultiplier = GM.boardMng.gameParameters.scoreMultiplierPerEvolution[evolutionLvlForVariant];
             }
@@ -143,7 +143,7 @@ namespace Match3_Evo
 
             while (lvIndex - replaceableIndex < 3 && lvIndex < Fields.Count - 1)
             {
-                if (Fields[lvIndex].fieldVariant == fieldType)
+                if (Fields[lvIndex].FieldVariant == fieldType)
                     lvIndex++;
                 else
                 {

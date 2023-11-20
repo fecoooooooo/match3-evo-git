@@ -11,34 +11,39 @@ namespace Match3_Evo
         public EnumFieldState FieldState;
         public int rowIndex;
         public int columnIndex;
-        public int fieldVariant;
         public float breakAfterSeconds;
         public Vector2 fieldPosition;
         public FieldUI fieldUI;
-		
+        
+        public int FieldVariant { get => (int)FieldType % GM.boardMng.gameParameters.TileVariantMax(); }
+        public int EvoLvl { get => (int)FieldType / GM.boardMng.gameParameters.TileVariantMax(); }
+
         [HideInInspector] public Field Left = null;
         [HideInInspector] public Field Right = null;
         [HideInInspector] public Field Top = null;
         [HideInInspector] public Field Bottom = null;
         
-        public bool SpecialVariant { get => (int)FieldVariant.SPECIAL <= fieldVariant; }
+        public bool SpecialVariant { get => (int)FieldType.SPECIAL <= (int)FieldType; }
 
         private Field swapField;
         private bool swapDone = false;
         private bool swapToUseable = false;
 
-		public Field(int _rowIndex, int _columnIndex, int _fieldVariant, int _score, Vector2 _fieldPosition, FieldUI _fieldUI)
+        public FieldType FieldType { get; set; }
+
+        public Field(int _rowIndex, int _columnIndex, FieldType fieldType, int _score, Vector2 _fieldPosition, FieldUI _fieldUI)
         {
             rowIndex = _rowIndex;
             columnIndex = _columnIndex;
-            fieldVariant = _fieldVariant;
             fieldPosition = _fieldPosition;
             fieldUI = _fieldUI;
+
+            this.FieldType = fieldType;
         }
 
         public Field(Field _field)
         {
-            fieldVariant = _field.fieldVariant;
+            FieldType = _field.FieldType;
             fieldUI = _field.fieldUI;
         }
 
@@ -70,7 +75,7 @@ namespace Match3_Evo
 
         public override string ToString()
         {
-            return string.Format("[Field: rowIndex={0}, columnIndex={1}, color={2}, state={3}, swapDone={4}, fieldUI={5}, fieldPosition={6}]", rowIndex, columnIndex, fieldVariant, FieldState, swapDone, fieldUI.Rect.anchoredPosition, fieldPosition);
+            return string.Format("[Field: rowIndex={0}, columnIndex={1}, color={2}, state={3}, swapDone={4}, fieldUI={5}, fieldPosition={6}]", rowIndex, columnIndex, FieldVariant, FieldState, swapDone, fieldUI.Rect.anchoredPosition, fieldPosition);
         }
 
         public void SwapWithField(Field _newSwapField)
@@ -79,10 +84,10 @@ namespace Match3_Evo
 
             Field lvTemp = new Field(_newSwapField);
 
-            _newSwapField.fieldVariant = fieldVariant;
+            _newSwapField.FieldType = FieldType;
             _newSwapField.fieldUI = fieldUI;
 
-            fieldVariant = lvTemp.fieldVariant;
+            FieldType = lvTemp.FieldType;
             fieldUI = lvTemp.fieldUI;
             swapField = _newSwapField;
 
@@ -134,7 +139,7 @@ namespace Match3_Evo
 
             ChangeFieldState(EnumFieldState.Move);
 
-            fieldVariant = _movedField.fieldVariant;
+            FieldType = _movedField.FieldType;
             fieldUI = _movedField.fieldUI;
 
             _movedField.fieldUI = lvSwapUI;
@@ -152,10 +157,10 @@ namespace Match3_Evo
 
             ChangeFieldState(EnumFieldState.Move);
 
-            fieldVariant = _randomSwapField.fieldVariant;
+            FieldType = _randomSwapField.FieldType;
             fieldUI = _randomSwapField.fieldUI;
 
-            _randomSwapField.fieldVariant = lvSwapTmp.fieldVariant;
+            _randomSwapField.FieldType = lvSwapTmp.FieldType;
             _randomSwapField.fieldUI = lvSwapTmp.fieldUI;
 
             fieldUI.Initialize(this);
@@ -256,14 +261,14 @@ namespace Match3_Evo
                 GM.scoreMng.AddTileBreak();
                 
                 if(!SpecialVariant)
-                    GM.boardMng.collectedTileRoot.GetChild(fieldVariant).GetComponent<CollectedTile>().AddToCounter(1);
+                    GM.boardMng.collectedTileRoot.GetChild(FieldVariant).GetComponent<CollectedTile>().AddToCounter(1);
 				else
 				{
-                    if (fieldVariant == (int)FieldVariant.DNS)
+                    if (FieldVariant == (int)FieldType.DNS)
                     {
 
                     }
-                    else if (fieldVariant == (int)FieldVariant.TREASURE)
+                    else if (FieldVariant == (int)FieldType.TREASURE)
 					{
                         GM.boardMng.TreasureBreak(fieldUI);
 					}
@@ -283,19 +288,19 @@ namespace Match3_Evo
         {
             int lvSimilarCount = 0;
 
-            if (fieldVariant == _fieldType)
+            if (FieldVariant == _fieldType)
                 lvSimilarCount++;
 
-            if (Left != null && Left.fieldVariant == _fieldType)
+            if (Left != null && Left.FieldVariant == _fieldType)
                 lvSimilarCount++;
 
-            if (Right != null && Right.fieldVariant == _fieldType)
+            if (Right != null && Right.FieldVariant == _fieldType)
                 lvSimilarCount++;
 
-            if (Top != null && Top.fieldVariant == _fieldType)
+            if (Top != null && Top.FieldVariant == _fieldType)
                 lvSimilarCount++;
 
-            if (Bottom != null && Bottom.fieldVariant == _fieldType)
+            if (Bottom != null && Bottom.FieldVariant == _fieldType)
                 lvSimilarCount++;
 
             return lvSimilarCount;
@@ -314,20 +319,40 @@ namespace Match3_Evo
         Hidden,
     }
 
-    public enum FieldVariant
+    public enum FieldType
 	{
-        V1 = 0,
-        V2,
-        V3,
-        V4,
-        V5,
-        V6,
-        V7,
-        V8,
-        V9,
-        V10,
-        SPECIAL = 10,
-        DNS = 10,
+        V1_E0,
+        V2_E0,
+        V3_E0,
+        V4_E0,
+
+        V1_E1,
+        V2_E1,
+        V3_E1,
+        V4_E1,
+
+        V1_E2,
+        V2_E2,
+        V3_E2,
+        V4_E2,
+
+        V1_E3,
+        V2_E3,
+        V3_E3,
+        V4_E3,
+
+        V1_E4,
+        V2_E4,
+        V3_E4,
+        V4_E4,
+
+        V1_E5,
+        V2_E5,
+        V3_E5,
+        V4_E5,
+
+        SPECIAL,
+        DNS = SPECIAL,
         TREASURE,
 	}
 }

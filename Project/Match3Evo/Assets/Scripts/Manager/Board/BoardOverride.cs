@@ -11,7 +11,7 @@ namespace Match3_Evo
         {
             for (int i = 0; i < overrides.Length; i++)
             {
-                GM.boardMng.Fields[overrides[i].rowIndex, overrides[i].columnIndex].fieldVariant = overrides[i].fieldVariant;
+                GM.boardMng.Fields[overrides[i].rowIndex, overrides[i].columnIndex].FieldType = overrides[i].FieldType;
                 GM.boardMng.Fields[overrides[i].rowIndex, overrides[i].columnIndex].fieldUI.Initialize(GM.boardMng.Fields[overrides[i].rowIndex, overrides[i].columnIndex]);
             }
         }
