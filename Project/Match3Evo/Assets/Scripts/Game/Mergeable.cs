@@ -16,7 +16,7 @@ namespace Match3_Evo
 
         Field topLeftField;
         int replaceableIndex = 0;
-        int fieldType = -1;
+        FieldType fieldType = FieldType.NONE;
 
         int scoreMultiplier = -1;
 
@@ -41,10 +41,9 @@ namespace Match3_Evo
             }
         }
 
-
         public Field BoxField { get; private set; }
 
-        public Mergeable(int _count, bool _isRow, int _fieldType = -1)
+        public Mergeable(int _count, bool _isRow, FieldType _fieldType = FieldType.NONE)
         {
             isRow = _isRow;
             Fields = new List<Field>(_count);
@@ -143,7 +142,7 @@ namespace Match3_Evo
 
             while (lvIndex - replaceableIndex < 3 && lvIndex < Fields.Count - 1)
             {
-                if (Fields[lvIndex].FieldVariant == fieldType)
+                if (Fields[lvIndex].FieldType == fieldType)
                     lvIndex++;
                 else
                 {

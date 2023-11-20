@@ -93,8 +93,8 @@ namespace Match3_Evo
 
         bool showHint;
 
-        float currentWaitTillShift = 0.5f;
-        readonly float WAIT_TILL_SHIFT_TIME = 0.5f;
+        float currentWaitTillInputEnabled = 0.5f;
+        readonly float WAIT_TILL_INPUT_ENABLED_TIME = 0.5f;
         bool isShifting = false;
             
         public const int DECIDE_EVOLUTION_LEVEL = 4;
@@ -253,11 +253,11 @@ namespace Match3_Evo
             bool thereAreFieldsToBreak = breakableFields > 0;
 
             if (thereAreFieldsToBreak || isShifting)
-                currentWaitTillShift = WAIT_TILL_SHIFT_TIME;
+                currentWaitTillInputEnabled = WAIT_TILL_INPUT_ENABLED_TIME;
             else
-                currentWaitTillShift -= Time.deltaTime;
+                currentWaitTillInputEnabled -= Time.deltaTime;
 
-            InputEnabled = currentWaitTillShift <= 0;
+            InputEnabled = currentWaitTillInputEnabled <= 0;
         }
 
         private void ShiftIfPossible()
@@ -487,7 +487,7 @@ namespace Match3_Evo
                 }
                 else if (_swapDirection == EnumSwapDirection.Down)
                 {
-                    if (_field.rowIndex < rows - 1 && false == fields[_field.rowIndex + 1, _field.columnIndex].fieldUI.Locked)
+                    if (_field.rowIndex < rows - 1 && false == fields[_field.rowIndex + 1, _field.columnIndex].fieldUI.Unbreakable)
 					{
                         lvSwapFieldTo = fields[_field.rowIndex + 1, _field.columnIndex];
 					}
@@ -499,7 +499,7 @@ namespace Match3_Evo
                         _field.SwapWithField(lvSwapFieldTo);
                     else
                     {
-                        Mergeable lvHintSwapMergeable = new Mergeable(2, lvIsRow, _field.FieldVariant);
+                        Mergeable lvHintSwapMergeable = new Mergeable(2, lvIsRow, _field.FieldType);
                         if (lvIsRow)
                             lvHintSwapMergeable.breakUIWidth = new Vector2(2, 1);
                         else
@@ -550,13 +550,13 @@ namespace Match3_Evo
                 {
                     if (lvStartIndex == -1)
                     {
-                        if (_ignoreFieldState || fields[lvRowInxed, lvColumnIndex].FieldState == EnumFieldState.Useable && false == fields[lvRowInxed, lvColumnIndex].fieldUI.Locked)
+                        if (_ignoreFieldState || fields[lvRowInxed, lvColumnIndex].FieldState == EnumFieldState.Useable && false == fields[lvRowInxed, lvColumnIndex].fieldUI.Unbreakable)
                             lvStartIndex = lvRowInxed;
                     }
                     else
                     {
                         if (!_ignoreFieldState && 
-                            ((fields[lvRowInxed, lvColumnIndex].FieldState != EnumFieldState.Useable) || fields[lvStartIndex, lvColumnIndex].FieldVariant != fields[lvRowInxed, lvColumnIndex].FieldVariant || fields[lvRowInxed, lvColumnIndex].fieldUI.Locked))
+                            ((fields[lvRowInxed, lvColumnIndex].FieldState != EnumFieldState.Useable) || fields[lvStartIndex, lvColumnIndex].FieldType != fields[lvRowInxed, lvColumnIndex].FieldType || fields[lvRowInxed, lvColumnIndex].fieldUI.Unbreakable))
                         {
                             lvEndIndex = lvRowInxed - 1;
                             lvRowInxed--;
@@ -572,14 +572,14 @@ namespace Match3_Evo
                     {
                         if (lvEndIndex - lvStartIndex + 1 >= minimumFieldCountForBreak)
                         {
-                            Mergeable lvMergeable = new Mergeable(lvEndIndex - lvStartIndex + 1, false, fields[lvStartIndex, lvColumnIndex].FieldVariant);
+                            Mergeable lvMergeable = new Mergeable(lvEndIndex - lvStartIndex + 1, false, fields[lvStartIndex, lvColumnIndex].FieldType);
                             for (int i = lvStartIndex; i <= lvEndIndex; i++)
                                 lvMergeable.AddField(fields[i, lvColumnIndex]);
 
                             if (lvMergeable.mergeableType == EnumMergeableType.Box)
                                 lvMergeable.UpdateBoxFieldTo();
 
-                            lvResult.Add(lvMergeable);
+                             lvResult.Add(lvMergeable);
                         }
 
                         lvStartIndex = lvEndIndex = -1;
@@ -596,13 +596,13 @@ namespace Match3_Evo
                 {
                     if (lvStartIndex == -1)
                     {
-                        if (_ignoreFieldState || fields[lvRowInxed, lvColumnIndex].FieldState == EnumFieldState.Useable && false == fields[lvRowInxed, lvColumnIndex].fieldUI.Locked)
+                        if (_ignoreFieldState || fields[lvRowInxed, lvColumnIndex].FieldState == EnumFieldState.Useable && false == fields[lvRowInxed, lvColumnIndex].fieldUI.Unbreakable)
                             lvStartIndex = lvColumnIndex;
                     }
                     else
                     {
                         if ((!_ignoreFieldState && 
-                            (fields[lvRowInxed, lvColumnIndex].FieldState != EnumFieldState.Useable) || fields[lvRowInxed, lvStartIndex].FieldVariant != fields[lvRowInxed, lvColumnIndex].FieldVariant || fields[lvRowInxed, lvColumnIndex].fieldUI.Locked))
+                            (fields[lvRowInxed, lvColumnIndex].FieldState != EnumFieldState.Useable) || fields[lvRowInxed, lvStartIndex].FieldVariant != fields[lvRowInxed, lvColumnIndex].FieldVariant || fields[lvRowInxed, lvColumnIndex].fieldUI.Unbreakable))
                         {
                             lvEndIndex = lvColumnIndex - 1;
                             lvColumnIndex--;
@@ -618,7 +618,7 @@ namespace Match3_Evo
                     {
                         if (lvEndIndex - lvStartIndex + 1 >= minimumFieldCountForBreak)
                         {
-                            Mergeable lvMergeable = new Mergeable(lvEndIndex - lvStartIndex + 1, true, fields[lvRowInxed, lvStartIndex].FieldVariant);
+                            Mergeable lvMergeable = new Mergeable(lvEndIndex - lvStartIndex + 1, true, fields[lvRowInxed, lvStartIndex].FieldType);
                             for (int i = lvStartIndex; i <= lvEndIndex; i++)
                                 lvMergeable.AddField(fields[lvRowInxed, i]);
 
@@ -646,7 +646,7 @@ namespace Match3_Evo
                     {
                         if (ExactMatchDatas[j].GetExactMatchingFields(lvField, lvExactMatchs))
                         {
-                            Mergeable lvMergeable = new Mergeable(5, false, lvField.FieldVariant);
+                            Mergeable lvMergeable = new Mergeable(5, false, lvField.FieldType);
                             lvMergeable.AddFieldRange(lvExactMatchs);
                             lvMergeable.AddFieldRange(lvResult[i].Fields);
                             lvMergeable.UpdateBoxFieldTo(lvResult[i].Fields[ExactMatchDatas[j].swapIndex]);
@@ -991,21 +991,13 @@ namespace Match3_Evo
                     else
                         _mergeables[i].Fields[j].Break(breakDelayTime);
 
-                    UnlockFieldIfPossible(_mergeables[i].Fields[j].Bottom);
-                    UnlockFieldIfPossible(_mergeables[i].Fields[j].Left);
-                    UnlockFieldIfPossible(_mergeables[i].Fields[j].Right);
+                    _mergeables[i].Fields[j].fieldUI.SetUnlockedIfNotUnbreakable();
                 }
 
                 
                 mergeEvent.Invoke(_mergeables[i].Fields[0].FieldVariant);
                 _mergeables[i].PlayBreakSound();
             }
-        }
-
-		private void UnlockFieldIfPossible(Field bottom)
-		{
-            if (bottom != null && bottom.fieldUI.Locked)
-                bottom.fieldUI.SetUnlockedIfNotUnbreakable();
         }
 
 		#region boost

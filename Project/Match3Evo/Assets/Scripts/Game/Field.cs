@@ -321,6 +321,8 @@ namespace Match3_Evo
 
     public enum FieldType
 	{
+        NONE = -1,
+
         V1_E0,
         V2_E0,
         V3_E0,
