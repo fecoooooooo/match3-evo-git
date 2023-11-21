@@ -3443,7 +3443,7 @@ MonoBehaviour:
     matchTimer: 1800
     hintTime: 5
     tileVariantMax: 4
-    tileScore: 50
+    tileScore: 10
     gamePauseCount: 3
     finaleClear: 1
     boostCooldown: 3
@@ -3452,7 +3452,7 @@ MonoBehaviour:
     fireTime: 2
     fireSpreadTime: 0.5
     mergesToNextEvolution: 02000000020000000200000002000000
-    scoreMultiplierPerEvolution: 010000000200000003000000040000000500000005000000
+    scoreMultiplierPerEvolution: 010000000200000003000000040000000500000006000000
     treasureCount: 10
     treasureScore: 1000
     dnsCount: 10
@@ -3637,7 +3637,6 @@ MonoBehaviour:
       shadow: {fileID: 0}
       bubbleAnimation: []
   dnsSprite: {fileID: 21300000, guid: 26fa350100d38424d94810d8c4b70d8d, type: 3}
-  dnsManager: {fileID: 1529042624}
   treasureSprite: {fileID: 21300000, guid: ce3033bdabb01a74289e8a3454542022, type: 3}
   MatchDatas:
   - displacements:

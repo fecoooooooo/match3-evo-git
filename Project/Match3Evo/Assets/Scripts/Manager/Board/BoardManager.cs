@@ -147,7 +147,7 @@ namespace Match3_Evo
 
             foreach(var f in Fields)
 			{
-                if (f.EvoLvl < newEvoLvl && evolvingVariant == f.FieldVariant)
+                if (f.FieldState != EnumFieldState.Break && f.EvoLvl < newEvoLvl && evolvingVariant == f.FieldVariant)
                     f.FieldType = Field.EvoLvlAndVariantToType(newEvoLvl, evolvingVariant);
             }
 		}
