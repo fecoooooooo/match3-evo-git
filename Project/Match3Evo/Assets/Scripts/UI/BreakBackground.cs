@@ -37,6 +37,20 @@ namespace Match3_Evo
             gameObject.SetActive(true);
         }
 
+        public void InitializeForField_TEMPORARY(RectTransform _parent, Field field)
+		{
+            rect = GetComponent<RectTransform>();
+            rect.SetParent(_parent, false);
+            rect.anchoredPosition = field.fieldPosition;
+            rect.sizeDelta = new Vector2(1,1 ) * GM.boardMng.fieldSize;
+
+            delay = GM.boardMng.breakDelayTimeFast;
+            
+            left.SetActive(true);
+            right.SetActive(true);
+            gameObject.SetActive(true);
+        }
+
         void OnEnable()
         {
             if (delay > 0f)

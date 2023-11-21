@@ -1078,7 +1078,11 @@ namespace Match3_Evo
             if (false == targetField.Locked)
             {
                 targetField.Field.Break(.3f);
-                if(false == targetField.Field.SpecialType)
+                
+                BreakBackground lvBg = GM.Pool.GetObject<BreakBackground>(breakBackgroundPrefab);
+                lvBg.InitializeForField_TEMPORARY(breakBackgroundParent, targetField.Field);
+
+                if (false == targetField.Field.SpecialType)
                     ScoreFX.CreateForField(targetField.Field);
             }
         }
@@ -1202,10 +1206,17 @@ namespace Match3_Evo
             }
         }
 
+        const float BREAK_BG_APPEAR_TIME_MINUS_DELAY_GIVE_MEABETTERNAMEOMG = .2f;
         IEnumerator BreakDelayedWithScore(float delay, Field field)
 		{
-            yield return new WaitForSeconds(delay);
+            yield return new WaitForSeconds(delay - BREAK_BG_APPEAR_TIME_MINUS_DELAY_GIVE_MEABETTERNAMEOMG);
+            
+            BreakBackground lvBg = GM.Pool.GetObject<BreakBackground>(breakBackgroundPrefab);
+            lvBg.InitializeForField_TEMPORARY(breakBackgroundParent, field);
+
+            yield return new WaitForSeconds(BREAK_BG_APPEAR_TIME_MINUS_DELAY_GIVE_MEABETTERNAMEOMG);
             field.Break(0);
+
             if (false == field.SpecialType)
                 ScoreFX.CreateForField(field);
         }
