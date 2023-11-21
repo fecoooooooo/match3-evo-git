@@ -29,7 +29,6 @@ namespace Match3_Evo
 
         public List<FieldDataEvo> FieldData;
         public Sprite dnsSprite;
-        public DnsManager dnsManager;
         public Sprite treasureSprite;
 
 
@@ -134,7 +133,7 @@ namespace Match3_Evo
 			{
                 currentEvolutionLvlPerVariant[evolvingVariant]++;
 
-				if (dnsManager.DnsMeterFilled)
+				if (GM.dnsManager.DnsMeterFilled)
                     currentEvolutionLvlPerVariant[evolvingVariant]++;
 
                 evolutionDecidedEvent.Invoke(evolvingVariant);
@@ -1277,7 +1276,7 @@ namespace Match3_Evo
         public void DnsBreak(FieldUI targetField)
         {
             ScoreFX.CreateForDns(targetField.Field);
-            dnsManager.CollectDns();
+            GM.dnsManager.CollectDns();
         }
 
         bool IsRowUnlocked(int row)

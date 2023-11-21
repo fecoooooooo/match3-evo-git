@@ -10,6 +10,11 @@ public class DnsManager : MonoBehaviour
     float currentDnsAmount = 0f;
 	public bool DnsMeterFilled { get => 1f <= currentDnsAmount; }
 
+	private void Awake()
+	{
+		GM.dnsManager = this;
+	}
+
 	private void Start()
 	{
 		UpdateUI();

@@ -13,6 +13,7 @@ namespace Match3_Evo
         public static ScoreManager scoreMng;
         public static SoundManager soundMng;
         public static GameTimeManager timeMng;
+        public static DnsManager dnsManager;
         public static ObjectPool Pool;
 
         public string gameSceneName;

@@ -154,10 +154,10 @@ namespace Match3_Evo
             lastMergeWasScoreMax = true;
         }
 
-        public void AddTileBreak()
+        public void AddTileBreak(int score)
         {
             tileBreakCount++;
-            gameScore += GM.boardMng.gameParameters.tileScore;
+            gameScore += score;
 
             if (GM.IsSkillzMatchInProgress())
                 GM.UpdatePlayersCurrentScore((float)gameScore);

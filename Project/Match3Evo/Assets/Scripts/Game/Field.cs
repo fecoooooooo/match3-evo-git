@@ -67,12 +67,17 @@ namespace Match3_Evo
             return fieldUI == null;
         }
 
-        public int GameScore()
+        public int GetScore()
         {
-            if (FieldType == FieldType.TREASURE)
-                return GM.boardMng.gameParameters.treasureScore;
-
-            return GM.boardMng.gameParameters.tileScore;
+			switch (FieldType)
+			{
+				case FieldType.DNS:
+                    return 0;
+				case FieldType.TREASURE:
+                    return GM.boardMng.gameParameters.treasureScore;
+				default:
+                    return GM.boardMng.gameParameters.tileScore;
+			}
         }
 
         public override string ToString()
@@ -260,7 +265,7 @@ namespace Match3_Evo
             }
             else if (FieldState == EnumFieldState.Break)
             {
-                GM.scoreMng.AddTileBreak();
+                GM.scoreMng.AddTileBreak(GetScore());
                 
                 if(!SpecialType)
                     GM.boardMng.collectedTileRoot.GetChild(FieldVariant).GetComponent<CollectedTile>().AddToCounter(1);
