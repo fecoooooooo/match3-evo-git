@@ -23,6 +23,14 @@ namespace Match3_Evo
 
         public int[] mergesToNextEvolution = new int[4];
         public int[] scoreMultiplierPerEvolution = new int[6];
+        public int scoreForEvo;
+        public int scoreForMaxEvo;
+
+        public int treasureCount;
+        public int treasureScore;
+
+        public int dnsCount;
+        public float dnsAmountPerCollect = .5f;
 
         string match_timerKey = "match_timer";
         string hint_timeKey = "hint_time";
@@ -30,12 +38,6 @@ namespace Match3_Evo
         string tile_scoreKey = "tile_add_score";
         string game_pause_countKey = "game_pause_Count";
         string finale_clearKey = "finale_Clear";
-
-        public int treasureCount;
-        public int treasureScore;
-
-        public int dnsCount;
-        public float dnsAmountPerCollect = .5f;
 
         public int TileVariantMax()
         {

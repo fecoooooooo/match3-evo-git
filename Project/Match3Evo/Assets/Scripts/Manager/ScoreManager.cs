@@ -3,11 +3,15 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using static Common;
 
 namespace Match3_Evo
 {
     public class ScoreManager : MonoBehaviour
     {
+        public Vector2 evoScorePos { get => GM.scoreMng.evoFXRoot.anchoredPosition; }
+
+        [SerializeField] RectTransform evoFXRoot;
         [SerializeField] Text gameScoreText;
         [SerializeField] Text submitButtonText;
         [SerializeField] ScorePanel scoreSummaryPanel;
@@ -157,6 +161,11 @@ namespace Match3_Evo
         public void AddTileBreak(int score)
         {
             tileBreakCount++;
+            AddScore(score);
+        }
+
+        private void AddScore(int score)
+		{
             gameScore += score;
 
             if (GM.IsSkillzMatchInProgress())
@@ -207,6 +216,20 @@ namespace Match3_Evo
         {
             return _scoreToFormat.ToString("N0").Replace(" ", ",");
         }
-        #endregion
-    }
+
+		internal void EvolutionAchieved(int newEvoLvl)
+		{
+            if (newEvoLvl == Constant.MAX_EVOLUTION)
+            {
+                ScoreFX.CreateForEvolution(GM.boardMng.gameParameters.scoreForMaxEvo);
+                AddScore(GM.boardMng.gameParameters.scoreForMaxEvo);
+            }
+            else
+            {
+                ScoreFX.CreateForEvolution(GM.boardMng.gameParameters.scoreForEvo);
+                AddScore(GM.boardMng.gameParameters.scoreForEvo);
+            }
+		}
+		#endregion
+	}
 }

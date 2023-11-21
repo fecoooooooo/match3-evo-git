@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using static Common;
 
 public class EvoManagerUI : MonoBehaviour
 {
@@ -35,7 +36,7 @@ public class EvoManagerUI : MonoBehaviour
 
         for(int i = 0; i < evoBtns.Count; ++i)
 		{
-            int fieldDataIndex = BoardManager.DECIDE_EVOLUTION_LEVEL + i;
+            int fieldDataIndex = Constant.DECIDE_EVOLUTION_LEVEL + i + 1;
             evoBtns[i].art.sprite = fieldData.fieldDataTiers[fieldDataIndex].basic;
 		}
     }
@@ -54,9 +55,7 @@ public class EvoManagerUI : MonoBehaviour
 		}
 
         for (int i = 0; i < evoBtns.Count; ++i)
-	    {
-            evoBtns[i].gameObject.SetActive(evolutionLvlForVariant == i + BoardManager.DECIDE_EVOLUTION_LEVEL);
-        }
+            evoBtns[i].gameObject.SetActive(evolutionLvlForVariant == i + Constant.DECIDE_EVOLUTION_LEVEL + 1);
 	}
 
     void OnMergeEvent(int variant)

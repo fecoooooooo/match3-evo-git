@@ -9,6 +9,7 @@ using Sirenix.OdinInspector;
 using UnityEditor;
 using System.Linq;
 using UnityEngine.Events;
+using static Common;
 
 namespace Match3_Evo
 {
@@ -94,7 +95,7 @@ namespace Match3_Evo
         readonly float WAIT_TILL_INPUT_ENABLED_TIME = 0.5f;
         bool isShifting = false;
             
-        public const int DECIDE_EVOLUTION_LEVEL = 4;
+
         [HideInInspector]
         public int[] currentEvolutionLvlPerVariant;
         [HideInInspector]
@@ -123,18 +124,21 @@ namespace Match3_Evo
 
         void Evolve(int evolvingVariant)
 		{
-            if (currentEvolutionLvlPerVariant[evolvingVariant] + 1 < DECIDE_EVOLUTION_LEVEL)
+            if (currentEvolutionLvlPerVariant[evolvingVariant] < Constant.DECIDE_EVOLUTION_LEVEL)
 			{
                 currentEvolutionLvlPerVariant[evolvingVariant]++;
                 int evoLvlForVariant = currentEvolutionLvlPerVariant[evolvingVariant];
                 currentMergeCountToNextEvolvePerVariant[evolvingVariant] = gameParameters.mergesToNextEvolution[evoLvlForVariant];
             }
-            else if (currentEvolutionLvlPerVariant[evolvingVariant] + 1 == DECIDE_EVOLUTION_LEVEL)
+            else if (currentEvolutionLvlPerVariant[evolvingVariant] == Constant.DECIDE_EVOLUTION_LEVEL)
 			{
                 currentEvolutionLvlPerVariant[evolvingVariant]++;
 
 				if (GM.dnsManager.DnsMeterFilled)
+				{
                     currentEvolutionLvlPerVariant[evolvingVariant]++;
+                    GM.dnsManager.UseDns();
+				}
 
                 evolutionDecidedEvent.Invoke(evolvingVariant);
 			}
@@ -150,6 +154,8 @@ namespace Match3_Evo
                 if (f.FieldState != EnumFieldState.Break && f.EvoLvl < newEvoLvl && evolvingVariant == f.FieldVariant)
                     f.FieldType = Field.EvoLvlAndVariantToType(newEvoLvl, evolvingVariant);
             }
+
+            GM.scoreMng.EvolutionAchieved(newEvoLvl);
 		}
 
         void Start()
@@ -1069,8 +1075,12 @@ namespace Match3_Evo
 
         public void HammerBreak(FieldUI targetField)
         {
-            if(false == targetField.Locked)
-                targetField.Field.Break(.1f);
+            if (false == targetField.Locked)
+            {
+                targetField.Field.Break(.3f);
+                if(false == targetField.Field.SpecialType)
+                    ScoreFX.CreateForField(targetField.Field);
+            }
         }
 
         private void ShovelBreak(FieldUI targetField)
@@ -1188,9 +1198,16 @@ namespace Match3_Evo
             foreach (var f in fieldsToBreak)
             {
                 ++i;
-                f.Break(gameParameters.timeTillFirstBreak + i * gameParameters.timeBetweenBreaks);
-                //f.fieldUI.fieldImage.sprite = (Sprite)AssetDatabase.LoadAssetAtPath("Assets/Imports/Sprites/ui/CloseButton.png", typeof(Sprite));
+                StartCoroutine(BreakDelayedWithScore(gameParameters.timeTillFirstBreak + i * gameParameters.timeBetweenBreaks, f));
             }
+        }
+
+        IEnumerator BreakDelayedWithScore(float delay, Field field)
+		{
+            yield return new WaitForSeconds(delay);
+            field.Break(0);
+            if (false == field.SpecialType)
+                ScoreFX.CreateForField(field);
         }
 
         public void FeedColumn(int _columnIndex, bool _initCall = false)
@@ -1306,7 +1323,7 @@ namespace Match3_Evo
         {
             currentMergeCountToNextEvolvePerVariant[variant]--;
 
-            if (currentMergeCountToNextEvolvePerVariant[variant] <= 0)
+            if (currentMergeCountToNextEvolvePerVariant[variant] <= 0 && currentEvolutionLvlPerVariant[variant] < Constant.EVOLUTION_DECIDED)
                 Evolve(variant);
         }
 

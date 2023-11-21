@@ -23,14 +23,23 @@ namespace Match3_Evo
             Instantiate(GM.boardMng.scoreFXPrefab, GM.boardMng.topFXParent, false).Setup(_mergeable.GetScoreFXPosition(), _mergeable.GetScoreBonus());
         }
 
-        public static void CreateForDns(Field treasureField)
+        public static void CreateForDns(Field dnsField)
         {
-            Instantiate(GM.boardMng.scoreFXPrefab, GM.boardMng.topFXParent, false).Setup(treasureField.fieldUI.Field.fieldPosition, "DNS");
+            Instantiate(GM.boardMng.scoreFXPrefab, GM.boardMng.topFXParent, false).Setup(dnsField.fieldPosition, "DNS");
         }
 
         public static void CreateForTreasure(Field treasureField)
         {
-            Instantiate(GM.boardMng.scoreFXPrefab, GM.boardMng.topFXParent, false).Setup(treasureField.fieldUI.Field.fieldPosition, GM.boardMng.gameParameters.treasureScore);
+            Instantiate(GM.boardMng.scoreFXPrefab, GM.boardMng.topFXParent, false).Setup(treasureField.fieldPosition, GM.boardMng.gameParameters.treasureScore);
+        }
+        public static void CreateForEvolution(int score)
+		{
+            Instantiate(GM.boardMng.scoreFXPrefab, GM.boardMng.topFXParent, false).Setup(GM.scoreMng.evoScorePos, "Evolution -" + score);
+		}
+
+        public static void CreateForField(Field field, float delay = 0f)
+        {
+            Instantiate(GM.boardMng.scoreFXPrefab, GM.boardMng.topFXParent, false).Setup(field.fieldPosition, field.GetScore());
         }
 
         public void Setup(Vector2 _anchoredStartPosition, string _score)

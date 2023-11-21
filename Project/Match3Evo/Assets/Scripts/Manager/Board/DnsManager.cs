@@ -1,4 +1,5 @@
 ﻿using Match3_Evo;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -30,5 +31,11 @@ public class DnsManager : MonoBehaviour
     void UpdateUI()
 	{
         spiralImg.fillAmount = Mathf.Clamp01(currentDnsAmount);
+	}
+
+	internal void UseDns()
+	{
+		currentDnsAmount -= 1f;
+		UpdateUI();
 	}
 }

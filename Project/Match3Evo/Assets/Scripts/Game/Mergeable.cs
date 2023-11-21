@@ -29,7 +29,7 @@ namespace Match3_Evo
             set
             {
                 topLeftField = value;
-                 GM.boardMng.StartCoroutine(GM.boardMng.ShowBreakBackground(this));
+                GM.boardMng.StartCoroutine(GM.boardMng.ShowBreakBackground(this));
             }
         }
 
