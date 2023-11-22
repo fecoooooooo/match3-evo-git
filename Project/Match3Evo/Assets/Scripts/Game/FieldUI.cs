@@ -50,10 +50,20 @@ namespace Match3_Evo
 
 			if (_field.SpecialType)
 			{
-                if (_field.FieldType == FieldType.DNS)
-                    fieldImage.sprite = GM.boardMng.dnsSprite;
-                if (_field.FieldType == FieldType.TREASURE)
-                    fieldImage.sprite = GM.boardMng.treasureSprite;
+				switch (Field.FieldType)
+				{
+					case FieldType.JOKER:
+                        fieldImage.sprite = GM.boardMng.jokerSprite;
+						break;
+					case FieldType.DNS:
+                        fieldImage.sprite = GM.boardMng.dnsSprite;
+						break;
+					case FieldType.TREASURE:
+                        fieldImage.sprite = GM.boardMng.treasureSprite;
+						break;
+					default:
+						break;
+				}
             }
             else
 			{
@@ -76,8 +86,14 @@ namespace Match3_Evo
 			if(GM.boardMng.DebugEnabled != debugText.IsActive())
                 debugText.gameObject.SetActive(GM.boardMng.DebugEnabled);
 
-			if (GM.boardMng.DebugEnabled)
-                debugText.text = ((int)Field.FieldType).ToString();
+            string debugTxt = Field.WillBreakX ? "y" : "n";
+            debugTxt += "|" + (Field.WillBreakY ? "y" : "n");
+
+
+            debugTxt = Field.FieldState.ToString()[0].ToString();
+
+            if (GM.boardMng.DebugEnabled)
+                debugText.text = debugTxt;
 		}
 
 		public void UpdateUI()
@@ -149,7 +165,10 @@ namespace Match3_Evo
 
         public void OnClick()
         {
-            if (false == Field.SpecialType)
+            //Field.JokerAfterBreak = true;
+            //Field.Break(0);
+
+            if (false == Field.SpecialType || Field.FieldType == FieldType.JOKER)
                 return;
 
             GM.boardMng.HammerBreak(this);

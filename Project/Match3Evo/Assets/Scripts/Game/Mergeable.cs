@@ -53,10 +53,16 @@ namespace Match3_Evo
                 mergeableType = EnumMergeableType.Hint;
             else if (_count == 3)
                 mergeableType = EnumMergeableType.Three;
+            else if (_count == 4)
+                mergeableType = EnumMergeableType.Four;
             else if (_count == 5)
-                mergeableType = EnumMergeableType.Three;    //TODO redo this
+                mergeableType = EnumMergeableType.Five;
+            else if (_count == 6)
+                mergeableType = EnumMergeableType.Six;
+            else if (7 <= _count)
+                mergeableType = EnumMergeableType.SevenOrBigger;
             else
-                mergeableType = EnumMergeableType.Three;    //TODO redo this
+                throw new Exception("No proper count for mergable");
         }
 
         public Vector2 GetScoreFXPosition()
@@ -107,30 +113,30 @@ namespace Match3_Evo
 
             for (int i = 0; i < Fields.Count; i++)
             {
-                if (mergeableType == EnumMergeableType.Line || mergeableType == EnumMergeableType.Three)
-                        lvScore += GM.boardMng.gameParameters.tileScore;
-                else if (mergeableType == EnumMergeableType.Box)
-                {
-                    lvScore += GM.boardMng.gameParameters.tileScore;
-                        
-                    if (isRow)
-                    {
-                        if (Fields[i].Top != null)
-                        {
-                            lvScore += GM.boardMng.gameParameters.tileScore;
-
-                            if (Fields[i].Top.Top != null)
-                                lvScore += GM.boardMng.gameParameters.tileScore;
-                        }
-                        if (Fields[i].Bottom != null)
-                        {
-                            lvScore += GM.boardMng.gameParameters.tileScore;
-
-                            if (Fields[i].Bottom.Bottom != null)
-                                lvScore += GM.boardMng.gameParameters.tileScore;
-                        }
-                    }
-                }
+                lvScore += GM.boardMng.gameParameters.tileScore;
+                //if (mergeableType == EnumMergeableType.Line || mergeableType == EnumMergeableType.Three)
+                //else if (mergeableType == EnumMergeableType.Box)
+                //{
+                //    lvScore += GM.boardMng.gameParameters.tileScore;
+                //        
+                //    if (isRow)
+                //    {
+                //        if (Fields[i].Top != null)
+                //        {
+                //            lvScore += GM.boardMng.gameParameters.tileScore;
+                //
+                //            if (Fields[i].Top.Top != null)
+                //                lvScore += GM.boardMng.gameParameters.tileScore;
+                //        }
+                //        if (Fields[i].Bottom != null)
+                //        {
+                //            lvScore += GM.boardMng.gameParameters.tileScore;
+                //
+                //            if (Fields[i].Bottom.Bottom != null)
+                //                lvScore += GM.boardMng.gameParameters.tileScore;
+                //        }
+                //    }
+                //}
             }
 
             return lvScore * scoreMultiplier;
@@ -203,6 +209,10 @@ namespace Match3_Evo
     public enum EnumMergeableType
     {
         Three,
+        Four,
+        Five,
+        Six,
+        SevenOrBigger,
         Line,
         Box,
         Hint

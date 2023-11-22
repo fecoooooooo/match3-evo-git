@@ -23,6 +23,10 @@ namespace Match3_Evo
         [HideInInspector] public Field Top = null;
         [HideInInspector] public Field Bottom = null;
         
+        public bool JokerAfterBreak { get; set; }
+        public bool WillBreakX { get; set; }
+        public bool WillBreakY { get; set; }
+        
         public bool SpecialType { get => (int)FieldType.SPECIAL <= (int)FieldType; }
 
         private Field swapField;
@@ -277,17 +281,34 @@ namespace Match3_Evo
                         GM.boardMng.TreasureBreak(fieldUI);
                 }
 
-                ChangeFieldState(EnumFieldState.Empty);
-                fieldUI.gameObject.SetActive(false);
+                WillBreakX = false;
+                WillBreakY = false;
+
+                if (JokerAfterBreak)
+                    BecomeJoker();
+				else
+				{
+                    ChangeFieldState(EnumFieldState.Empty);
+                    fieldUI.gameObject.SetActive(false);
+				}
 #if DEBUG
                 fieldUI.fieldImage.color = Color.white;
 #endif
             }
             else if (FieldState == EnumFieldState.Move)
-                ChangeFieldState(EnumFieldState.ComboReady);
+                ChangeFieldState(EnumFieldState.Useable);
         }
 
-        public int NeighborsWithFieldType(int _fieldType)
+		private void BecomeJoker()
+		{
+            FieldType = FieldType.JOKER;
+            fieldUI.Initialize(this);
+            ChangeFieldState(EnumFieldState.Useable);
+            fieldUI.gameObject.SetActive(true);
+            JokerAfterBreak = false;
+		}
+
+		public int NeighborsWithFieldType(int _fieldType)
         {
             int lvSimilarCount = 0;
 
@@ -380,7 +401,8 @@ namespace Match3_Evo
         LAST_NORMAL = V4_E5,
 
         SPECIAL,
-        DNS = SPECIAL,
+        JOKER = SPECIAL,
+        DNS,
         TREASURE,
 	}
 }
