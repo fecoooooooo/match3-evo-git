@@ -635,7 +635,7 @@ namespace Match3_Evo
                 Field field = Fields[startRow, c];
 
                 bool fieldOk = field.FieldState == EnumFieldState.Useable && !field.fieldUI.Unbreakable && !field.WillBreakX;
-                bool matchOrAnyJoker = firstNonJokerType == field.FieldType || startField.FieldType == FieldType.JOKER || field.FieldType == FieldType.JOKER;
+                bool matchOrAnyJoker = firstNonJokerType == field.FieldType || firstNonJokerType == FieldType.JOKER || field.FieldType == FieldType.JOKER;
 
                 if (ignoreFieldState || fieldOk && matchOrAnyJoker)
                     matchingFields.Add(field);
@@ -671,7 +671,7 @@ namespace Match3_Evo
                 Field field = Fields[r, startCol];
 
                 bool fieldOk = field.FieldState == EnumFieldState.Useable && !field.fieldUI.Unbreakable && !field.WillBreakY;
-                bool matchOrAnyJoker = firstNonJokerType == field.FieldType || startField.FieldType == FieldType.JOKER || field.FieldType == FieldType.JOKER;
+                bool matchOrAnyJoker = firstNonJokerType == field.FieldType || firstNonJokerType == FieldType.JOKER || field.FieldType == FieldType.JOKER;
 
                 if (ignoreFieldState || fieldOk && matchOrAnyJoker)
                     matchingFields.Add(field);

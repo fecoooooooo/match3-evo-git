@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -13,7 +14,7 @@ namespace Match3_Evo
         [SerializeField] public Image fieldImage;
         [SerializeField] Image shadowImage;
         [SerializeField] Image lockedImage;
-        public Text debugText;
+        public TextMeshProUGUI debugText;
         public int matchOnSides = 0;
         
         public bool Locked { get; private set; }
@@ -165,8 +166,8 @@ namespace Match3_Evo
 
         public void OnClick()
         {
-            //Field.JokerAfterBreak = true;
-            //Field.Break(0);
+            Field.JokerAfterBreak = true;
+            Field.Break(0);
 
             if (false == Field.SpecialType || Field.FieldType == FieldType.JOKER)
                 return;
