@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -8,7 +9,6 @@ namespace Match3_Evo
     [System.Serializable]
     public class Mergeable
     {
-        public bool isRow;
         public EnumMergeableType mergeableType;
         public List<Field> Fields { get; private set; }
         public Vector2 breakUIWidth;
@@ -16,9 +16,12 @@ namespace Match3_Evo
 
         Field topLeftField;
         int replaceableIndex = 0;
-        FieldType fieldType = FieldType.NONE;
+        public FieldType FieldType { get; private set; } = FieldType.NONE;
 
         int scoreMultiplier = -1;
+
+        public List<int> RowsWithMatch { get; private set; } = new List<int>();
+        public List<int> ColsWithMatch { get; private set; } = new List<int>();
 
         public Field TopLeftField
         {
@@ -43,23 +46,30 @@ namespace Match3_Evo
 
         public Field BoxField { get; private set; }
 
-        public Mergeable(int _count, bool _isRow, FieldType _fieldType = FieldType.NONE)
+        public Mergeable(int count, List<int> rowsWithMatch, List<int> colsWithMatch, FieldType fieldType = FieldType.NONE)
         {
-            isRow = _isRow;
-            Fields = new List<Field>(_count);
-            fieldType = _fieldType;
+            this.RowsWithMatch = rowsWithMatch;
+            this.ColsWithMatch = colsWithMatch;
 
-            if (_count == 2)
+            Fields = new List<Field>(count);
+            FieldType = fieldType;
+
+            DecideMergableType(count);
+        }
+
+        void DecideMergableType(int count)
+		{
+            if (count == 2)
                 mergeableType = EnumMergeableType.Hint;
-            else if (_count == 3)
+            else if (count == 3)
                 mergeableType = EnumMergeableType.Three;
-            else if (_count == 4)
+            else if (count == 4)
                 mergeableType = EnumMergeableType.Four;
-            else if (_count == 5)
+            else if (count == 5)
                 mergeableType = EnumMergeableType.Five;
-            else if (_count == 6)
+            else if (count == 6)
                 mergeableType = EnumMergeableType.Six;
-            else if (7 <= _count)
+            else if (7 <= count)
                 mergeableType = EnumMergeableType.SevenOrBigger;
             else
                 throw new Exception("No proper count for mergable");
@@ -67,20 +77,10 @@ namespace Match3_Evo
 
         public Vector2 GetScoreFXPosition()
         {
-            if (isRow)
-            {
-                if (Fields.Count % 2 == 0)
-                    return Fields[Fields.Count / 2].fieldPosition + new Vector2(0f, -GM.boardMng.fieldSize * 0.5f);
-                else
-                    return Fields[Fields.Count / 2].fieldPosition + new Vector2(GM.boardMng.fieldSize * 0.5f, -GM.boardMng.fieldSize * 0.5f);
-            }
+            if (Fields.Count % 2 == 0)
+                return Fields[Fields.Count / 2].fieldPosition + new Vector2(0f, -GM.boardMng.fieldSize * 0.5f);
             else
-            {
-                if (Fields.Count % 2 == 0)
-                    return Fields[Fields.Count / 2].fieldPosition + new Vector2(GM.boardMng.fieldSize * 0.5f, GM.boardMng.fieldSize * 0.5f);
-                else
-                    return Fields[Fields.Count / 2].fieldPosition + new Vector2(GM.boardMng.fieldSize * 0.5f, -GM.boardMng.fieldSize * 0.5f);
-            }
+                return Fields[Fields.Count / 2].fieldPosition + new Vector2(GM.boardMng.fieldSize * 0.5f, -GM.boardMng.fieldSize * 0.5f);
         }
 
         public void AddField(Field f)
@@ -148,7 +148,7 @@ namespace Match3_Evo
 
             while (lvIndex - replaceableIndex < 3 && lvIndex < Fields.Count - 1)
             {
-                if (Fields[lvIndex].FieldType == fieldType)
+                if (Fields[lvIndex].FieldType == FieldType)
                     lvIndex++;
                 else
                 {
@@ -172,10 +172,6 @@ namespace Match3_Evo
         {
             if (mergeableType == EnumMergeableType.Three)
                 GM.soundMng.PlayDelayed(EnumSoundID.Break3, GM.boardMng.breakDelayTimeFast * 0.9f);
-            else if (mergeableType == EnumMergeableType.Line)
-                GM.soundMng.PlayDelayed(EnumSoundID.BreakLine, GM.boardMng.breakDelayTime * 0.9f);
-            else if (mergeableType == EnumMergeableType.Box)
-                GM.soundMng.PlayDelayed(EnumSoundID.Break5, GM.boardMng.breakDelayTime * 0.9f);
         }
 
         public class PossibleSwap
@@ -203,7 +199,38 @@ namespace Match3_Evo
         {
             Fields.Clear();
         }
-    }
+
+		internal bool IsNeighbour(Mergeable possibleNeighbour)
+		{
+            if (FieldType != possibleNeighbour.FieldType)
+                return false;
+
+			foreach(var f in Fields)
+			{
+                foreach(var otherF in possibleNeighbour.Fields)
+				{
+                    if (f.Left == otherF || f.Right == otherF || f.Top == otherF || f.Bottom == otherF)
+                        return true;
+				}
+			}
+
+            return false;
+		}
+
+		internal void UniteWith(Mergeable other)
+		{
+            foreach (var f in other.Fields)
+			{
+                if(!Fields.Contains(f))
+                    Fields.Add(f);
+			}
+
+            DecideMergableType(Fields.Count);
+
+            RowsWithMatch = RowsWithMatch.Union(other.RowsWithMatch).ToList();
+            ColsWithMatch = ColsWithMatch.Union(other.ColsWithMatch).ToList();
+        }
+	}
 
 
     public enum EnumMergeableType
@@ -213,8 +240,6 @@ namespace Match3_Evo
         Five,
         Six,
         SevenOrBigger,
-        Line,
-        Box,
         Hint
     }
 }
