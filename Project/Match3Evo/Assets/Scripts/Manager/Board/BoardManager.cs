@@ -977,31 +977,34 @@ namespace Match3_Evo
 
 		private void HandleMergableTypesWithEffects(Mergeable mergeable)
 		{
-            if (mergeable.mergeableType == EnumMergeableType.Line)
+            if (mergeable.mergeableType == EnumMergeableType.Five)
             {
+                Time.timeScale = 0;
                 if (mergeable.isRow)
                 {
-                    int lvRowIndex = mergeable.Fields[0].rowIndex;
+                    int rowIndex = mergeable.Fields[0].rowIndex;
 
                     mergeable.ClearFields();
 
                     for (int j = 0; j < columns; j++)
-                        mergeable.AddField(Fields[lvRowIndex, j]);
+                        mergeable.AddField(Fields[rowIndex, j]);
 
                     mergeable.breakUIWidth = new Vector2(columns, 1);
-                    mergeable.TopLeftField = Fields[lvRowIndex, 0];
+                    mergeable.TopLeftField = Fields[rowIndex, 0];
                 }
                 else
                 {
-                    int lvColumnIndex = mergeable.Fields[0].columnIndex;
+                    int columnIndex = mergeable.Fields[0].columnIndex;
 
                     mergeable.ClearFields();
 
-                    for (int j = 0; j < rows; j++)
-                        mergeable.AddField(Fields[j, lvColumnIndex]);
+                    for (int j = 0; j < rows; j++) { 
+                    if (!Fields[j, columnIndex].fieldUI.Locked)
+                        mergeable.AddField(Fields[j, columnIndex]);
+                    }
 
                     mergeable.breakUIWidth = new Vector2(1, rows);
-                    mergeable.TopLeftField = Fields[0, lvColumnIndex];
+                    mergeable.TopLeftField = Fields[0, columnIndex];
                 }
             }
 
@@ -1350,7 +1353,7 @@ namespace Match3_Evo
 
             ScoreFX.Create(_mergeable);
 
-            if (_mergeable.mergeableType == EnumMergeableType.Line)
+            if (_mergeable.mergeableType == EnumMergeableType.Five)
             {
                 Lightning lvLightning = GM.Pool.GetObject<Lightning>(lineLightning);
                 lvLightning.Initialize(lightningParent, _mergeable);

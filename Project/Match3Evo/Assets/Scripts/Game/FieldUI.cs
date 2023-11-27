@@ -166,14 +166,25 @@ namespace Match3_Evo
 
         public void OnClick()
         {
-            Field.JokerAfterBreak = true;
-            Field.Break(0);
+            DebugMakeType(FieldType.V1_E0);
 
             if (false == Field.SpecialType || Field.FieldType == FieldType.JOKER)
                 return;
 
             GM.boardMng.HammerBreak(this);
         }
+
+        void DebugMakeJoker()
+		{
+            Field.JokerAfterBreak = true;
+            Field.Break(0);
+        }
+
+        void DebugMakeType(FieldType fieldType)
+		{
+            Field.FieldType = fieldType;
+            Initialize(Field);
+		}
 
         #region FieldMovement
 

@@ -44,7 +44,7 @@ namespace Match3_Evo
                 gameObject.SetActive(true);
             }
             
-            if (_mergeable.mergeableType == EnumMergeableType.Line)
+            if (_mergeable.mergeableType == EnumMergeableType.Five)
             {
                 if (_mergeable.isRow)
                 {

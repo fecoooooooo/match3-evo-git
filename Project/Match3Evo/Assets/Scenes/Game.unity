@@ -3619,7 +3619,7 @@ MonoBehaviour:
     timeBetweenBreaks: 0.03
     fireTime: 2
     fireSpreadTime: 0.5
-    mergesToNextEvolution: 02000000020000000200000002000000
+    mergesToNextEvolution: 14000000020000000200000002000000
     scoreMultiplierPerEvolution: 010000000200000003000000040000000500000006000000
     scoreForEvo: 200
     scoreForMaxEvo: 1000
@@ -4659,8 +4659,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: -90.07141}
+  m_SizeDelta: {x: 0, y: -119.85716}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!223 &827611253
 Canvas:
