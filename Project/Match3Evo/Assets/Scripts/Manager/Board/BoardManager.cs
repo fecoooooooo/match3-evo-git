@@ -686,7 +686,7 @@ namespace Match3_Evo
             if (MINIMUM_FIELD_COUNT_FOR_BREAK <= matchingFields.Count && nonJokerFieldTypes.Count() == 1)
             {
                 FieldType matchFieldType = nonJokerFieldTypes.First().Key;
-                Mergeable mergeableOnY = new Mergeable(matchingFields.Count, true, matchFieldType);
+                Mergeable mergeableOnY = new Mergeable(matchingFields.Count, false, matchFieldType);
 
                 foreach (var f in matchingFields)
                 {
@@ -947,7 +947,6 @@ namespace Match3_Evo
             for (int i = 0; i < _mergeables.Count; i++)
             {
                 HandleMergableTypesWithEffects(_mergeables[i]);
-                
 
                 //Go backward to break the lowest tile first
                 for (int j = _mergeables[i].Fields.Count - 1; j >= 0; j--)
