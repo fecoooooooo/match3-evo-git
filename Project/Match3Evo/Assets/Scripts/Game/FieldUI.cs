@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
@@ -11,6 +12,7 @@ namespace Match3_Evo
     {
         public RectTransform Rect { get { return rect; } }
 
+        [SerializeField] GameObject fire;
         [SerializeField] public Image fieldImage;
         [SerializeField] Image shadowImage;
         [SerializeField] Image lockedImage;
@@ -48,6 +50,7 @@ namespace Match3_Evo
             animationTime = 0;
 
             Field = _field;
+            Field.breakEvent.AddListener(OnBreak);
 
 			if (_field.SpecialType)
 			{
@@ -73,7 +76,12 @@ namespace Match3_Evo
 			}
         }
 
-        void Update()
+		private void OnBreak()
+		{
+            fire.SetActive(false);
+		}
+
+		void Update()
         {
             PositionTransition();
             UpdateUI();
@@ -142,13 +150,13 @@ namespace Match3_Evo
 		{
 			if (OnFire)
 			{
+                if (!fire.activeSelf)
+                    fire.SetActive(true);
+
                 fireTime -= Time.deltaTime;
                 if (fireTime < 0)
                 {
                     OnFire = false;
-#if DEBUG
-                    fieldImage.color = Color.gray;
-#endif
                 }
             }
 		}
@@ -270,9 +278,6 @@ namespace Match3_Evo
         {
             OnFire = true;
             fireTime = GM.boardMng.gameParameters.fireTime;
-#if DEBUG
-            fieldImage.color = Color.red;
-#endif
         }
 
         internal void SetLocked()

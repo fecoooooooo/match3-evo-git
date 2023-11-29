@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace Match3_Evo
 {
@@ -29,6 +30,8 @@ namespace Match3_Evo
         
         public bool SpecialType { get => (int)FieldType.SPECIAL <= (int)FieldType; }
 
+        public UnityEvent breakEvent;
+
         private Field swapField;
         private bool swapDone = false;
         private bool swapToUseable = false;
@@ -41,6 +44,8 @@ namespace Match3_Evo
             columnIndex = _columnIndex;
             fieldPosition = _fieldPosition;
             fieldUI = _fieldUI;
+
+            breakEvent = new UnityEvent();
 
             this.FieldType = fieldType;
         }
@@ -283,6 +288,7 @@ namespace Match3_Evo
 
                 WillBreakX = false;
                 WillBreakY = false;
+                breakEvent?.Invoke();
 
                 if (JokerAfterBreak)
                     BecomeJoker();

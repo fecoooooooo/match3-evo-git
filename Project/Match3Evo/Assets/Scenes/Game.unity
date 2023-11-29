@@ -3617,8 +3617,8 @@ MonoBehaviour:
     boostCooldown: 3
     timeTillFirstBreak: 0.3
     timeBetweenBreaks: 0.03
-    fireTime: 2
-    fireSpreadTime: 0.5
+    fireTime: 0.5
+    fireSpreadTime: 0
     mergesToNextEvolution: 14000000020000000200000002000000
     scoreMultiplierPerEvolution: 010000000200000003000000040000000500000006000000
     scoreForEvo: 200

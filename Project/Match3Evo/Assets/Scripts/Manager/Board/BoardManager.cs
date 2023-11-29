@@ -615,7 +615,7 @@ namespace Match3_Evo
 		{
             //FIND IN ROWS
             Field startField = Fields[startRow, startCol];
-            if (!ignoreFieldState && startField.FieldState != EnumFieldState.Useable || startField.fieldUI.Unbreakable || startField.WillBreakX || startField.WillBreakY)
+            if (!ignoreFieldState && startField.FieldState != EnumFieldState.Useable || startField.fieldUI.Unbreakable || startField.WillBreakX && startField.WillBreakY)
                 return;
 
             List<Field> matchingFields = new List<Field>();
@@ -892,35 +892,37 @@ namespace Match3_Evo
             }
         }
 
-        public void BreakMergeables(List<Mergeable> _mergeables)
+        public void BreakMergeables(List<Mergeable> mergeables)
         {
-            for (int i = 0; i < _mergeables.Count; i++)
+            for (int i = 0; i < mergeables.Count; i++)
             {
-                HandleMergableTypesWithEffects(_mergeables[i]);
+                HandleMergableTypesWithEffects(mergeables[i]);
 
                 //Go backward to break the lowest tile first
-                for (int j = _mergeables[i].Fields.Count - 1; j >= 0; j--)
+                for (int j = mergeables[i].Fields.Count - 1; j >= 0; j--)
                 {
-                    if (_mergeables[i].TopLeftField == null)
+                    if (mergeables[i].TopLeftField == null)
                     {
-                        //if (_mergeables[i].isRow) TODO
-                            _mergeables[i].breakUIWidth = new Vector2(_mergeables[i].Fields.Count, 1);
-                        //else TODO
-                        //    _mergeables[i].breakUIWidth = new Vector2(1, _mergeables[i].Fields.Count); TODO
+                        if (mergeables[i].RowsWithMatch.Count == 1)
+                            mergeables[i].breakUIWidth = new Vector2(mergeables[i].Fields.Count, 1);
+                        else if(mergeables[i].ColsWithMatch.Count == 1)
+                            mergeables[i].breakUIWidth = new Vector2(1, mergeables[i].Fields.Count);
+                        else
+                            throw new Exception("Not handled case, would cause problematic break background");
 
-                        _mergeables[i].TopLeftField = _mergeables[i].Fields[0];
+                        mergeables[i].TopLeftField = mergeables[i].Fields[0];
                     }
 
-                    if (_mergeables[i].Fields.Count == MINIMUM_FIELD_COUNT_FOR_BREAK)
-                        _mergeables[i].Fields[j].Break(breakDelayTimeFast);
+                    if (mergeables[i].Fields.Count == MINIMUM_FIELD_COUNT_FOR_BREAK)
+                        mergeables[i].Fields[j].Break(breakDelayTimeFast);
                     else
-                        _mergeables[i].Fields[j].Break(breakDelayTime);
+                        mergeables[i].Fields[j].Break(breakDelayTime);
 
-                    _mergeables[i].Fields[j].fieldUI.SetUnlockedIfNotUnbreakable();
+                    mergeables[i].Fields[j].fieldUI.SetUnlockedIfNotUnbreakable();
                 }
 
-                mergeEvent.Invoke(Field.TypeToVariant(_mergeables[i].FieldType));
-                _mergeables[i].PlayBreakSound();
+                mergeEvent.Invoke(Field.TypeToVariant(mergeables[i].FieldType));
+                mergeables[i].PlayBreakSound();
             }
         }
 
@@ -954,6 +956,31 @@ namespace Match3_Evo
                 ColorFrenzyBreak(mergeable.Fields[0].fieldUI);
                 mergeable.ClearFields();
 			}
+            else if (mergeable.mergeableType == EnumMergeableType.SevenOrBigger)
+			{
+                int[] rowsToBreak = mergeable.Fields.Select(x => x.rowIndex).Distinct().ToArray();
+                int[] colsToBreak = mergeable.Fields.Select(x => x.columnIndex).Distinct().ToArray();
+                
+                mergeable.ClearFields();
+                List<Field> fieldsToAdd = new List<Field>();
+
+                foreach (int r in rowsToBreak)
+                {
+                    for(int c = 0; c < columns; ++c)
+                        fieldsToAdd.Add(Fields[r, c]);
+                }
+
+                foreach (int c in colsToBreak)
+                {
+                    for (int r = 0; r < rows; ++r)
+					{
+                        if(!Fields[r, c].fieldUI.Locked)
+                            fieldsToAdd.Add(Fields[r, c]);
+					}
+                }
+
+                mergeable.AddFieldRange(fieldsToAdd.Distinct().ToList());
+            }
         }
 
 		#region boost
@@ -1267,33 +1294,44 @@ namespace Match3_Evo
                 Evolve(variant);
         }
 
-        public IEnumerator ShowBreakBackground(Mergeable _mergeable)
+        public IEnumerator ShowBreakBackground(Mergeable mergeable)
         {
             BreakBackground lvBg = GM.Pool.GetObject<BreakBackground>(breakBackgroundPrefab);
-            lvBg.Initialize(breakBackgroundParent, _mergeable);
-            if (_mergeable.mergeableType == EnumMergeableType.Hint)
+            lvBg.Initialize(breakBackgroundParent, mergeable);
+            if (mergeable.mergeableType == EnumMergeableType.Hint)
                 yield break;
 
             yield return new WaitForSeconds(breakDelayTime * 0.25f);
 
-            ScoreFX.Create(_mergeable);
+            ScoreFX.Create(mergeable);
 
-            if (_mergeable.mergeableType == EnumMergeableType.Five)
+            if (mergeable.mergeableType == EnumMergeableType.Five)
             {
-                foreach (var r in _mergeable.RowsWithMatch)
+                foreach (var row in mergeable.RowsWithMatch)
                 {
                     Lightning lvLightning = GM.Pool.GetObject<Lightning>(lineLightning);
-                    lvLightning.Initialize(lightningParent, true, r);
+                    lvLightning.Initialize(lightningParent, true, row);
                 }
 
-                foreach (var c in _mergeable.ColsWithMatch)
+                foreach (var col in mergeable.ColsWithMatch)
                 {
                    Lightning lvLightning = GM.Pool.GetObject<Lightning>(lineLightning);
-                   lvLightning.Initialize(lightningParent, false, c);
+                   lvLightning.Initialize(lightningParent, false, col);
+                }
+            }
+            else if (mergeable.mergeableType == EnumMergeableType.SevenOrBigger)
+			{
+                foreach(int row in mergeable.Fields.Select(x => x.rowIndex).Distinct())
+				{
+                    Lightning lvLightning = GM.Pool.GetObject<Lightning>(lineLightning);
+                    lvLightning.Initialize(lightningParent, true, row);
                 }
 
-
-
+                foreach (int col in mergeable.Fields.Select(x => x.columnIndex).Distinct())
+                {
+                    Lightning lvLightning = GM.Pool.GetObject<Lightning>(lineLightning);
+                    lvLightning.Initialize(lightningParent, false, col);
+                }
             }
         }
 
