@@ -1,0 +1,104 @@
+megbesz 11.19.
+	//alulra is generalni 100 sort, ami bescrollozhat
+	//	2x2 es itt nem lesz
+		
+	//mobil nezet beallitasa
+	//10 asasonkent 1 evoval fentebbi van lockolva (kiveve 2x2 esek)
+	//elso nel is
+
+	//láda, dns alulrol jon be
+	//unlck akkor ha az unlockolt field is benne van a match ben
+
+	kerdesek:
+		//dns hogyan mukodik? mi van ha feltoltodik?
+		//	ha feltoltodik akkor automatikusan a masodlagos agra kerul
+		//mit jelent	a masodlagos ag a doksiban?
+		//	az alo reszre kerul
+		//score:
+		//	Reach second branch of evolution line --  1000 points (as there is a fork in the line)
+		//	csak siman feljon odlalt ez is floatingként 
+		//		--> igen
+		//		--> evo achieved
+		megeves mit jelent --> legvegen beszelni rola
+		2x2 tuti lesz? nagy szopasnak hangzik, mi van ha nincsenek teljesen szintbe
+			csak teljesen szintben 
+			amig nem esik be teljesen, addig nem lehet csereelgetni
+			barmi match nél nem forgaqtuk vissza
+			ha alatta kimatchelek valamit, akkor ott lyuk marad
+		// achievemnts hogyan jelenik meg? --> nem kell
+
+pregenerate:
+	//most az uj sor egy full random sor, ezt is a map bol kene venni
+
+evolucio:
+	//palyan levo osszeset lecserelem
+	//	lockolt on ha kisebb van, akkor azt is lecserelni
+	//minden 10. sornal ujabb evo ugras
+	//nyilvan oylan ami 1 evoval feljebbb van, nem egy oylan ami mar
+	
+	//score multiplier
+
+//csak 4 fele csempe
+//elore legeneralni az egesz palyat
+
+DNS:
+	//felirat FX be
+	//ha elhasznalodik, vonjunk le 1 et
+
+bug:
+	shiftnél vissza kéne tenni a ColumnFeedbe a felcsuszo tile öket
+	//leeses utan is ellenorizni h van e match
+	//lockolt fieldet kidob mint hint --> ez az uj design szerint nem baj
+	//amikor auto esnek be dolgok es matchelodnek addig az inputot le kene tiltani, mert hibat fog okozni
+	neha nem jo az eppen osszetoro dolgok kerete
+	//lockoltat lehet beforgatni
+	//nem mindig talal oylan variantot amit le akarok cserelni
+	//van, hogy match van az uj sorban
+	//24 es indexre nem jo korokdilt mutat
+	szelere kattinta lehet csak porgetni (ahol a debugtext van)
+	//dns, treasure nem kattinthato ha lokcolt
+	//treasure nel 1000 score t adjon hozza
+	//DNS nel ne adjon hozza score t
+	//swapnal 0 as ra csinalja vissza a fieldtypeot
+	//betoltesnel van hogy egybol breakel
+	//elmebeteg modon cserelgeti a spriteokat valamiert --> updateUI de csak akkor cseréli ha animacio indul, vagy ha valoban emgvaltozott a kep, szal nem hiszem h lassu
+	
+	//auto breaknel (amit nem en inditok) nem szamolja a mergecountot --> mégis?
+	fire utan kiegve maradnak fieldek
+shift:
+	//hatter
+	//ne generaljon match et
+	//hatter masik iranyba
+	//megvarni amig minden leesik
+
+
+lockolt:
+	//lockolt mezoket boostal nem lehet levenni
+	
+	ha nagyobb evon van akkor hiaba porgetem ki, nem unlockol
+	//van egy sor ami teljesen unlockolhatatlan, ez az ami majd beuszik
+
+	//oldalra is lkkehessen oket unlockolni
+
+anim berakasa
+	//--> idle folyamatosan
+	//--> 10 perc alatt ha nem talalom irni
+	//random jatsza le az idle t mindentol fuggetlenul 
+
+boost
+	//score
+	special elem breakelese eseten lefuttatniaz annak megfelelo dolgot
+	//lehet inkabb azt kene h mikor break el a field, akkor nezem emg h special field e, es csinalaom a megfelelo eventet
+	animacio, break bg??
+	
+	animalodjon, melyik tile re lehet radobni
+	//hint: 	
+	//	kikapcs alapbol, boostal erheto el
+	//tuz:
+	//	egy mezo eg 3 mp ig, masodpercenkent terjed
+	//	egy bizonyoas allatbol az osszes kigyullad
+	//	ha atellenes 2 mezo eg, akkor kozotte is kigyullad
+	//spiral:
+	//	amint falba utkozik vege
+	
+
