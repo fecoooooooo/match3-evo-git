@@ -169,14 +169,19 @@ namespace Match3_Evo
             PointerEventData lvPointerEventData = _baseEventData as PointerEventData;
             Vector2 lvDelta = lvPointerEventData.position - lvPointerEventData.pressPosition;
             EnumSwapDirection lvSwapDirection = (EnumSwapDirection)Mathf.CeilToInt(Vector2.SignedAngle(Vector2.one, lvDelta) / 90f);
-            GM.boardMng.OnSwapFields(Field, lvSwapDirection);
+
+            if(Field.Is2x2)
+                GM.boardMng.OnSwapFields2x2(Field, lvSwapDirection);
+            else
+                GM.boardMng.OnSwapFields(Field, lvSwapDirection);
         }
 
         public void OnClick()
         {
-            //DebugMakeType(FieldType.V1_E0);
             if(Input.GetKey(KeyCode.LeftShift))
                 GM.boardMng.TurnFieldTo2x2(Field.rowIndex, Field.columnIndex);
+            if(Input.GetKey(KeyCode.LeftControl))
+                DebugMakeType(FieldType.V1_E0);
 
             if (false == Field.SpecialType || Field.FieldType == FieldType.JOKER)
                 return;

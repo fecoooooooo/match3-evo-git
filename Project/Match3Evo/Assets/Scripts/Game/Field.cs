@@ -33,9 +33,9 @@ namespace Match3_Evo
 
         public UnityEvent breakEvent;
 
-        private Field swapField;
+        public Field swapField;
         private bool swapDone = false;
-        private bool swapToUseable = false;
+        public bool swapToUseable = false;
 
         public FieldType FieldType { get; set; }
 
@@ -55,6 +55,7 @@ namespace Match3_Evo
         {
             FieldType = _field.FieldType;
             fieldUI = _field.fieldUI;
+            Is2x2 = _field.Is2x2;
         }
 
         public void FindRelations()
@@ -95,58 +96,61 @@ namespace Match3_Evo
             return string.Format("[Field: rowIndex={0}, columnIndex={1}, color={2}, state={3}, swapDone={4}, fieldUI={5}, fieldPosition={6}]", rowIndex, columnIndex, FieldVariant, FieldState, swapDone, fieldUI.Rect.anchoredPosition, fieldPosition);
         }
 
-        public void SwapWithField(Field _newSwapField)
-        {
-            GM.soundMng.Play(EnumSoundID.Swap);
-
-            Field lvTemp = new Field(_newSwapField);
-
-            _newSwapField.FieldType = FieldType;
-            _newSwapField.fieldUI = fieldUI;
-
-            FieldType = lvTemp.FieldType;
-            fieldUI = lvTemp.fieldUI;
-            swapField = _newSwapField;
-
-            fieldUI.Initialize(this);
-            _newSwapField.fieldUI.Initialize(_newSwapField);
-
-            if (FieldState == EnumFieldState.Useable && _newSwapField.FieldState == EnumFieldState.Useable)
-            {
-                List<Mergeable> lvBreakable = GM.boardMng.FindBreakableFields();
-                bool lvFound = false;
-
-                for (int i = 0; i < lvBreakable.Count; i++)
-                {
-                    if (lvBreakable[i].Fields.Contains(this) || lvBreakable[i].Fields.Contains(_newSwapField))
-                    {
-                        lvFound = true;
-                        break;
-                    }
-                }
-
-                if (lvFound)
-                {
-                    GM.boardMng.BreakMergeables(lvBreakable);
-
-                    swapToUseable = FieldState != EnumFieldState.Break;
-                    _newSwapField.swapToUseable = _newSwapField.FieldState != EnumFieldState.Break;
-
-                    ChangeFieldState(EnumFieldState.Swap);
-
-                    _newSwapField.ChangeFieldState(EnumFieldState.Swap);
-                }
-                else
-                {
-                    ChangeFieldState(EnumFieldState.SwapBack);
-
-                    _newSwapField.ChangeFieldState(EnumFieldState.SwapBack);
-                }
-            }
-
-            fieldUI.StartTransition();
-            _newSwapField.fieldUI.StartTransition();
-        }
+        //public void SwapWithField(Field _newSwapField)
+        //{
+        //    GM.soundMng.Play(EnumSoundID.Swap);
+        //
+        //    Field lvTemp = new Field(_newSwapField);
+        //
+        //    _newSwapField.FieldType = FieldType;
+        //    _newSwapField.fieldUI = fieldUI;
+        //    _newSwapField.Is2x2 = Is2x2;
+        //
+        //    FieldType = lvTemp.FieldType;
+        //    fieldUI = lvTemp.fieldUI;
+        //    Is2x2 = lvTemp.Is2x2;
+        //
+        //    swapField = _newSwapField;
+        //
+        //    fieldUI.Initialize(this);
+        //    _newSwapField.fieldUI.Initialize(_newSwapField);
+        //
+        //    if (FieldState == EnumFieldState.Useable && _newSwapField.FieldState == EnumFieldState.Useable)
+        //    {
+        //        List<Mergeable> lvBreakable = GM.boardMng.FindBreakableFields();
+        //        bool lvFound = false;
+        //
+        //        for (int i = 0; i < lvBreakable.Count; i++)
+        //        {
+        //            if (lvBreakable[i].Fields.Contains(this) || lvBreakable[i].Fields.Contains(_newSwapField))
+        //            {
+        //                lvFound = true;
+        //                break;
+        //            }
+        //        }
+        //
+        //        if (lvFound)
+        //        {
+        //            GM.boardMng.BreakMergeables(lvBreakable);
+        //
+        //            swapToUseable = FieldState != EnumFieldState.Break;
+        //            _newSwapField.swapToUseable = _newSwapField.FieldState != EnumFieldState.Break;
+        //
+        //            ChangeFieldState(EnumFieldState.Swap);
+        //
+        //            _newSwapField.ChangeFieldState(EnumFieldState.Swap);
+        //        }
+        //        else
+        //        {
+        //            ChangeFieldState(EnumFieldState.SwapBack);
+        //
+        //            _newSwapField.ChangeFieldState(EnumFieldState.SwapBack);
+        //        }
+        //    }
+        //
+        //    fieldUI.StartTransition();
+        //    _newSwapField.fieldUI.StartTransition();
+        //}
 
         public void MoveFieldHere(Field _movedField)
         {
@@ -261,7 +265,7 @@ namespace Match3_Evo
                 if (!swapDone)
                 {
                     swapDone = true;
-                    SwapWithField(swapField);
+                    GM.boardMng.DoSwapFields(new List<Swap>() {new Swap(this, swapField) });
                     GM.soundMng.Play(EnumSoundID.SwapWrong);
                 }
                 else
@@ -372,7 +376,6 @@ namespace Match3_Evo
 
     public enum FieldType
 	{
-        NONE = -1,
 
         V1_E0,
         V2_E0,
@@ -411,5 +414,7 @@ namespace Match3_Evo
         JOKER = SPECIAL,
         DNS,
         TREASURE,
-	}
+
+        NONE,
+    }
 }

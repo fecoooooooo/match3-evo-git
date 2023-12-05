@@ -38,6 +38,8 @@ break bg:
 		mi van ha 1x1 el cserelem:
 			mind a 4 et athozza enneka  helyere
 		de mi van ha csak a felso 2 1x1 es, az also egy 2x2 es teteje
+	hint
+	match detection
 		
 
 pregenerate:
@@ -59,6 +61,8 @@ DNS:
 	//ha elhasznalodik, vonjunk le 1 et
 
 bug:
+	sima (1x1) swapnal visszakerul a swappolt field az eredeti heylere
+
 	shiftnél vissza kéne tenni a ColumnFeedbe a felcsuszo tile öket
 	//leeses utan is ellenorizni h van e match
 	//lockolt fieldet kidob mint hint --> ez az uj design szerint nem baj

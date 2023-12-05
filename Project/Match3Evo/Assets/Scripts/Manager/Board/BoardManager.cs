@@ -36,11 +36,6 @@ namespace Match3_Evo
 
         public bool InputEnabled { get; set; } = true;
 
-        public FieldDataTier GetFieldDataForFieldType(int fieldVariant, int evoLvl)
-        {
-            return FieldData[fieldVariant].fieldDataTiers[evoLvl];
-        }
-
         public MatchData[] MatchDatas;
         [Tooltip("Extra 5x5 Breakable combinations. Basic 3 matching elements in column and extra elements relative to the starting field from the 3 basic matching fields! SwapIndex is the center of the 5x5 break.")]
         public MatchData[] ExactMatchDatas;
@@ -485,92 +480,167 @@ namespace Match3_Evo
                 SceneManager.LoadScene(GM.Instance.menuSceneName);
         }
 
-        public void OnSwapFields2x2(Field _field, EnumSwapDirection _swapDirection, bool _hintSwap = false)
+        public void OnSwapFields2x2(Field field2x2, EnumSwapDirection _swapDirection, bool _hintSwap = false)
 		{
-            if (gameRunning && _field.FieldState == EnumFieldState.Useable && CanClickOnField)
+            if (gameRunning && field2x2.FieldState == EnumFieldState.Useable && CanClickOnField)
             {
-                Field lvSwapFieldTo = null;
-                bool lvSwapTopLeft = false;
-
                 List<int> colsWithMatch = new List<int>();
                 List<int> rowsWithMatch = new List<int>();
 
+                List<Swap> fieldSwaps = new List<Swap>();
+
 				if (_swapDirection == EnumSwapDirection.Right)
 				{
-					if (_field.columnIndex < columns - 2)
+					if (field2x2.columnIndex < columns - 3)
 					{
-						lvSwapFieldTo = Fields[_field.rowIndex, _field.columnIndex + 2];
-						if (lvSwapFieldTo.Is2x2)
+                        Field topLeft  = Fields[field2x2.rowIndex, field2x2.columnIndex + 2];
+                        Field topRight = Fields[field2x2.rowIndex, field2x2.columnIndex + 3];
+                        Field bottomLeft = Fields[field2x2.rowIndex + 1, field2x2.columnIndex + 2];
+                        Field bottomRight = Fields[field2x2.rowIndex + 1, field2x2.columnIndex + 3];
+
+                        if (topLeft.Is2x2)
 						{
-							rowsWithMatch.Add(_field.rowIndex);
+                            fieldSwaps.Add(new Swap(field2x2, topLeft));
+							//rowsWithMatch.Add(_field.rowIndex);
 						}
 						else
 						{
-							Field topRight = Fields[_field.rowIndex, _field.columnIndex + 3];
-							Field bottomLeft = Fields[_field.rowIndex + 1, _field.columnIndex + 2];
-							Field bottomRight = Fields[_field.rowIndex + 1, _field.columnIndex + 3];
-
 							if (!topRight.Is2x2 && !bottomLeft.Is2x2 && !bottomRight.Is2x2)
 							{
+                                Field topRight2x2 = Fields[field2x2.rowIndex, field2x2.columnIndex + 1];
+                                Field bottomLeft2x2 = Fields[field2x2.rowIndex + 1, field2x2.columnIndex];
+                                Field bottomRight2x2 = Fields[field2x2.rowIndex + 1, field2x2.columnIndex + 1];
 
-							}
-						}
+                                fieldSwaps.Add(new Swap(field2x2, topLeft));
+                                fieldSwaps.Add(new Swap(topRight2x2, topRight));
+                                fieldSwaps.Add(new Swap(bottomLeft2x2, bottomLeft));
+                                fieldSwaps.Add(new Swap(bottomRight2x2, bottomRight));
+                            }
+                        }
 					}
 				}
 				else if (_swapDirection == EnumSwapDirection.Left)
 				{
-					if (_field.columnIndex > 1)
+					if (field2x2.columnIndex > 1)
 					{
-						lvSwapFieldTo = Fields[_field.rowIndex, _field.columnIndex - 2];
-						lvSwapTopLeft = true;
-						rowsWithMatch.Add(_field.rowIndex);
+                        Field topLeft = Fields[field2x2.rowIndex, field2x2.columnIndex - 2];
+                        Field topRight = Fields[field2x2.rowIndex, field2x2.columnIndex - 1];
+                        Field bottomLeft = Fields[field2x2.rowIndex + 1, field2x2.columnIndex - 2];
+                        Field bottomRight = Fields[field2x2.rowIndex + 1, field2x2.columnIndex - 1];
+
+                        if (topLeft.Is2x2)
+                        {
+                            fieldSwaps.Add(new Swap(field2x2, topLeft));
+                         
+                            //rowsWithMatch.Add(_field.rowIndex);
+                        }
+                        else if (!topRight.Is2x2 && !bottomLeft.Is2x2 && !bottomRight.Is2x2)
+						{
+							Field topRight2x2 = Fields[field2x2.rowIndex, field2x2.columnIndex + 1];
+							Field bottomLeft2x2 = Fields[field2x2.rowIndex + 1, field2x2.columnIndex];
+							Field bottomRight2x2 = Fields[field2x2.rowIndex + 1, field2x2.columnIndex + 1];
+
+							fieldSwaps.Add(new Swap(field2x2, topLeft));
+							fieldSwaps.Add(new Swap(topRight2x2, topRight));
+							fieldSwaps.Add(new Swap(bottomLeft2x2, bottomLeft));
+							fieldSwaps.Add(new Swap(bottomRight2x2, bottomRight));
+
+							//rowsWithMatch.Add(_field.rowIndex);
+						}
 					}
 				}
 				else if (_swapDirection == EnumSwapDirection.Up)
 				{
-					if (_field.rowIndex > 1)
+					if (field2x2.rowIndex > 1)
 					{
-						lvSwapFieldTo = Fields[_field.rowIndex - 2, _field.columnIndex];
-						lvSwapTopLeft = true;
-						colsWithMatch.Add(_field.columnIndex);
-					}
+                        Field topLeft = Fields[field2x2.rowIndex - 2, field2x2.columnIndex];
+                        Field topRight = Fields[field2x2.rowIndex - 2, field2x2.columnIndex + 1];
+                        Field bottomLeft = Fields[field2x2.rowIndex - 1, field2x2.columnIndex];
+                        Field bottomRight = Fields[field2x2.rowIndex - 1, field2x2.columnIndex + 1];
 
+                        if (topLeft.Is2x2)
+                        {
+                            fieldSwaps.Add(new Swap(field2x2, topLeft));
+
+                            //colsWithMatch.Add(field2x2.columnIndex);
+                        }
+                        else if (!topRight.Is2x2 && !bottomLeft.Is2x2 && !bottomRight.Is2x2)
+						{
+							Field topRight2x2 = Fields[field2x2.rowIndex, field2x2.columnIndex + 1];
+							Field bottomLeft2x2 = Fields[field2x2.rowIndex + 1, field2x2.columnIndex];
+							Field bottomRight2x2 = Fields[field2x2.rowIndex + 1, field2x2.columnIndex + 1];
+
+							fieldSwaps.Add(new Swap(field2x2, topLeft));
+							fieldSwaps.Add(new Swap(topRight2x2, topRight));
+							fieldSwaps.Add(new Swap(bottomLeft2x2, bottomLeft));
+							fieldSwaps.Add(new Swap(bottomRight2x2, bottomRight));
+
+							//colsWithMatch.Add(field2x2.columnIndex);
+					    }
+				    }
 				}
 				else if (_swapDirection == EnumSwapDirection.Down)
 				{
-					if (_field.rowIndex < rows - 2 && false == Fields[_field.rowIndex + 2, _field.columnIndex].fieldUI.Locked)
+                    Field topLeft = Fields[field2x2.rowIndex + 2, field2x2.columnIndex];
+                    Field topRight = Fields[field2x2.rowIndex + 2, field2x2.columnIndex + 1];
+                    Field bottomLeft = Fields[field2x2.rowIndex + 3, field2x2.columnIndex];
+                    Field bottomRight = Fields[field2x2.rowIndex + 3, field2x2.columnIndex + 1];
+
+                    if (field2x2.rowIndex < rows - 2 && false == bottomLeft.fieldUI.Locked && false == bottomRight.fieldUI.Locked)
 					{
-						lvSwapFieldTo = Fields[_field.rowIndex + 2, _field.columnIndex];
-						colsWithMatch.Add(_field.columnIndex);
+                        colsWithMatch.Add(field2x2.columnIndex);
+
+                        if (field2x2.rowIndex > 1)
+						{
+							if (topLeft.Is2x2)
+							{
+								fieldSwaps.Add(new Swap(field2x2, topLeft));
+
+								//colsWithMatch.Add(field2x2.columnIndex);
+							}
+							else if (!topRight.Is2x2 && !bottomLeft.Is2x2 && !bottomRight.Is2x2)
+							{
+								Field topRight2x2 = Fields[field2x2.rowIndex, field2x2.columnIndex + 1];
+								Field bottomLeft2x2 = Fields[field2x2.rowIndex + 1, field2x2.columnIndex];
+								Field bottomRight2x2 = Fields[field2x2.rowIndex + 1, field2x2.columnIndex + 1];
+
+								fieldSwaps.Add(new Swap(field2x2, topLeft));
+								fieldSwaps.Add(new Swap(topRight2x2, topRight));
+								fieldSwaps.Add(new Swap(bottomLeft2x2, bottomLeft));
+								fieldSwaps.Add(new Swap(bottomRight2x2, bottomRight));
+
+								//colsWithMatch.Add(field2x2.columnIndex);
+							}
+						}
 					}
 				}
 
-				if (lvSwapFieldTo != null && lvSwapFieldTo.FieldState == EnumFieldState.Useable)
+                List<Field> allFields = fieldSwaps.SelectMany(s => new[] { s.Left, s.Right}).ToList();
+
+                if (0 < fieldSwaps.Count && allFields.Where(x => x.FieldState != EnumFieldState.Useable).Count() == 0)
                 {
                     if (!_hintSwap)
-                    {
-                        _field.SwapWithField(lvSwapFieldTo);
-                    }
+                        DoSwapFields(fieldSwaps);
                     else
                     {
-                        Mergeable lvHintSwapMergeable = new Mergeable(2, rowsWithMatch, colsWithMatch, _field.FieldType);
-                        if (rowsWithMatch.Count > 0)
-                            lvHintSwapMergeable.breakUIWidth = new Vector2(2, 1);
-                        else
-                            lvHintSwapMergeable.breakUIWidth = new Vector2(1, 2);
-
-                        if (lvSwapTopLeft)
-                        {
-                            lvHintSwapMergeable.AddField(lvSwapFieldTo);
-                            lvHintSwapMergeable.AddField(_field);
-                            lvHintSwapMergeable.TopLeftField = lvSwapFieldTo;
-                        }
-                        else
-                        {
-                            lvHintSwapMergeable.AddField(_field);
-                            lvHintSwapMergeable.AddField(lvSwapFieldTo);
-                            lvHintSwapMergeable.TopLeftField = _field;
-                        }
+                        //Mergeable lvHintSwapMergeable = new Mergeable(2, rowsWithMatch, colsWithMatch, _field.FieldType);
+                        //if (rowsWithMatch.Count > 0)
+                        //    lvHintSwapMergeable.breakUIWidth = new Vector2(2, 1);
+                        //else
+                        //    lvHintSwapMergeable.breakUIWidth = new Vector2(1, 2);
+                        //
+                        //if (lvSwapTopLeft)
+                        //{
+                        //    lvHintSwapMergeable.AddField(lvSwapFieldTo);
+                        //    lvHintSwapMergeable.AddField(_field);
+                        //    lvHintSwapMergeable.TopLeftField = lvSwapFieldTo;
+                        //}
+                        //else
+                        //{
+                        //    lvHintSwapMergeable.AddField(_field);
+                        //    lvHintSwapMergeable.AddField(lvSwapFieldTo);
+                        //    lvHintSwapMergeable.TopLeftField = _field;
+                        //}
                     }
                 }
             }
@@ -578,7 +648,67 @@ namespace Match3_Evo
                 GM.soundMng.Play(EnumSoundID.SwapWrong);
         }
 
-        public void OnSwapFields(Field _field, EnumSwapDirection _swapDirection, bool _hintSwap = false)
+		public void DoSwapFields(List<Swap> fieldSwaps)
+        {
+            GM.soundMng.Play(EnumSoundID.Swap);
+
+            foreach(var swap in fieldSwaps)
+			{
+                Field temp = new Field(swap.Left);
+
+                swap.Left.FieldType = swap.Right.FieldType;
+                swap.Left.fieldUI = swap.Right.fieldUI;
+                swap.Left.Is2x2 = swap.Right.Is2x2;
+
+                swap.Right.FieldType = temp.FieldType;
+                swap.Right.fieldUI = temp.fieldUI;
+                swap.Right.Is2x2 = temp.Is2x2;
+
+                swap.Left.swapField = swap.Right;
+
+                swap.Left.fieldUI.Initialize(swap.Left);
+                swap.Right.fieldUI.Initialize(swap.Right);
+			}
+
+			List<Mergeable> lvBreakable = GM.boardMng.FindBreakableFields();
+
+            List<Field> allSwapFields = fieldSwaps.SelectMany(swap => new[] { swap.Left, swap.Right}).ToList();
+			bool lvFound = false;
+
+            for (int i = 0; i < lvBreakable.Count; i++)
+            {
+                if (lvBreakable[i].Fields.Intersect(allSwapFields).Count() > 0)
+                {
+                    lvFound = true;
+                    break;
+                }
+            }
+
+            foreach (var swap in fieldSwaps)
+            {
+                if (lvFound)
+                {
+                    GM.boardMng.BreakMergeables(lvBreakable);
+
+                    swap.Left.swapToUseable = swap.Left.FieldState != EnumFieldState.Break;
+                    swap.Right.swapToUseable = swap.Right.FieldState != EnumFieldState.Break;
+
+                    swap.Left.ChangeFieldState(EnumFieldState.Swap);
+
+                    swap.Left.ChangeFieldState(EnumFieldState.Swap);
+                }
+                else
+                {
+                    swap.Left.ChangeFieldState(EnumFieldState.SwapBack);
+                    swap.Left.ChangeFieldState(EnumFieldState.SwapBack);
+                }
+
+                swap.Left.fieldUI.StartTransition();
+                swap.Right.fieldUI.StartTransition();
+            }
+        }
+
+		public void OnSwapFields(Field _field, EnumSwapDirection _swapDirection, bool _hintSwap = false)
         {
             if (gameRunning && _field.FieldState == EnumFieldState.Useable && CanClickOnField)
             {
@@ -626,7 +756,7 @@ namespace Match3_Evo
 				if (lvSwapFieldTo != null && lvSwapFieldTo.FieldState == EnumFieldState.Useable)
                 {
                     if (!_hintSwap)
-                        _field.SwapWithField(lvSwapFieldTo);
+                        DoSwapFields(new List<Swap>() { new Swap(_field, lvSwapFieldTo) });
                     else
                     {
                         Mergeable lvHintSwapMergeable = new Mergeable(2, rowsWithMatch, colsWithMatch, _field.FieldType);
@@ -786,10 +916,10 @@ namespace Match3_Evo
 
 		#region FindPossibleBreaks
 
-		Field startField = null;
+		//Field startField = null;
         Field swapField = null;
-        Field goodField = null;
-        int goodFieldCount = 0;
+        //Field goodField = null;
+        //int goodFieldCount = 0;
 
         private bool PossibleBreaks()
         {
@@ -1510,8 +1640,13 @@ namespace Match3_Evo
 
         public ThereIsNoPossibleMergeDelegate thereIsNoPossibleMergeDelegate;
 
-		#endregion
-	}
+        #endregion
+
+        public FieldDataTier GetFieldDataForFieldType(int fieldVariant, int evoLvl)
+        {
+            return FieldData[fieldVariant].fieldDataTiers[evoLvl];
+        }
+    }
 
 
 
