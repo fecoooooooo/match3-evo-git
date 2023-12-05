@@ -24,6 +24,7 @@ namespace Match3_Evo
         [HideInInspector] public Field Top = null;
         [HideInInspector] public Field Bottom = null;
         
+        public bool Is2x2 { get; set; }
         public bool JokerAfterBreak { get; set; }
         public bool WillBreakX { get; set; }
         public bool WillBreakY { get; set; }

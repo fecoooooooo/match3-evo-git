@@ -174,7 +174,9 @@ namespace Match3_Evo
 
         public void OnClick()
         {
-            DebugMakeType(FieldType.V1_E0);
+            //DebugMakeType(FieldType.V1_E0);
+            if(Input.GetKey(KeyCode.LeftShift))
+                GM.boardMng.TurnFieldTo2x2(Field.rowIndex, Field.columnIndex);
 
             if (false == Field.SpecialType || Field.FieldType == FieldType.JOKER)
                 return;
@@ -301,6 +303,19 @@ namespace Match3_Evo
             Unbreakable = true;
             lockedImage.gameObject.SetActive(true);
         }
+
+        public void TurnTo2x2()
+		{
+            Field.Is2x2 = true;
+            rect.sizeDelta = Vector2.one * GM.boardMng.fieldSize * 2;
+        }
+
+        public void TurnToNone()
+		{
+            Field.FieldType = FieldType.NONE;
+            fieldImage.gameObject.SetActive(false);
+            shadowImage.gameObject.SetActive(false);
+		}
 	}
 }
 

@@ -42,8 +42,13 @@ public class MapPregenerator
 	private int[,] PreGenerateMap(int rowCount)
     {
         if (seed == null)
+		{
+#if DEBUG
             seed = new Random(0);
-            //seed = new Random(GM.GetRandom(0, int.MaxValue)); TODO REVERT
+#else
+            seed = new Random(GM.GetRandom(0, int.MaxValue)); 
+#endif
+        }
 
         int[,] pregeneratedMap = new int[rowCount, GM.boardMng.columns];
 

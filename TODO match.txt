@@ -27,6 +27,19 @@ megbesz 11.19.
 			ha alatta kimatchelek valamit, akkor ott lyuk marad
 		// achievemnts hogyan jelenik meg? --> nem kell
 
+break bg:
+	legbalfelsobb, legjobb alsobb tile
+	VAGY
+	minden sor, oszlop
+
+2x2:
+	beesesnel mi tortenik
+	mi tortenik a palyan ha cserelgetem
+		mi van ha 1x1 el cserelem:
+			mind a 4 et athozza enneka  helyere
+		de mi van ha csak a felso 2 1x1 es, az also egy 2x2 es teteje
+		
+
 pregenerate:
 	//most az uj sor egy full random sor, ezt is a map bol kene venni
 
