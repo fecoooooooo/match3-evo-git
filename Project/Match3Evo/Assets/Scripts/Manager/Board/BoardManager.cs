@@ -695,12 +695,12 @@ namespace Match3_Evo
 
                     swap.Left.ChangeFieldState(EnumFieldState.Swap);
 
-                    swap.Left.ChangeFieldState(EnumFieldState.Swap);
+                    swap.Right.ChangeFieldState(EnumFieldState.Swap);
                 }
                 else
                 {
                     swap.Left.ChangeFieldState(EnumFieldState.SwapBack);
-                    swap.Left.ChangeFieldState(EnumFieldState.SwapBack);
+                    swap.Right.ChangeFieldState(EnumFieldState.SwapBack);
                 }
 
                 swap.Left.fieldUI.StartTransition();
