@@ -25,6 +25,7 @@ namespace Match3_Evo
         [HideInInspector] public Field Bottom = null;
         
         public bool Is2x2 { get; set; }
+        public bool NonesCanFall { get; set; }
         public bool CanFall { get; set; } = true;
         public bool JokerAfterBreak { get; set; }
         public bool WillBreakX { get; set; }
@@ -37,6 +38,10 @@ namespace Match3_Evo
         public Field swapField;
         private bool swapDone = false;
         public bool swapToUseable = false;
+
+        public Field TopRight2x2;
+        public Field BottomLeft2x2;
+        public Field BottomRight2x2;
 
         public FieldType FieldType { get; set; }
 
@@ -56,7 +61,9 @@ namespace Match3_Evo
         {
             FieldType = _field.FieldType;
             fieldUI = _field.fieldUI;
-            Is2x2 = _field.Is2x2;
+
+            if (_field.Is2x2)
+                TurnTo2x2();
         }
 
         public void FindRelations()
@@ -163,10 +170,13 @@ namespace Match3_Evo
 
             FieldType = _movedField.FieldType;
             fieldUI = _movedField.fieldUI;
-            Is2x2 = _movedField.Is2x2;
+            
+            if (_movedField.Is2x2)
+                TurnTo2x2(); 
 
             _movedField.fieldUI = lvSwapUI;
             _movedField.fieldUI.gameObject.SetActive(false);
+            _movedField.Is2x2 = false;
 
             fieldUI.Initialize(this);
             fieldUI.StartTransition();
@@ -310,6 +320,15 @@ namespace Match3_Evo
             }
             else if (FieldState == EnumFieldState.Move)
                 ChangeFieldState(EnumFieldState.Useable);
+        }
+
+		internal void TurnTo2x2()
+		{
+            Is2x2 = true;
+            
+            TopRight2x2 = GM.boardMng.Fields[rowIndex, columnIndex + 1];
+            BottomLeft2x2 = GM.boardMng.Fields[rowIndex + 1, columnIndex];
+            BottomRight2x2 = GM.boardMng.Fields[rowIndex + 1, columnIndex + 1];
         }
 
 		private void BecomeJoker()

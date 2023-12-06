@@ -1444,18 +1444,29 @@ namespace Match3_Evo
 
                             if (currentField.Is2x2)
                             {
-                                Field topRight2x2 = Fields[lvRowAbove, _columnIndex + 1];
-                                Field bottomLeft2x2 = Fields[lvRowAbove + 1, _columnIndex];
-                                Field bottomRight2x2 = Fields[lvRowAbove + 1, _columnIndex + 1];
+								if (!currentField.NonesCanFall)
+								{
+                                    currentField.NonesCanFall = true;
 
-                                Fields[lvRowAbove + 2, _columnIndex].MoveFieldHere(bottomLeft2x2);
-                                Fields[lvRowAbove + 2, _columnIndex + 1].MoveFieldHere(bottomRight2x2);
-                             
-                                //Fields[lvRowIndex, _columnIndex + 1].MoveFieldHere(topRight2x2);
-                                //Fields[lvRowIndex, _columnIndex].MoveFieldHere(currentField);
+                                    currentField.TopRight2x2.CanFall = true;
+                                    currentField.BottomLeft2x2.CanFall = true;
+                                    currentField.BottomRight2x2.CanFall = true;
+                                }
+								else
+								{
+                                    currentField.NonesCanFall = false;
+
+                                    Fields[lvRowIndex, _columnIndex].MoveFieldHere(currentField);
+
+                                    Field new2x2 = Fields[lvRowIndex, _columnIndex];
+
+                                    new2x2.TopRight2x2.CanFall = false;
+                                    new2x2.BottomLeft2x2.CanFall = false;
+                                    new2x2.BottomRight2x2.CanFall = false;
+                                }
                             }
-							else
-							{
+							else 
+                            {
                                 Fields[lvRowIndex, _columnIndex].MoveFieldHere(currentField);
 							}
                         }

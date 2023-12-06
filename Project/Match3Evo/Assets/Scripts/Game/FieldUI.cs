@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -16,6 +16,7 @@ namespace Match3_Evo
         [SerializeField] public Image fieldImage;
         [SerializeField] Image shadowImage;
         [SerializeField] Image lockedImage;
+        [SerializeField] Image debugImg;
         public TextMeshProUGUI debugText;
         public int matchOnSides = 0;
         
@@ -50,7 +51,9 @@ namespace Match3_Evo
             animationTime = 0;
 
             Field = _field;
-            Field.breakEvent.AddListener(OnBreak);
+
+            if (Field.breakEvent.GetPersistentEventCount() == 0)
+                Field.breakEvent.AddListener(OnBreak);
 
 			if (_field.SpecialType)
 			{
@@ -92,7 +95,7 @@ namespace Match3_Evo
 
 		private void HandleDebug()
 		{
-            string debugTxt = Field.WillBreakX ? "y" : "n";
+            string debugTxt = "";
 
             if (GM.boardMng.DebugEnabled != debugText.IsActive())
                 debugText.gameObject.SetActive(GM.boardMng.DebugEnabled);
@@ -100,7 +103,7 @@ namespace Match3_Evo
             if (GM.boardMng.DebugState == 1)
                 debugTxt = Field.FieldState.ToString()[0].ToString();
             else if(GM.boardMng.DebugState == 2)
-                debugTxt += "|" + (Field.WillBreakY ? "y" : "n");
+                debugTxt += Field.CanFall ? "c" : "n";
             else if(GM.boardMng.DebugState == 3)
                 debugTxt = Field.Is2x2 ? "2" : "1";
             else if(GM.boardMng.DebugState == 4)
@@ -112,6 +115,16 @@ namespace Match3_Evo
 
 		public void UpdateUI()
         {
+			if (Field.Is2x2)
+			{
+                foreach (var f in GM.boardMng.Fields)
+                    f.fieldUI.RemoveDebugMark();
+
+                Field.TopRight2x2.fieldUI.DebugMark();
+                Field.BottomLeft2x2.fieldUI.DebugMark();
+                Field.BottomRight2x2.fieldUI.DebugMark();
+			}
+
             if (Field.SpecialType)
                 return;
 
@@ -183,8 +196,12 @@ namespace Match3_Evo
 
         public void DebugMark()
 		{
-            fieldImage.color = Color.red;
+            debugImg.gameObject.SetActive(true);
 		}
+        public void RemoveDebugMark()
+        {
+            debugImg.gameObject.SetActive(false);
+        }
 
         public void OnClick()
         {
@@ -321,7 +338,7 @@ namespace Match3_Evo
 
         public void TurnTo2x2()
 		{
-            Field.Is2x2 = true;
+            Field.TurnTo2x2();
             rect.sizeDelta = Vector2.one * GM.boardMng.fieldSize * 2;
         }
 
