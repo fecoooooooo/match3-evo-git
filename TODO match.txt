@@ -1,3 +1,5 @@
+movefieldhere 2 lepes
+
 megbesz 11.19.
 	//alulra is generalni 100 sort, ami bescrollozhat
 	//	2x2 es itt nem lesz
@@ -61,7 +63,7 @@ DNS:
 	//ha elhasznalodik, vonjunk le 1 et
 
 bug:
-	sima (1x1) swapnal visszakerul a swappolt field az eredeti heylere
+	//sima (1x1) swapnal visszakerul a swappolt field az eredeti heylere
 
 	shiftnél vissza kéne tenni a ColumnFeedbe a felcsuszo tile öket
 	//leeses utan is ellenorizni h van e match

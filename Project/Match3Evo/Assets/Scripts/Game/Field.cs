@@ -25,6 +25,7 @@ namespace Match3_Evo
         [HideInInspector] public Field Bottom = null;
         
         public bool Is2x2 { get; set; }
+        public bool CanFall { get; set; } = true;
         public bool JokerAfterBreak { get; set; }
         public bool WillBreakX { get; set; }
         public bool WillBreakY { get; set; }
@@ -162,6 +163,7 @@ namespace Match3_Evo
 
             FieldType = _movedField.FieldType;
             fieldUI = _movedField.fieldUI;
+            Is2x2 = _movedField.Is2x2;
 
             _movedField.fieldUI = lvSwapUI;
             _movedField.fieldUI.gameObject.SetActive(false);

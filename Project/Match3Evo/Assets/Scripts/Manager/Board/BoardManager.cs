@@ -18,10 +18,10 @@ namespace Match3_Evo
         [SerializeField] List<int> columnTopRow = new List<int>();
         [SerializeField] BoardOverride boardOverride;
 
-        [Required, GUIColor(0.6f, 1, 0.4f)] 
+        [Required, GUIColor(0.6f, 1, 0.4f)]
         public GameParameters gameParameters;
         public float fieldAnimationFPS = 20;
-        [Range(0,.5f)]
+        [Range(0, .5f)]
         public float animationProbability = .15f;
         public float shiftTimeInSeconds = .5f;
         [Required, FoldoutGroup("Playfield Size"), GUIColor(0.6f, 1, 0.4f)] public int rows, columns;
@@ -83,9 +83,10 @@ namespace Match3_Evo
         public bool GameRunning { get { return gameRunning; } }
 
         public bool CanClickOnField { get; set; }
-		public bool DebugEnabled { get; internal set; }
+        public bool DebugEnabled { get; internal set; }
+        public int DebugState { get; internal set; } = 0;
 
-		bool showHint;
+        bool showHint;
 
         float currentWaitTillInputEnabled = 0.5f;
         readonly float WAIT_TILL_INPUT_ENABLED_TIME = 0.5f;
@@ -265,7 +266,10 @@ namespace Match3_Evo
 		private void HandleDebug()
 		{
             if (Input.GetKeyDown(KeyCode.D))
-                DebugEnabled = !DebugEnabled;
+			{
+                DebugState = (DebugState + 1) % 5;
+                DebugEnabled = DebugState != 0;
+			}
             if (Input.GetKeyDown(KeyCode.P))
 			{
                 gameRunning = !gameRunning;
@@ -590,8 +594,8 @@ namespace Match3_Evo
 					{
                         colsWithMatch.Add(field2x2.columnIndex);
 
-                        if (field2x2.rowIndex > 1)
-						{
+                        if (field2x2.rowIndex < rows - 2)
+                        {
 							if (topLeft.Is2x2)
 							{
 								fieldSwaps.Add(new Swap(field2x2, topLeft));
@@ -720,36 +724,56 @@ namespace Match3_Evo
 
 				if (_swapDirection == EnumSwapDirection.Right)
 				{
-					if (_field.columnIndex < columns - 1)
+
+                    if (_field.columnIndex < columns - 1)
 					{
-						lvSwapFieldTo = Fields[_field.rowIndex, _field.columnIndex + 1];
-						rowsWithMatch.Add(_field.rowIndex);
+                        Field other = Fields[_field.rowIndex, _field.columnIndex + 1];
+                        if (other.FieldType != FieldType.NONE)
+                        {
+                            lvSwapFieldTo = other;
+                            rowsWithMatch.Add(_field.rowIndex);
+                        }
 					}
 				}
 				else if (_swapDirection == EnumSwapDirection.Left)
 				{
 					if (_field.columnIndex > 0)
 					{
-						lvSwapFieldTo = Fields[_field.rowIndex, _field.columnIndex - 1];
-						lvSwapTopLeft = true;
-						rowsWithMatch.Add(_field.rowIndex);
+                        Field other = Fields[_field.rowIndex, _field.columnIndex - 1];
+
+                        if (other.FieldType != FieldType.NONE)
+                        {
+                            lvSwapFieldTo = other;
+                            lvSwapTopLeft = true;
+                            rowsWithMatch.Add(_field.rowIndex);
+                        }
 					}
 				}
 				else if (_swapDirection == EnumSwapDirection.Up)
 				{
 					if (_field.rowIndex > 0)
 					{
-						lvSwapFieldTo = Fields[_field.rowIndex - 1, _field.columnIndex];
-						lvSwapTopLeft = true;
-						colsWithMatch.Add(_field.columnIndex);
+                        Field other = Fields[_field.rowIndex - 1, _field.columnIndex];
+
+                        if (other.FieldType != FieldType.NONE)
+                        {
+                            lvSwapFieldTo = other;
+                            lvSwapTopLeft = true;
+                            colsWithMatch.Add(_field.columnIndex);
+                        }
 					}
 				}
 				else if (_swapDirection == EnumSwapDirection.Down)
 				{
-					if (_field.rowIndex < rows - 1 && false == Fields[_field.rowIndex + 1, _field.columnIndex].fieldUI.Locked)
+					if (_field.rowIndex < rows - 1 )
 					{
-						lvSwapFieldTo = Fields[_field.rowIndex + 1, _field.columnIndex];
-						colsWithMatch.Add(_field.columnIndex);
+                        Field other = Fields[_field.rowIndex + 1, _field.columnIndex];
+
+                        if (other.FieldType != FieldType.NONE && !other.fieldUI.Locked) 
+                        {
+                            lvSwapFieldTo = other;
+                            colsWithMatch.Add(_field.columnIndex);
+                        }
 					}
 				}
 
@@ -782,15 +806,6 @@ namespace Match3_Evo
             }
             else
                 GM.soundMng.Play(EnumSoundID.SwapWrong);
-        }
-
-        public void DebugState()
-        {
-            StringBuilder lvBuilder = new StringBuilder();
-            for (int i = 0; i < fieldStateCounter.Length; i++)
-                lvBuilder.Append((EnumFieldState)i).Append("=").Append(fieldStateCounter[i]).Append("||");
-
-            debugStateText.text = lvBuilder.ToString();
         }
 
         #endregion
@@ -838,7 +853,8 @@ namespace Match3_Evo
 		{
             //FIND IN ROWS
             Field startField = Fields[startRow, startCol];
-            if (!ignoreFieldState && startField.FieldState != EnumFieldState.Useable || startField.fieldUI.Unbreakable || startField.WillBreakX && startField.WillBreakY)
+            if (!ignoreFieldState && startField.FieldState != EnumFieldState.Useable || 
+                startField.fieldUI.Unbreakable || startField.WillBreakX && startField.WillBreakY || startField.FieldType == FieldType.NONE)
                 return;
 
             List<Field> matchingFields = new List<Field>();
@@ -851,8 +867,9 @@ namespace Match3_Evo
 
                 bool fieldOk = field.FieldState == EnumFieldState.Useable && !field.fieldUI.Unbreakable && !field.WillBreakX;
                 bool matchOrAnyJoker = firstNonJokerType == field.FieldType || firstNonJokerType == FieldType.JOKER || field.FieldType == FieldType.JOKER;
+                bool isNone = field.FieldType == FieldType.NONE;
 
-                if (ignoreFieldState || fieldOk && matchOrAnyJoker)
+                if (ignoreFieldState || fieldOk && matchOrAnyJoker && !isNone)
                     matchingFields.Add(field);
                 else
                     break;
@@ -1416,44 +1433,34 @@ namespace Match3_Evo
                 //feed column
                 if (Fields[lvRowIndex, _columnIndex].FieldState == EnumFieldState.Empty)
                 {
-                    //if (lvRowIndex > 0 && _columnIndex > 0)
-                    //{
-                    //    fields[lvRowIndex, _columnIndex].fieldUI.debugText.text = "";
-                    //    if (fields[lvRowIndex - 1, _columnIndex].FieldState != EnumFieldState.Empty)
-                    //    {
-                    //        int variant = fields[lvRowIndex - 1, _columnIndex].fieldVariant;
-                    //        int match = 0;
-                    //        if (fields[lvRowIndex - 1, _columnIndex - 1].FieldState != EnumFieldState.Empty && fields[lvRowIndex - 1, _columnIndex - 1].fieldVariant == variant) match++;
-                    //        if (match > 0)
-                    //        {
-                    //            fields[lvRowIndex - 1, _columnIndex].fieldUI.debugText.text = match.ToString();
-                    //            fields[lvRowIndex - 1, _columnIndex - 1].fieldUI.debugText.text = match.ToString();
-                    //            fields[lvRowIndex - 1, _columnIndex].fieldUI.transform.localScale = new Vector3(2.0f, 2.0f, 2.0f);
-                    //            //fields[lvRowIndex - 1, _columnIndex].fieldUI.transform.lo = new Vector3(2.0f, 2.0f, 2.0f);
-                    //            continue;
-                    //        }
-                    //        else
-                    //        {
-                    //            fields[lvRowIndex, _columnIndex].fieldUI.debugText.text = "";
-                    //            fields[lvRowIndex - 1, _columnIndex].fieldUI.transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
-                    //        }
-                    //    }
-                    //}
-                    //else
-                    //{
-                    //    fields[lvRowIndex, _columnIndex].fieldUI.debugText.text = "";
-                    //    fields[lvRowIndex, _columnIndex].fieldUI.transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
-                    //}
-
                     for (int lvRowAbove = lvRowIndex - 1; lvRowAbove >= 0 && lvFieldAbove == null; lvRowAbove--)
                     {
-                        if (Fields[lvRowAbove, _columnIndex].FieldState == EnumFieldState.Useable || Fields[lvRowAbove, _columnIndex].FieldState == EnumFieldState.Move || Fields[lvRowAbove, _columnIndex].FieldState == EnumFieldState.ComboReady)
+                        Field currentField = Fields[lvRowAbove, _columnIndex];
+                        bool properState = currentField.FieldState == EnumFieldState.Useable || currentField.FieldState == EnumFieldState.Move || currentField.FieldState == EnumFieldState.ComboReady;
+                        
+                        if (properState && currentField.CanFall)
                         {
-                            lvFieldAbove = Fields[lvRowAbove, _columnIndex];
-                            Fields[lvRowIndex, _columnIndex].MoveFieldHere(lvFieldAbove);
+                            lvFieldAbove = currentField;
+
+                            if (currentField.Is2x2)
+                            {
+                                Field topRight2x2 = Fields[lvRowAbove, _columnIndex + 1];
+                                Field bottomLeft2x2 = Fields[lvRowAbove + 1, _columnIndex];
+                                Field bottomRight2x2 = Fields[lvRowAbove + 1, _columnIndex + 1];
+
+                                Fields[lvRowAbove + 2, _columnIndex].MoveFieldHere(bottomLeft2x2);
+                                Fields[lvRowAbove + 2, _columnIndex + 1].MoveFieldHere(bottomRight2x2);
+                             
+                                //Fields[lvRowIndex, _columnIndex + 1].MoveFieldHere(topRight2x2);
+                                //Fields[lvRowIndex, _columnIndex].MoveFieldHere(currentField);
+                            }
+							else
+							{
+                                Fields[lvRowIndex, _columnIndex].MoveFieldHere(currentField);
+							}
                         }
-                        else if (Fields[lvRowAbove, _columnIndex].FieldState != EnumFieldState.Empty && Fields[lvRowAbove, _columnIndex].FieldState != EnumFieldState.Hidden)
-                            lvFieldAbove = Fields[lvRowAbove, _columnIndex];
+                        else if (currentField.FieldState != EnumFieldState.Empty && currentField.FieldState != EnumFieldState.Hidden && currentField.CanFall)
+                            lvFieldAbove = currentField;
                     }
 
                     //Add new tile to top

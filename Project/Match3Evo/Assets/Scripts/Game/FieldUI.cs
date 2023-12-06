@@ -92,14 +92,19 @@ namespace Match3_Evo
 
 		private void HandleDebug()
 		{
-			if(GM.boardMng.DebugEnabled != debugText.IsActive())
+            string debugTxt = Field.WillBreakX ? "y" : "n";
+
+            if (GM.boardMng.DebugEnabled != debugText.IsActive())
                 debugText.gameObject.SetActive(GM.boardMng.DebugEnabled);
 
-            string debugTxt = Field.WillBreakX ? "y" : "n";
-            debugTxt += "|" + (Field.WillBreakY ? "y" : "n");
-
-
-            debugTxt = Field.FieldState.ToString()[0].ToString();
+            if (GM.boardMng.DebugState == 1)
+                debugTxt = Field.FieldState.ToString()[0].ToString();
+            else if(GM.boardMng.DebugState == 2)
+                debugTxt += "|" + (Field.WillBreakY ? "y" : "n");
+            else if(GM.boardMng.DebugState == 3)
+                debugTxt = Field.Is2x2 ? "2" : "1";
+            else if(GM.boardMng.DebugState == 4)
+                debugTxt = Field.FieldType.ToString().Substring(0, 2);
 
             if (GM.boardMng.DebugEnabled)
                 debugText.text = debugTxt;
@@ -175,6 +180,11 @@ namespace Match3_Evo
             else
                 GM.boardMng.OnSwapFields(Field, lvSwapDirection);
         }
+
+        public void DebugMark()
+		{
+            fieldImage.color = Color.red;
+		}
 
         public void OnClick()
         {
@@ -318,6 +328,7 @@ namespace Match3_Evo
         public void TurnToNone()
 		{
             Field.FieldType = FieldType.NONE;
+            Field.CanFall = false;
             fieldImage.gameObject.SetActive(false);
             shadowImage.gameObject.SetActive(false);
 		}
