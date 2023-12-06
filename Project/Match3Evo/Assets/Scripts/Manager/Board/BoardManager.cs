@@ -1178,16 +1178,16 @@ namespace Match3_Evo
 
                 foreach (var r in mergeable.RowsWithMatch)
 				{
-                    for (int j = 0; j < columns; j++)
-                        mergeable.AddField(Fields[r, j]);
+                    for (int c = 0; c < columns; c++)
+                        mergeable.AddField(Fields[r, c]);
                 }
 
                 foreach (var c in mergeable.ColsWithMatch)
                 {
-                    for (int j = 0; j < rows; j++)
+                    for (int c = 0; c < rows; c++)
                     {
-                        if (!Fields[j, c].fieldUI.Locked)
-                            mergeable.AddField(Fields[j, c]);
+                        if (!Fields[c, c].fieldUI.Locked)
+                            mergeable.AddField(Fields[c, c]);
                     }
                 }
             }
@@ -1444,18 +1444,14 @@ namespace Match3_Evo
 
                             if (currentField.Is2x2)
                             {
-								if (!currentField.NonesCanFall)
+								if (!currentField.TopRight2x2.CanFall)
 								{
-                                    currentField.NonesCanFall = true;
-
                                     currentField.TopRight2x2.CanFall = true;
                                     currentField.BottomLeft2x2.CanFall = true;
                                     currentField.BottomRight2x2.CanFall = true;
                                 }
 								else
 								{
-                                    currentField.NonesCanFall = false;
-
                                     Fields[lvRowIndex, _columnIndex].MoveFieldHere(currentField);
 
                                     Field new2x2 = Fields[lvRowIndex, _columnIndex];

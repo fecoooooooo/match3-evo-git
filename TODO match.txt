@@ -27,6 +27,9 @@ megbesz 11.19.
 			amig nem esik be teljesen, addig nem lehet csereelgetni
 			barmi match nél nem forgaqtuk vissza
 			ha alatta kimatchelek valamit, akkor ott lyuk marad
+		ha lighning éri, akkor:
+			a, is2x2 --> leszedni a másik 3 at
+			b, isnon --> megkleresni a 2x2 esét majd (a)
 		// achievemnts hogyan jelenik meg? --> nem kell
 
 break bg:
