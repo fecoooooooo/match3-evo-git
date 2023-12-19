@@ -728,7 +728,7 @@ namespace Match3_Evo
                     if (_field.columnIndex < columns - 1)
 					{
                         Field other = Fields[_field.rowIndex, _field.columnIndex + 1];
-                        if (other.FieldType != FieldType.NONE)
+                        if (other.FieldType != FieldType.PART_2x2)
                         {
                             lvSwapFieldTo = other;
                             rowsWithMatch.Add(_field.rowIndex);
@@ -741,7 +741,7 @@ namespace Match3_Evo
 					{
                         Field other = Fields[_field.rowIndex, _field.columnIndex - 1];
 
-                        if (other.FieldType != FieldType.NONE)
+                        if (other.FieldType != FieldType.PART_2x2)
                         {
                             lvSwapFieldTo = other;
                             lvSwapTopLeft = true;
@@ -755,7 +755,7 @@ namespace Match3_Evo
 					{
                         Field other = Fields[_field.rowIndex - 1, _field.columnIndex];
 
-                        if (other.FieldType != FieldType.NONE)
+                        if (other.FieldType != FieldType.PART_2x2)
                         {
                             lvSwapFieldTo = other;
                             lvSwapTopLeft = true;
@@ -769,7 +769,7 @@ namespace Match3_Evo
 					{
                         Field other = Fields[_field.rowIndex + 1, _field.columnIndex];
 
-                        if (other.FieldType != FieldType.NONE && !other.fieldUI.Locked) 
+                        if (other.FieldType != FieldType.PART_2x2 && !other.fieldUI.Locked) 
                         {
                             lvSwapFieldTo = other;
                             colsWithMatch.Add(_field.columnIndex);
@@ -854,7 +854,7 @@ namespace Match3_Evo
             //FIND IN ROWS
             Field startField = Fields[startRow, startCol];
             if (!ignoreFieldState && startField.FieldState != EnumFieldState.Useable || 
-                startField.fieldUI.Unbreakable || startField.WillBreakX && startField.WillBreakY || startField.FieldType == FieldType.NONE)
+                startField.fieldUI.Unbreakable || startField.WillBreakX && startField.WillBreakY || startField.FieldType == FieldType.PART_2x2)
                 return;
 
             List<Field> matchingFields = new List<Field>();
@@ -867,7 +867,7 @@ namespace Match3_Evo
 
                 bool fieldOk = field.FieldState == EnumFieldState.Useable && !field.fieldUI.Unbreakable && !field.WillBreakX;
                 bool matchOrAnyJoker = firstNonJokerType == field.FieldType || firstNonJokerType == FieldType.JOKER || field.FieldType == FieldType.JOKER;
-                bool isNone = field.FieldType == FieldType.NONE;
+                bool isNone = field.FieldType == FieldType.PART_2x2;
 
                 if (ignoreFieldState || fieldOk && matchOrAnyJoker && !isNone)
                     matchingFields.Add(field);
@@ -1184,10 +1184,10 @@ namespace Match3_Evo
 
                 foreach (var c in mergeable.ColsWithMatch)
                 {
-                    for (int c = 0; c < rows; c++)
+                    for (int r = 0; r < rows; r++)
                     {
-                        if (!Fields[c, c].fieldUI.Locked)
-                            mergeable.AddField(Fields[c, c]);
+                        if (!Fields[r, c].fieldUI.Locked)
+                            mergeable.AddField(Fields[r, c]);
                     }
                 }
             }
@@ -1576,9 +1576,9 @@ namespace Match3_Evo
 		{
 
             Fields[row, col].fieldUI.TurnTo2x2();
-            Fields[row + 1, col].fieldUI.TurnToNone();
-            Fields[row, col + 1].fieldUI.TurnToNone();
-            Fields[row + 1, col + 1].fieldUI.TurnToNone();
+            Fields[row + 1, col].fieldUI.TurnTo2x2Part();
+            Fields[row, col + 1].fieldUI.TurnTo2x2Part();
+            Fields[row + 1, col + 1].fieldUI.TurnTo2x2Part();
 		}
 
         #region EndGame

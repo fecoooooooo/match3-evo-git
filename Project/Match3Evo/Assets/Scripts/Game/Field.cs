@@ -306,6 +306,17 @@ namespace Match3_Evo
                 WillBreakY = false;
                 breakEvent?.Invoke();
 
+				if (Is2x2)
+				{
+                    //TopRight2x2.Break(0);
+                    //BottomLeft2x2.Break(0);
+                    //BottomRight2x2.Break(0);
+
+                    //TODO: what to do after break?
+
+                    fieldUI.TurnToNormalFrom2x2();
+                }
+
                 if (JokerAfterBreak)
                     BecomeJoker();
 				else
@@ -321,7 +332,16 @@ namespace Match3_Evo
                 ChangeFieldState(EnumFieldState.Useable);
         }
 
-		internal void TurnTo2x2()
+		internal void TurnToNormalFrom2x2()
+		{
+            Is2x2 = false;
+            
+            TopRight2x2 = null;
+            BottomLeft2x2 = null;
+            BottomRight2x2 = null;
+        }
+
+        internal void TurnTo2x2()
 		{
             Is2x2 = true;
             
@@ -396,6 +416,7 @@ namespace Match3_Evo
 
     public enum FieldType
 	{
+        NONE = -1,
 
         V1_E0,
         V2_E0,
@@ -435,6 +456,6 @@ namespace Match3_Evo
         DNS,
         TREASURE,
 
-        NONE,
+        PART_2x2,
     }
 }

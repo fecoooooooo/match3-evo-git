@@ -120,9 +120,9 @@ namespace Match3_Evo
                 foreach (var f in GM.boardMng.Fields)
                     f.fieldUI.RemoveDebugMark();
 
-                Field.TopRight2x2.fieldUI.DebugMark();
-                Field.BottomLeft2x2.fieldUI.DebugMark();
-                Field.BottomRight2x2.fieldUI.DebugMark();
+                //Field.TopRight2x2.fieldUI.DebugMark();
+                //Field.BottomLeft2x2.fieldUI.DebugMark();
+                //Field.BottomRight2x2.fieldUI.DebugMark();
 			}
 
             if (Field.SpecialType)
@@ -342,9 +342,15 @@ namespace Match3_Evo
             rect.sizeDelta = Vector2.one * GM.boardMng.fieldSize * 2;
         }
 
-        public void TurnToNone()
+        public void TurnToNormalFrom2x2()
+        {
+            Field.TurnToNormalFrom2x2();
+            rect.sizeDelta = Vector2.one * GM.boardMng.fieldSize;
+        }
+
+        public void TurnTo2x2Part()
 		{
-            Field.FieldType = FieldType.NONE;
+            Field.FieldType = FieldType.PART_2x2;
             Field.CanFall = false;
             fieldImage.gameObject.SetActive(false);
             shadowImage.gameObject.SetActive(false);

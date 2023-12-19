@@ -16,7 +16,7 @@ namespace Match3_Evo
 
         Field topLeftField;
         int replaceableIndex = 0;
-        public FieldType FieldType { get; private set; } = FieldType.NONE;
+        public FieldType FieldType { get; private set; } = FieldType.PART_2x2;
 
         int scoreMultiplier = -1;
 
@@ -46,7 +46,7 @@ namespace Match3_Evo
 
         public Field BoxField { get; private set; }
 
-        public Mergeable(int count, List<int> rowsWithMatch, List<int> colsWithMatch, FieldType fieldType = FieldType.NONE)
+        public Mergeable(int count, List<int> rowsWithMatch, List<int> colsWithMatch, FieldType fieldType = FieldType.PART_2x2)
         {
             this.RowsWithMatch = rowsWithMatch;
             this.ColsWithMatch = colsWithMatch;
