@@ -267,7 +267,7 @@ namespace Match3_Evo
 		{
             if (Input.GetKeyDown(KeyCode.D))
 			{
-                DebugState = (DebugState + 1) % 5;
+                DebugState = (DebugState + 1) % 6;
                 DebugEnabled = DebugState != 0;
 			}
             if (Input.GetKeyDown(KeyCode.P))
@@ -1574,7 +1574,6 @@ namespace Match3_Evo
    
         public void TurnFieldTo2x2(int row, int col)
 		{
-
             Fields[row, col].fieldUI.TurnTo2x2();
             Fields[row + 1, col].fieldUI.TurnTo2x2Part();
             Fields[row, col + 1].fieldUI.TurnTo2x2Part();

@@ -308,13 +308,11 @@ namespace Match3_Evo
 
 				if (Is2x2)
 				{
-                    //TopRight2x2.Break(0);
-                    //BottomLeft2x2.Break(0);
-                    //BottomRight2x2.Break(0);
+                    
 
                     //TODO: what to do after break?
 
-                    fieldUI.TurnToNormalFrom2x2();
+                    fieldUI.Undo_TurnToFrom2x2();
                 }
 
                 if (JokerAfterBreak)
@@ -335,7 +333,16 @@ namespace Match3_Evo
 		internal void TurnToNormalFrom2x2()
 		{
             Is2x2 = false;
-            
+
+            TopRight2x2.fieldUI.Undo_TurnTo2x2Part();
+            TopRight2x2.Break(0);
+
+            BottomLeft2x2.fieldUI.Undo_TurnTo2x2Part();
+            BottomLeft2x2.Break(0);
+
+            BottomRight2x2.fieldUI.Undo_TurnTo2x2Part();
+            BottomRight2x2.Break(0);
+
             TopRight2x2 = null;
             BottomLeft2x2 = null;
             BottomRight2x2 = null;

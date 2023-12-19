@@ -108,6 +108,8 @@ namespace Match3_Evo
                 debugTxt = Field.Is2x2 ? "2" : "1";
             else if(GM.boardMng.DebugState == 4)
                 debugTxt = Field.FieldType.ToString().Substring(0, 2);
+            else if(GM.boardMng.DebugState == 5)
+                debugTxt = Field.rowIndex + "|"  + Field.columnIndex;
 
             if (GM.boardMng.DebugEnabled)
                 debugText.text = debugTxt;
@@ -209,6 +211,8 @@ namespace Match3_Evo
                 GM.boardMng.TurnFieldTo2x2(Field.rowIndex, Field.columnIndex);
             if(Input.GetKey(KeyCode.LeftControl))
                 DebugMakeType(FieldType.V1_E0);
+            if (Input.GetKey(KeyCode.LeftAlt))
+                Field.Break(0);
 
             if (false == Field.SpecialType || Field.FieldType == FieldType.JOKER)
                 return;
@@ -342,7 +346,7 @@ namespace Match3_Evo
             rect.sizeDelta = Vector2.one * GM.boardMng.fieldSize * 2;
         }
 
-        public void TurnToNormalFrom2x2()
+        public void Undo_TurnToFrom2x2()
         {
             Field.TurnToNormalFrom2x2();
             rect.sizeDelta = Vector2.one * GM.boardMng.fieldSize;
@@ -355,7 +359,14 @@ namespace Match3_Evo
             fieldImage.gameObject.SetActive(false);
             shadowImage.gameObject.SetActive(false);
 		}
-	}
+
+        public void Undo_TurnTo2x2Part()
+        {
+            Field.CanFall = true;
+            fieldImage.gameObject.SetActive(true);
+            shadowImage.gameObject.SetActive(true);
+        }
+    }
 }
 
 public enum EnumSwapDirection
