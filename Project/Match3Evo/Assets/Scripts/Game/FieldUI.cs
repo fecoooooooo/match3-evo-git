@@ -207,8 +207,12 @@ namespace Match3_Evo
 
         public void OnClick()
         {
-            if(Input.GetKey(KeyCode.LeftShift))
-                GM.boardMng.TurnFieldTo2x2(Field.rowIndex, Field.columnIndex);
+			if (Input.GetKey(KeyCode.LeftShift))
+			{
+                GM.boardMng.Evolve(Field.FieldVariant);
+
+                //GM.boardMng.TurnFieldTo2x2(Field.rowIndex, Field.columnIndex);
+			}
             if(Input.GetKey(KeyCode.LeftControl))
                 DebugMakeType(FieldType.V1_E0);
             if (Input.GetKey(KeyCode.LeftAlt))
@@ -342,20 +346,16 @@ namespace Match3_Evo
 
         public void TurnTo2x2()
 		{
-            Field.TurnTo2x2();
             rect.sizeDelta = Vector2.one * GM.boardMng.fieldSize * 2;
         }
 
-        public void Undo_TurnToFrom2x2()
+        public void Undo_TurnTo2x2()
         {
-            Field.TurnToNormalFrom2x2();
             rect.sizeDelta = Vector2.one * GM.boardMng.fieldSize;
         }
 
         public void TurnTo2x2Part()
 		{
-            Field.FieldType = FieldType.PART_2x2;
-            Field.CanFall = false;
             fieldImage.gameObject.SetActive(false);
             shadowImage.gameObject.SetActive(false);
 		}

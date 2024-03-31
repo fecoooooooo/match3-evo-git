@@ -44,7 +44,7 @@ public class MapPregenerator
         if (seed == null)
 		{
 #if DEBUG
-            seed = new Random(0);
+            seed = new Random(12);
 #else
             seed = new Random(GM.GetRandom(0, int.MaxValue)); 
 #endif

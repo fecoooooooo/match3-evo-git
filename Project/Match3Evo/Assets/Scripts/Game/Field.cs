@@ -202,47 +202,26 @@ namespace Match3_Evo
             _randomSwapField.fieldUI.StartTransition();
         }
 
-        public void Break(float _afterSeconds, bool _extraBreak = true)
-        {
-            if (!_extraBreak)
-            {
-                if (FieldState == EnumFieldState.Useable)
-                {
-                    breakAfterSeconds = _afterSeconds;
-                    ChangeFieldState(EnumFieldState.Break);
-                    fieldUI.StartTransition();
-                }
-                else
-                {
-                    if (breakAfterSeconds < _afterSeconds)
-                    {
-                        breakAfterSeconds = _afterSeconds;
-                        fieldUI.CancelInvoke();
-                        fieldUI.StartTransition();
-                    }
-                }
+        public void Break(float _afterSeconds)
+		{
+			if (FieldState == EnumFieldState.Useable)
+			{
+				breakAfterSeconds = _afterSeconds;
+				ChangeFieldState(EnumFieldState.Break);
+				fieldUI.StartTransition();
+			}
+			else
+			{
+				if (breakAfterSeconds < _afterSeconds)
+				{
+					breakAfterSeconds = _afterSeconds;
+					fieldUI.CancelInvoke();
+					fieldUI.StartTransition();
+				}
+			}
 
-                GM.scoreMng.AddComboBonus(this);
-            }
-            else if (_extraBreak)
-            {
-                if (FieldState == EnumFieldState.Useable)
-                {
-                    breakAfterSeconds = _afterSeconds;
-                    ChangeFieldState(EnumFieldState.Break);
-                    fieldUI.StartTransition();
-                }
-                else
-                {
-                    if (breakAfterSeconds < _afterSeconds)
-                    {
-                        breakAfterSeconds = _afterSeconds;
-                        fieldUI.CancelInvoke();
-                        fieldUI.StartTransition();
-                    }
-                }
-            }
-        }
+			GM.scoreMng.AddComboBonus(this);
+		}
 
         public void ChangeFieldState(EnumFieldState _newFieldState)
         {
@@ -307,13 +286,7 @@ namespace Match3_Evo
                 breakEvent?.Invoke();
 
 				if (Is2x2)
-				{
-                    
-
-                    //TODO: what to do after break?
-
-                    fieldUI.Undo_TurnToFrom2x2();
-                }
+                    Undo_TurnTo2x2();
 
                 if (JokerAfterBreak)
                     BecomeJoker();
@@ -330,17 +303,18 @@ namespace Match3_Evo
                 ChangeFieldState(EnumFieldState.Useable);
         }
 
-		internal void TurnToNormalFrom2x2()
+		internal void Undo_TurnTo2x2()
 		{
+            fieldUI.Undo_TurnTo2x2();
             Is2x2 = false;
 
-            TopRight2x2.fieldUI.Undo_TurnTo2x2Part();
+            TopRight2x2.Undo_TurnTo2x2Part();
             TopRight2x2.Break(0);
 
-            BottomLeft2x2.fieldUI.Undo_TurnTo2x2Part();
+            BottomLeft2x2.Undo_TurnTo2x2Part();
             BottomLeft2x2.Break(0);
 
-            BottomRight2x2.fieldUI.Undo_TurnTo2x2Part();
+            BottomRight2x2.Undo_TurnTo2x2Part();
             BottomRight2x2.Break(0);
 
             TopRight2x2 = null;
@@ -348,16 +322,57 @@ namespace Match3_Evo
             BottomRight2x2 = null;
         }
 
-        internal void TurnTo2x2()
+        internal void Undo_TurnTo2x2Part()
 		{
-            Is2x2 = true;
-            
-            TopRight2x2 = GM.boardMng.Fields[rowIndex, columnIndex + 1];
-            BottomLeft2x2 = GM.boardMng.Fields[rowIndex + 1, columnIndex];
-            BottomRight2x2 = GM.boardMng.Fields[rowIndex + 1, columnIndex + 1];
+            fieldUI.Undo_TurnTo2x2Part();
         }
 
-		private void BecomeJoker()
+        internal void TurnTo2x2()
+		{
+            if (5 < columnIndex || 6 < rowIndex)
+            {
+                if(rowIndex < 7)
+                    Break(0);
+            }
+            else
+            {
+                TopRight2x2 = GM.boardMng.Fields[rowIndex, columnIndex + 1];
+                BottomLeft2x2 = GM.boardMng.Fields[rowIndex + 1, columnIndex];
+                BottomRight2x2 = GM.boardMng.Fields[rowIndex + 1, columnIndex + 1];
+
+                if (
+                    TopRight2x2.FieldType == FieldType.PART_2x2 || TopRight2x2.Is2x2 ||
+                    BottomLeft2x2.FieldType == FieldType.PART_2x2 || BottomLeft2x2.Is2x2 ||
+                    BottomRight2x2.FieldType == FieldType.PART_2x2 || BottomRight2x2.Is2x2
+                )
+                {
+                    Break(0);
+
+                    TopRight2x2 = null;
+                    BottomLeft2x2 = null;
+                    BottomRight2x2 = null;
+                }
+                else
+                {
+                    Is2x2 = true;
+                    fieldUI.TurnTo2x2();
+
+                    TopRight2x2.TurnTo2x2Part();
+                    BottomLeft2x2.TurnTo2x2Part();
+                    BottomRight2x2.TurnTo2x2Part();
+                }
+            }
+        }
+
+		void TurnTo2x2Part()
+		{
+            FieldType = FieldType.PART_2x2;
+            CanFall = false;
+
+            fieldUI.TurnTo2x2Part();
+        }
+
+        private void BecomeJoker()
 		{
             FieldType = FieldType.JOKER;
             fieldUI.Initialize(this);

@@ -119,7 +119,7 @@ namespace Match3_Evo
             TopRowInit();
         }
 
-        void Evolve(int evolvingVariant)
+        public void Evolve(int evolvingVariant)
 		{
             if (currentEvolutionLvlPerVariant[evolvingVariant] < Constant.DECIDE_EVOLUTION_LEVEL)
 			{
@@ -149,7 +149,17 @@ namespace Match3_Evo
             foreach(var f in Fields)
 			{
                 if (f.FieldState != EnumFieldState.Break && f.EvoLvl < newEvoLvl && evolvingVariant == f.FieldVariant)
+				{
                     f.FieldType = Field.EvoLvlAndVariantToType(newEvoLvl, evolvingVariant);
+                    if (newEvoLvl >= Constant.DECIDE_EVOLUTION_LEVEL)
+                        f.TurnTo2x2();
+				}
+            }
+
+            if (newEvoLvl >= Constant.DECIDE_EVOLUTION_LEVEL)
+            {
+                gameRunning = false;
+                gameStarted = false;
             }
 
             GM.scoreMng.EvolutionAchieved(newEvoLvl);
@@ -1572,14 +1582,6 @@ namespace Match3_Evo
             }
         }
    
-        public void TurnFieldTo2x2(int row, int col)
-		{
-            Fields[row, col].fieldUI.TurnTo2x2();
-            Fields[row + 1, col].fieldUI.TurnTo2x2Part();
-            Fields[row, col + 1].fieldUI.TurnTo2x2Part();
-            Fields[row + 1, col + 1].fieldUI.TurnTo2x2Part();
-		}
-
         #region EndGame
 
         public void EndGame()
